@@ -327,6 +327,31 @@
             </select>
           </div>
 
+          <div class="section-label">4. Aggregat (optional)</div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Aggregat hinzufuegen</label>
+              <select id="inp-aggregat" onchange="berechnePreis()">
+                <option value="0" selected>Kein Aggregat</option>
+                <option value="1">Aggregat automatisch auswaehlen</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Kuehlart</label>
+              <select id="inp-kuehlart" onchange="berechnePreis()">
+                <option value="normal" selected>Normalkuehlung</option>
+                <option value="tief">Tiefkuehlung</option>
+              </select>
+            </div>
+            <div class="input-group" id="group-mount" style="display:none;">
+              <label>Montage</label>
+              <select id="inp-montage" onchange="berechnePreis()">
+                <option value="Wand" selected>Wandgeraet</option>
+                <option value="Decke">Deckengeraet</option>
+              </select>
+            </div>
+          </div>
+
           <button class="btn-calc" onclick="berechnePreis()">Preis aktualisieren</button>
 
           <div class="summary-box" id="summary-area" style="display:none;">
@@ -350,6 +375,11 @@
             <div class="summary-row">
               <span>Tuer Element</span>
               <span id="val-tuer-eur">0,00 EUR</span>
+            </div>
+
+            <div class="summary-row" id="row-aggregat">
+              <span>Aggregat <small id="val-aggregat-name">-</small></span>
+              <span id="val-aggregat-eur">0,00 EUR</span>
             </div>
 
             <div class="result-bar">
@@ -389,11 +419,53 @@
       setTimeout(berechnePreis, 100);
     }
 
+    const aggregateData = [
+      {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 10WN1","volume":10,"salePrice":1565.7},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 13WN1","volume":13,"salePrice":1830.25},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"PolariK 18WN2","volume":18,"salePrice":2316.45},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 31WN2","volume":31,"salePrice":2466.6},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 39WN3","volume":39,"salePrice":3010},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 47WN3","volume":47,"salePrice":3117.25},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 56WN3","volume":56,"salePrice":3224.5},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 8WL1","volume":8,"salePrice":1737.3},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 12WL2","volume":12,"salePrice":2366.5},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 23WL2","volume":23,"salePrice":2824.1},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 26WL3","volume":26,"salePrice":3367.5},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 35WL3","volume":35,"salePrice":3474.75},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"normal","model":"Polarik 10TN1","volume":10,"salePrice":2387.95},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"normal","model":"Polarik 20TN2","volume":20,"salePrice":2645.35},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"normal","model":"Polarik 25TN2","volume":25,"salePrice":3510.5},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"tief","model":"Polarik 6TL1","volume":6,"salePrice":2266.4},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"tief","model":"Polarik 15TL2","volume":15,"salePrice":3857.28},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"normal","model":"MPS110YA11A","volume":7,"salePrice":1707.39},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"normal","model":"MPS1110YA11A","volume":13.5,"salePrice":1964.42},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"normal","model":"MPS3112YA11A","volume":19.8,"salePrice":2468.64},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"normal","model":"MPS3220YA11A","volume":36.1,"salePrice":3418.72},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3112YA11A","volume":6.2,"salePrice":2130.96},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3115YA11A","volume":7.7,"salePrice":2460.77},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3224YA11A","volume":16.8,"salePrice":2712.55},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3230YA11A","volume":20.8,"salePrice":3435.77}
+    ];
+
+    function pickAggregate(targetVolume, cooling, mount) {
+      const filtered = aggregateData.filter(item => item.cooling === cooling && item.mount === mount);
+      if (!filtered.length) return null;
+      const sorted = filtered.slice().sort((a, b) => a.volume - b.volume);
+      const candidate = sorted.find(item => item.volume >= targetVolume) || sorted[sorted.length - 1];
+      const sameVolume = sorted.filter(item => item.volume === candidate.volume);
+      sameVolume.sort((a, b) => a.salePrice - b.salePrice);
+      return sameVolume[0];
+    }
+
     function berechnePreis() {
       const L = parseFloat(document.getElementById("inp-laenge").value) || 0;
       const B = parseFloat(document.getElementById("inp-breite").value) || 0;
       const H = parseFloat(document.getElementById("inp-hoehe").value) || 0;
       const tuerPreis = parseFloat(document.getElementById("inp-tuer").value) || 0;
+      const aggregatToggle = document.getElementById("inp-aggregat").value === "1";
+      const kuehlart = document.getElementById("inp-kuehlart").value;
+      const montage = document.getElementById("inp-montage").value;
+      const mountGroup = document.getElementById("group-mount");
 
       const preisPaneel = parseFloat(document.getElementById("inp-preis-qm").value) || 0;
       const preisSiebdruck = parseFloat(document.getElementById("inp-preis-siebdruck").value) || 0;
@@ -414,7 +486,26 @@
         kostenHuelle = (wandFlaeche + deckenFlaeche) * preisPaneel;
       }
 
-      const gesamt = kostenHuelle + kostenBodenPaneel + kostenSiebdruck + tuerPreis;
+      let aggregatPreis = 0;
+      const rowAggregat = document.getElementById("row-aggregat");
+      if (aggregatToggle && L && B && H) {
+        const zielVolumen = L * B * H;
+        mountGroup.style.display = "block";
+        const aggregat = pickAggregate(zielVolumen, kuehlart, montage);
+        if (aggregat) {
+          aggregatPreis = aggregat.salePrice || 0;
+          document.getElementById("val-aggregat-name").innerText = aggregat.model + " (" + aggregat.manufacturer + " " + aggregat.mount + ")";
+        } else {
+          document.getElementById("val-aggregat-name").innerText = "-";
+        }
+        rowAggregat.style.display = "flex";
+      } else {
+        document.getElementById("val-aggregat-name").innerText = "-";
+        rowAggregat.style.display = "none";
+        mountGroup.style.display = "none";
+      }
+
+      const gesamt = kostenHuelle + kostenBodenPaneel + kostenSiebdruck + tuerPreis + aggregatPreis;
 
       document.getElementById("summary-area").style.display = "block";
 
@@ -429,6 +520,7 @@
       }
 
       document.getElementById("val-tuer-eur").innerText = tuerPreis.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+      document.getElementById("val-aggregat-eur").innerText = aggregatPreis.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
       document.getElementById("preis-ausgabe").innerText = gesamt.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
     }
   </script>
