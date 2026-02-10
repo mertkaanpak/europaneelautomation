@@ -382,6 +382,12 @@
             </div>
           </div>
 
+          <div class="section-label" data-i18n="section_service">5. Lieferung & Montage (optional)</div>
+          <div class="input-group">
+            <label data-i18n="label_service">Lieferung & Montage (EUR)</label>
+            <input type="number" id="inp-service" placeholder="0.00" step="0.01" oninput="berechnePreis()">
+          </div>
+
           <button class="btn-calc" onclick="berechnePreis()" data-i18n="btn_calc">Preis aktualisieren</button>
 
           <div class="summary-box" id="summary-area" style="display:none;">
@@ -410,6 +416,11 @@
             <div class="summary-row" id="row-aggregat">
               <span><span data-i18n="summary_agg">Aggregat</span> <small id="val-aggregat-name">-</small></span>
               <span id="val-aggregat-eur">0,00 EUR</span>
+            </div>
+
+            <div class="summary-row" id="row-service">
+              <span data-i18n="summary_service">Lieferung & Montage</span>
+              <span id="val-service-eur">0,00 EUR</span>
             </div>
 
             <div class="result-bar">
@@ -458,6 +469,7 @@
         door_120_220: "Drehtuer 120 x 220 cm [1.000 EUR]",
         door_slide: "Schiebetuer (Auf Anfrage)",
         section_agg: "4. Aggregat (optional)",
+        section_service: "5. Lieferung & Montage (optional)",
         label_agg_add: "Aggregat hinzufuegen",
         agg_none: "Kein Aggregat",
         agg_auto: "Aggregat automatisch auswaehlen",
@@ -465,6 +477,7 @@
         cooling_normal: "Normalkuehlung",
         cooling_tief: "Tiefkuehlung",
         label_mount: "Montage",
+        label_service: "Lieferung & Montage (EUR)",
         mount_wall: "Wandgeraet",
         mount_ceiling: "Deckengeraet",
         btn_calc: "Preis aktualisieren",
@@ -475,6 +488,7 @@
         summary_surcharge: "Aufpreis",
         summary_door: "Tuer Element",
         summary_agg: "Aggregat",
+        summary_service: "Lieferung & Montage",
         summary_total: "Gesamtpreis (Netto)",
         badge_with_floor: "Kuehlzelle MIT Boden",
         badge_no_floor: "Kuehlzelle OHNE Boden"
@@ -510,6 +524,7 @@
         door_120_220: "Menteşeli kapi 120 x 220 cm [1.000 EUR]",
         door_slide: "Surgu kapi (Talep uzerine)",
         section_agg: "4. Agrega (opsiyonel)",
+        section_service: "5. Teslimat ve montaj (opsiyonel)",
         label_agg_add: "Agrega ekle",
         agg_none: "Agrega yok",
         agg_auto: "Agrega otomatik sec",
@@ -517,6 +532,7 @@
         cooling_normal: "Normal sogutma",
         cooling_tief: "Derin sogutma",
         label_mount: "Montaj",
+        label_service: "Teslimat ve montaj (EUR)",
         mount_wall: "Duvar tipi",
         mount_ceiling: "Tavan tipi",
         btn_calc: "Fiyati guncelle",
@@ -527,6 +543,7 @@
         summary_surcharge: "Ek ucret",
         summary_door: "Kapi elemani",
         summary_agg: "Agrega",
+        summary_service: "Teslimat ve montaj",
         summary_total: "Toplam fiyat (Net)",
         badge_with_floor: "Zeminli soguk oda",
         badge_no_floor: "Zeminsiz soguk oda"
@@ -625,6 +642,7 @@
       const B = parseFloat(document.getElementById("inp-breite").value) || 0;
       const H = parseFloat(document.getElementById("inp-hoehe").value) || 0;
       const tuerPreis = parseFloat(document.getElementById("inp-tuer").value) || 0;
+      const servicePreis = parseFloat(document.getElementById("inp-service").value) || 0;
       const aggregatToggle = document.getElementById("inp-aggregat").value === "1";
       const kuehlart = document.getElementById("inp-kuehlart").value;
       const montage = document.getElementById("inp-montage").value;
@@ -668,7 +686,7 @@
         mountGroup.style.display = "none";
       }
 
-      const gesamt = kostenHuelle + kostenBodenPaneel + kostenSiebdruck + tuerPreis + aggregatPreis;
+      const gesamt = kostenHuelle + kostenBodenPaneel + kostenSiebdruck + tuerPreis + aggregatPreis + servicePreis;
 
       document.getElementById("summary-area").style.display = "block";
 
@@ -684,6 +702,7 @@
 
       document.getElementById("val-tuer-eur").innerText = tuerPreis.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
       document.getElementById("val-aggregat-eur").innerText = aggregatPreis.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+      document.getElementById("val-service-eur").innerText = servicePreis.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
       document.getElementById("preis-ausgabe").innerText = gesamt.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
     }
 
