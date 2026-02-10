@@ -56,6 +56,24 @@
       padding: 6px 10px;
       border-radius: 999px;
     }
+    .lang-switch {
+      display: inline-flex;
+      gap: 6px;
+    }
+    .lang-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: linear-gradient(120deg, var(--red), #ff4b55);
+      color: #fff;
+      border-color: transparent;
+    }
     .header img { height: 48px; width: auto; }
     .header h1 { margin: 0; font-size: 24px; color: #1f2933; }
     .header p { margin: 4px 0 0; color: var(--steel); font-size: 14px; }
@@ -179,68 +197,72 @@
     <div class="header">
       <img src="logo.png" alt="Europaneel GmbH" />
       <div>
-        <h1>Aggregatauswahl</h1>
-        <p>Hier wird die Auswahl fuer Aggregate und Komponenten aufgebaut.</p>
+        <h1 data-i18n="title">Aggregatauswahl</h1>
+        <p data-i18n="subtitle">Hier wird die Auswahl fuer Aggregate und Komponenten aufgebaut.</p>
       </div>
-      <a class="back-link" href="index.html">← Zurueck</a>
+      <a class="back-link" href="index.html" data-i18n="back">← Zurueck</a>
+      <div class="lang-switch" role="group" aria-label="Sprache">
+        <button class="lang-btn" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="tr">TR</button>
+      </div>
     </div>
 
     <div class="card">
-      <h2 class="section-title">1. Kuehlart</h2>
-      <p class="helper">Bitte Normalkuehlung oder Tiefkuehlung auswaehlen.</p>
+      <h2 class="section-title" data-i18n="section_cooling">1. Kuehlart</h2>
+      <p class="helper" data-i18n="helper_cooling">Bitte Normalkuehlung oder Tiefkuehlung auswaehlen.</p>
       <div class="toggle-row" id="coolingToggle">
-        <button class="toggle-btn active" data-cooling="normal">Normalkuehlung</button>
-        <button class="toggle-btn" data-cooling="tief">Tiefkuehlung</button>
+        <button class="toggle-btn active" data-cooling="normal" data-i18n="cooling_normal">Normalkuehlung</button>
+        <button class="toggle-btn" data-cooling="tief" data-i18n="cooling_tief">Tiefkuehlung</button>
       </div>
 
-      <h2 class="section-title" style="margin-top:22px;">2. Raumvolumen</h2>
-      <p class="helper">Geben Sie entweder das Volumen direkt ein oder die Masse in Metern.</p>
+      <h2 class="section-title" style="margin-top:22px;" data-i18n="section_volume">2. Raumvolumen</h2>
+      <p class="helper" data-i18n="helper_volume">Geben Sie entweder das Volumen direkt ein oder die Masse in Metern.</p>
       <div class="mode-row">
-        <label><input type="radio" name="volumeMode" value="direct" checked> Volumen direkt</label>
-        <label><input type="radio" name="volumeMode" value="dimensions"> Laenge/Breite/Hoehe</label>
+        <label><input type="radio" name="volumeMode" value="direct" checked> <span data-i18n="mode_direct">Volumen direkt</span></label>
+        <label><input type="radio" name="volumeMode" value="dimensions"> <span data-i18n="mode_dims">Laenge/Breite/Hoehe</span></label>
       </div>
 
       <div class="control-grid" style="margin-top:14px;">
         <div class="input-group">
-          <label>Volumen (m3)</label>
+          <label data-i18n="label_volume">Volumen (m3)</label>
           <input id="volumeInput" type="number" step="0.01" placeholder="z.B. 18.5" />
         </div>
         <div class="input-group">
-          <label>Laenge (m)</label>
+          <label data-i18n="label_length">Laenge (m)</label>
           <input id="lengthInput" type="number" step="0.01" placeholder="z.B. 3.0" />
         </div>
         <div class="input-group">
-          <label>Breite (m)</label>
+          <label data-i18n="label_width">Breite (m)</label>
           <input id="widthInput" type="number" step="0.01" placeholder="z.B. 2.5" />
         </div>
         <div class="input-group">
-          <label>Hoehe (m)</label>
+          <label data-i18n="label_height">Hoehe (m)</label>
           <input id="heightInput" type="number" step="0.01" placeholder="z.B. 2.2" />
         </div>
       </div>
 
-      <button class="primary-btn" id="calcBtn">Aggregat finden</button>
+      <button class="primary-btn" id="calcBtn" data-i18n="btn_find">Aggregat finden</button>
 
       <div class="result-grid" id="resultGrid">
         <div class="result-card" data-maker="Govi" data-mount="Wand">
-          <div class="tag">Govi · Wand</div>
-          <h3>Empfohlenes Aggregat</h3>
-          <div class="muted" data-field="status">Noch keine Berechnung.</div>
+          <div class="tag" data-i18n="tag_govi_wall">Govi · Wand</div>
+          <h3 data-i18n="result_title">Empfohlenes Aggregat</h3>
+          <div class="muted" data-field="status" data-i18n="status_idle">Noch keine Berechnung.</div>
         </div>
         <div class="result-card" data-maker="Govi" data-mount="Decke">
-          <div class="tag">Govi · Decke</div>
-          <h3>Empfohlenes Aggregat</h3>
-          <div class="muted" data-field="status">Noch keine Berechnung.</div>
+          <div class="tag" data-i18n="tag_govi_ceiling">Govi · Decke</div>
+          <h3 data-i18n="result_title">Empfohlenes Aggregat</h3>
+          <div class="muted" data-field="status" data-i18n="status_idle">Noch keine Berechnung.</div>
         </div>
         <div class="result-card" data-maker="Zanotti" data-mount="Wand">
-          <div class="tag">Zanotti · Wand</div>
-          <h3>Empfohlenes Aggregat</h3>
-          <div class="muted" data-field="status">Noch keine Berechnung.</div>
+          <div class="tag" data-i18n="tag_zanotti_wall">Zanotti · Wand</div>
+          <h3 data-i18n="result_title">Empfohlenes Aggregat</h3>
+          <div class="muted" data-field="status" data-i18n="status_idle">Noch keine Berechnung.</div>
         </div>
         <div class="result-card" data-maker="Zanotti" data-mount="Decke">
-          <div class="tag">Zanotti · Decke</div>
-          <h3>Empfohlenes Aggregat</h3>
-          <div class="muted" data-field="status">Keine Decken-Geraete in der Datei.</div>
+          <div class="tag" data-i18n="tag_zanotti_ceiling">Zanotti · Decke</div>
+          <h3 data-i18n="result_title">Empfohlenes Aggregat</h3>
+          <div class="muted" data-field="status" data-i18n="status_no_ceiling">Keine Decken-Geraete in der Datei.</div>
         </div>
       </div>
     </div>
@@ -279,6 +301,80 @@
       ]
     };
 
+    let currentLang = "de";
+    const translations = {
+      de: {
+        title: "Aggregatauswahl",
+        subtitle: "Hier wird die Auswahl fuer Aggregate und Komponenten aufgebaut.",
+        back: "← Zurueck",
+        section_cooling: "1. Kuehlart",
+        helper_cooling: "Bitte Normalkuehlung oder Tiefkuehlung auswaehlen.",
+        cooling_normal: "Normalkuehlung",
+        cooling_tief: "Tiefkuehlung",
+        section_volume: "2. Raumvolumen",
+        helper_volume: "Geben Sie entweder das Volumen direkt ein oder die Masse in Metern.",
+        mode_direct: "Volumen direkt",
+        mode_dims: "Laenge/Breite/Hoehe",
+        label_volume: "Volumen (m3)",
+        label_length: "Laenge (m)",
+        label_width: "Breite (m)",
+        label_height: "Hoehe (m)",
+        btn_find: "Aggregat finden",
+        tag_govi_wall: "Govi · Wand",
+        tag_govi_ceiling: "Govi · Decke",
+        tag_zanotti_wall: "Zanotti · Wand",
+        tag_zanotti_ceiling: "Zanotti · Decke",
+        result_title: "Empfohlenes Aggregat",
+        status_idle: "Noch keine Berechnung.",
+        status_no_ceiling: "Keine Decken-Geraete in der Datei.",
+        status_no_volume: "Bitte Volumen eingeben.",
+        status_no_data: "Keine Daten gefunden.",
+        status_no_ceiling_runtime: "Keine Decken-Geraete vorhanden.",
+        label_pick_volume: "Raumvolumen Auswahl",
+        label_calc_volume: "Berechnet aus",
+        label_list_price: "Herstellerpreis",
+        label_vk: "VK",
+        label_voltage: "Volt/Hz"
+      },
+      tr: {
+        title: "Agrega Secimi",
+        subtitle: "Agrega ve bilesen secimi burada yapilir.",
+        back: "← Geri",
+        section_cooling: "1. Sogutma tipi",
+        helper_cooling: "Normal veya derin sogutma secin.",
+        cooling_normal: "Normal sogutma",
+        cooling_tief: "Derin sogutma",
+        section_volume: "2. Hacim",
+        helper_volume: "Hacmi dogrudan girin veya olculerden hesaplayin.",
+        mode_direct: "Hacmi direkt gir",
+        mode_dims: "Uzunluk/Genislik/Yukseklik",
+        label_volume: "Hacim (m3)",
+        label_length: "Uzunluk (m)",
+        label_width: "Genislik (m)",
+        label_height: "Yukseklik (m)",
+        btn_find: "Agrega bul",
+        tag_govi_wall: "Govi · Duvar",
+        tag_govi_ceiling: "Govi · Tavan",
+        tag_zanotti_wall: "Zanotti · Duvar",
+        tag_zanotti_ceiling: "Zanotti · Tavan",
+        result_title: "Onerilen agrega",
+        status_idle: "Henuz hesaplama yok.",
+        status_no_ceiling: "Dosyada tavan cihazlari yok.",
+        status_no_volume: "Lutfen hacim girin.",
+        status_no_data: "Veri bulunamadi.",
+        status_no_ceiling_runtime: "Tavan cihazlari yok.",
+        label_pick_volume: "Secilen hacim",
+        label_calc_volume: "Hesaplanan",
+        label_list_price: "Uretici fiyati",
+        label_vk: "Satis fiyati",
+        label_voltage: "Volt/Hz"
+      }
+    };
+
+    function t(key) {
+      return (translations[currentLang] && translations[currentLang][key]) || translations.de[key] || key;
+    }
+
     const coolingToggle = document.getElementById("coolingToggle");
     const calcBtn = document.getElementById("calcBtn");
     const volumeInput = document.getElementById("volumeInput");
@@ -316,6 +412,10 @@
       return sorted.find(item => item.volume >= targetVolume) || sorted[sorted.length - 1];
     }
 
+    function translateMount(value) {
+      return value === "Decke" ? (currentLang === "tr" ? "Tavan" : "Decke") : (currentLang === "tr" ? "Duvar" : "Wand");
+    }
+
     function formatCurrency(value) {
       if (typeof value !== "number" || !Number.isFinite(value)) return "-";
       return value.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
@@ -331,11 +431,11 @@
         const mount = card.dataset.mount;
         const statusEl = card.querySelector("[data-field='status']");
         if (maker === "Zanotti" && mount === "Decke") {
-          statusEl.textContent = "Keine Decken-Geraete in der Datei.";
+          statusEl.textContent = t("status_no_ceiling");
           return;
         }
         if (!targetVolume) {
-          statusEl.textContent = "Bitte Volumen eingeben.";
+          statusEl.textContent = t("status_no_volume");
           return;
         }
 
@@ -343,18 +443,18 @@
         const filtered = source.filter(item => item.cooling === cooling && item.mount === mount);
         const pick = pickAggregate(filtered, targetVolume);
         if (!pick) {
-          statusEl.textContent = "Keine Daten gefunden.";
+          statusEl.textContent = t("status_no_data");
           return;
         }
 
         card.innerHTML = `
-          <div class="tag">${pick.manufacturer} · ${mount}</div>
+          <div class="tag">${pick.manufacturer} · ${translateMount(mount)}</div>
           <h3>${pick.model.trim()}</h3>
-          <div class="result-row"><span>Raumvolumen Auswahl</span><span>${pick.volume} m3</span></div>
-          <div class="result-row"><span>Berechnet aus</span><span>${targetVolume.toFixed(2)} m3</span></div>
-          <div class="result-row"><span>Herstellerpreis</span><span>${formatCurrency(pick.listPrice)}</span></div>
-          <div class="result-row"><span>VK</span><span>${formatCurrency(pick.salePrice)}</span></div>
-          <div class="result-row"><span>Volt/Hz</span><span>${pick.voltage || "-"}</span></div>
+          <div class="result-row"><span>${t("label_pick_volume")}</span><span>${pick.volume} m3</span></div>
+          <div class="result-row"><span>${t("label_calc_volume")}</span><span>${targetVolume.toFixed(2)} m3</span></div>
+          <div class="result-row"><span>${t("label_list_price")}</span><span>${formatCurrency(pick.listPrice)}</span></div>
+          <div class="result-row"><span>${t("label_vk")}</span><span>${formatCurrency(pick.salePrice)}</span></div>
+          <div class="result-row"><span>${t("label_voltage")}</span><span>${pick.voltage || "-"}</span></div>
         `;
       });
     }
@@ -367,6 +467,27 @@
     });
 
     calcBtn.addEventListener("click", updateResults);
+
+    function applyLanguage(lang) {
+      currentLang = translations[lang] ? lang : "de";
+      document.documentElement.lang = currentLang === "tr" ? "tr" : "de";
+      document.title = t("title");
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (translations[currentLang][key]) el.textContent = translations[currentLang][key];
+      });
+      document.querySelectorAll(".lang-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.lang === currentLang);
+      });
+      localStorage.setItem("europaneel_lang", currentLang);
+      updateResults();
+    }
+
+    const savedLang = localStorage.getItem("europaneel_lang") || "de";
+    applyLanguage(savedLang);
+    document.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
+    });
   </script>
 </body>
 </html>

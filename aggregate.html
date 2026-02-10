@@ -59,6 +59,24 @@
       padding: 6px 10px;
       border-radius: 999px;
     }
+    .lang-switch {
+      display: inline-flex;
+      gap: 6px;
+    }
+    .lang-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: linear-gradient(120deg, var(--red), #ff4b55);
+      color: #fff;
+      border-color: transparent;
+    }
     .card {
       background: var(--white);
       padding: 20px;
@@ -109,10 +127,14 @@
     <div class="header">
       <img src="logo.png" alt="Europaneel GmbH" />
       <div>
-        <h1>Aggregate Uebersicht</h1>
-        <p>Alle Aggregate von Govi und Zanotti mit Preisen und Eigenschaften.</p>
+        <h1 data-i18n="title">Aggregate Uebersicht</h1>
+        <p data-i18n="subtitle">Alle Aggregate von Govi und Zanotti mit Preisen und Eigenschaften.</p>
       </div>
-      <a class="back-link" href="index.html">← Zurueck</a>
+      <a class="back-link" href="index.html" data-i18n="back">← Zurueck</a>
+      <div class="lang-switch" role="group" aria-label="Sprache">
+        <button class="lang-btn" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="tr">TR</button>
+      </div>
     </div>
 
     <div class="card">
@@ -120,14 +142,14 @@
         <table>
           <thead>
             <tr>
-              <th>Hersteller</th>
-              <th>Montage</th>
-              <th>Kuehlart</th>
-              <th>Modell</th>
-              <th>Raumvolumen (m3)</th>
-              <th>Herstellerpreis</th>
-              <th>VK</th>
-              <th>Volt/Hz</th>
+              <th data-i18n="th_maker">Hersteller</th>
+              <th data-i18n="th_mount">Montage</th>
+              <th data-i18n="th_cooling">Kuehlart</th>
+              <th data-i18n="th_model">Modell</th>
+              <th data-i18n="th_volume">Raumvolumen (m3)</th>
+              <th data-i18n="th_list">Herstellerpreis</th>
+              <th data-i18n="th_vk">VK</th>
+              <th data-i18n="th_voltage">Volt/Hz</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -165,25 +187,98 @@
       {"manufacturer":"Zanotti","mount":"Wand","cooling":"Tiefkuehlung","model":"BPS3230YA11A","volume":20.8,"listPrice":5240,"salePrice":3435.77,"voltage":""}
     ];
 
+    let currentLang = "de";
+    const translations = {
+      de: {
+        title: "Aggregate Uebersicht",
+        subtitle: "Alle Aggregate von Govi und Zanotti mit Preisen und Eigenschaften.",
+        back: "← Zurueck",
+        th_maker: "Hersteller",
+        th_mount: "Montage",
+        th_cooling: "Kuehlart",
+        th_model: "Modell",
+        th_volume: "Raumvolumen (m3)",
+        th_list: "Herstellerpreis",
+        th_vk: "VK",
+        th_voltage: "Volt/Hz",
+        cooling_normal: "Normalkuehlung",
+        cooling_tief: "Tiefkuehlung",
+        mount_wall: "Wand",
+        mount_ceiling: "Decke"
+      },
+      tr: {
+        title: "Agrega Listesi",
+        subtitle: "Govi ve Zanotti agregalari fiyat ve ozellikleriyle.",
+        back: "← Geri",
+        th_maker: "Uretici",
+        th_mount: "Montaj",
+        th_cooling: "Sogutma tipi",
+        th_model: "Model",
+        th_volume: "Hacim (m3)",
+        th_list: "Uretici fiyati",
+        th_vk: "Satis fiyati",
+        th_voltage: "Volt/Hz",
+        cooling_normal: "Normal sogutma",
+        cooling_tief: "Derin sogutma",
+        mount_wall: "Duvar",
+        mount_ceiling: "Tavan"
+      }
+    };
+
+    function t(key) {
+      return (translations[currentLang] && translations[currentLang][key]) || translations.de[key] || key;
+    }
+
     function formatCurrency(value) {
       if (typeof value !== "number" || !Number.isFinite(value)) return "-";
       return value.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
     }
 
     const body = document.getElementById("tableBody");
-    rows.forEach(row => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><span class="tag">${row.manufacturer}</span></td>
-        <td>${row.mount}</td>
-        <td>${row.cooling}</td>
-        <td>${row.model.trim()}</td>
-        <td>${row.volume}</td>
-        <td>${formatCurrency(row.listPrice)}</td>
-        <td>${formatCurrency(row.salePrice)}</td>
-        <td>${row.voltage || "-"}</td>
-      `;
-      body.appendChild(tr);
+    function translateCooling(value) {
+      return value === "Tiefkuehlung" ? t("cooling_tief") : t("cooling_normal");
+    }
+    function translateMount(value) {
+      return value === "Decke" ? t("mount_ceiling") : t("mount_wall");
+    }
+
+    function renderRows() {
+      body.innerHTML = "";
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><span class="tag">${row.manufacturer}</span></td>
+          <td>${translateMount(row.mount)}</td>
+          <td>${translateCooling(row.cooling)}</td>
+          <td>${row.model.trim()}</td>
+          <td>${row.volume}</td>
+          <td>${formatCurrency(row.listPrice)}</td>
+          <td>${formatCurrency(row.salePrice)}</td>
+          <td>${row.voltage || "-"}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function applyLanguage(lang) {
+      currentLang = translations[lang] ? lang : "de";
+      document.documentElement.lang = currentLang === "tr" ? "tr" : "de";
+      document.title = t("title");
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (translations[currentLang][key]) el.textContent = translations[currentLang][key];
+      });
+      document.querySelectorAll(".lang-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.lang === currentLang);
+      });
+      localStorage.setItem("europaneel_lang", currentLang);
+      renderRows();
+    }
+
+    const savedLang = localStorage.getItem("europaneel_lang") || "de";
+    applyLanguage(savedLang);
+    document.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
     });
   </script>
 </body>

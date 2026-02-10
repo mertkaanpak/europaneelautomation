@@ -56,6 +56,24 @@
       padding: 6px 10px;
       border-radius: 999px;
     }
+    .lang-switch {
+      display: inline-flex;
+      gap: 6px;
+    }
+    .lang-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: linear-gradient(120deg, var(--red), #ff4b55);
+      color: #fff;
+      border-color: transparent;
+    }
     .header img { height: 48px; width: auto; }
     .header h1 { margin: 0; font-size: 24px; color: #1f2933; }
     .header p { margin: 4px 0 0; color: var(--steel); font-size: 14px; }
@@ -101,23 +119,73 @@
     <div class="header">
       <img src="logo.png" alt="Europaneel GmbH" />
       <div>
-        <h1>Paneelrechner</h1>
-        <p>Paneel- und Stuecklistenberechnungen fuer Projekte.</p>
+        <h1 data-i18n="title">Paneelrechner</h1>
+        <p data-i18n="subtitle">Paneel- und Stuecklistenberechnungen fuer Projekte.</p>
       </div>
-      <a class="back-link" href="index.html">← Zurueck</a>
+      <a class="back-link" href="index.html" data-i18n="back">← Zurueck</a>
+      <div class="lang-switch" role="group" aria-label="Sprache">
+        <button class="lang-btn" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="tr">TR</button>
+      </div>
     </div>
 
     <div class="card">
       <div class="placeholder">
-        Inhalte folgen. Sag mir, welche Eingaben und Ausgaben hier gebraucht werden.
+        <span data-i18n="placeholder">Inhalte folgen. Sag mir, welche Eingaben und Ausgaben hier gebraucht werden.</span>
         <div class="chip-row">
-          <div class="chip">Laenge/Breite</div>
-          <div class="chip">Staerke</div>
-          <div class="chip">Oberflaeche</div>
-          <div class="chip">Stueckliste</div>
+          <div class="chip" data-i18n="chip_size">Laenge/Breite</div>
+          <div class="chip" data-i18n="chip_thickness">Staerke</div>
+          <div class="chip" data-i18n="chip_surface">Oberflaeche</div>
+          <div class="chip" data-i18n="chip_bom">Stueckliste</div>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    let currentLang = "de";
+    const translations = {
+      de: {
+        title: "Paneelrechner",
+        subtitle: "Paneel- und Stuecklistenberechnungen fuer Projekte.",
+        back: "← Zurueck",
+        placeholder: "Inhalte folgen. Sag mir, welche Eingaben und Ausgaben hier gebraucht werden.",
+        chip_size: "Laenge/Breite",
+        chip_thickness: "Staerke",
+        chip_surface: "Oberflaeche",
+        chip_bom: "Stueckliste"
+      },
+      tr: {
+        title: "Panel Hesaplayici",
+        subtitle: "Projeler icin panel ve parca listesi hesabi.",
+        back: "← Geri",
+        placeholder: "Icerik daha sonra. Hangi girdiler ve ciktilar gerekli?",
+        chip_size: "Uzunluk/Genislik",
+        chip_thickness: "Kalınlık",
+        chip_surface: "Yuzey",
+        chip_bom: "Parca listesi"
+      }
+    };
+
+    function applyLanguage(lang) {
+      currentLang = translations[lang] ? lang : "de";
+      document.documentElement.lang = currentLang === "tr" ? "tr" : "de";
+      document.title = translations[currentLang].title;
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (translations[currentLang][key]) el.textContent = translations[currentLang][key];
+      });
+      document.querySelectorAll(".lang-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.lang === currentLang);
+      });
+      localStorage.setItem("europaneel_lang", currentLang);
+    }
+
+    const savedLang = localStorage.getItem("europaneel_lang") || "de";
+    applyLanguage(savedLang);
+    document.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
+    });
+  </script>
 </body>
 </html>

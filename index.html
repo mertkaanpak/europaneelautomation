@@ -130,6 +130,11 @@
       gap: 16px;
       border-left: 6px solid var(--red);
     }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
     .hero h1 {
       margin: 0 0 6px;
@@ -151,6 +156,24 @@
       font-weight: 600;
       letter-spacing: 0.08em;
       color: var(--graphite);
+    }
+    .lang-switch {
+      display: inline-flex;
+      gap: 6px;
+    }
+    .lang-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: linear-gradient(120deg, var(--red), #ff4b55);
+      color: #fff;
+      border-color: transparent;
     }
 
     .grid {
@@ -244,32 +267,32 @@
     <aside class="sidebar">
       <div class="brand">
         <img src="logo.png" alt="Europaneel GmbH" />
-        <small>Intranet Hub</small>
+        <small data-i18n="brand_subtitle">Intranet Hub</small>
       </div>
       <nav class="nav">
         <a class="nav-link active" href="zellenrechner.html">
           <span class="icon">🔢</span>
-          <span>Zellenrechner</span>
+          <span data-i18n="nav_zellen">Zellenrechner</span>
         </a>
         <a class="nav-link" href="aggregatauswahl.html">
           <span class="icon">🧩</span>
-          <span>Aggregatauswahl</span>
+          <span data-i18n="nav_aggr">Aggregatauswahl</span>
         </a>
         <a class="nav-link" href="paneelrechner.html">
           <span class="icon">📐</span>
-          <span>Paneelrechner</span>
+          <span data-i18n="nav_paneel">Paneelrechner</span>
         </a>
         <a class="nav-link" href="lagerbestand_tueren.html">
           <span class="icon">📦</span>
-          <span>Lagerbestand Tueren</span>
+          <span data-i18n="nav_lager">Lagerbestand Tueren</span>
         </a>
         <a class="nav-link" href="kalender.html">
           <span class="icon">🗓️</span>
-          <span>Kalender</span>
+          <span data-i18n="nav_kalender">Kalender</span>
         </a>
         <a class="nav-link" href="aggregate.html">
           <span class="icon">📋</span>
-          <span>Aggregate</span>
+          <span data-i18n="nav_aggregate">Aggregate</span>
         </a>
       </nav>
     </aside>
@@ -277,42 +300,48 @@
     <main class="main">
       <section class="hero">
         <div>
-          <h1>Europaneel Automations</h1>
-          <p>Ihr Intranet fuer schnelle Werkzeuge, Berechnungen und Uebersichten. Waehlen Sie ein Modul aus der Navigation oder den Kacheln.</p>
+          <h1 data-i18n="hero_title">Europaneel Automations</h1>
+          <p data-i18n="hero_desc">Ihr Intranet fuer schnelle Werkzeuge, Berechnungen und Uebersichten. Waehlen Sie ein Modul aus der Navigation oder den Kacheln.</p>
         </div>
-        <div class="date" id="today">--</div>
+        <div class="hero-actions">
+          <div class="date" id="today">--</div>
+          <div class="lang-switch" role="group" aria-label="Sprache">
+            <button class="lang-btn" data-lang="de">DE</button>
+            <button class="lang-btn" data-lang="tr">TR</button>
+          </div>
+        </div>
       </section>
 
       <section class="grid">
         <a class="card" href="zellenrechner.html">
-          <h3>Zellenrechner</h3>
-          <p>Berechnungen fuer Paneel- und Zellensysteme kompakt im Zugriff.</p>
-          <span class="cta">Oeffnen →</span>
+          <h3 data-i18n="card_zellen_title">Zellenrechner</h3>
+          <p data-i18n="card_zellen_desc">Berechnungen fuer Paneel- und Zellensysteme kompakt im Zugriff.</p>
+          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
         </a>
         <a class="card" href="aggregatauswahl.html">
-          <h3>Aggregatauswahl</h3>
-          <p>Passende Aggregate und Komponenten schnell zusammenstellen.</p>
-          <span class="cta">Oeffnen →</span>
+          <h3 data-i18n="card_aggr_title">Aggregatauswahl</h3>
+          <p data-i18n="card_aggr_desc">Passende Aggregate und Komponenten schnell zusammenstellen.</p>
+          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
         </a>
         <a class="card" href="paneelrechner.html">
-          <h3>Paneelrechner</h3>
-          <p>Abmessungen, Stuecklisten und Varianten zentral kalkulieren.</p>
-          <span class="cta">Oeffnen →</span>
+          <h3 data-i18n="card_paneel_title">Paneelrechner</h3>
+          <p data-i18n="card_paneel_desc">Abmessungen, Stuecklisten und Varianten zentral kalkulieren.</p>
+          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
         </a>
         <a class="card" href="lagerbestand_tueren.html">
-          <h3>Lagerbestand Tueren</h3>
-          <p>Bestand und Verfuegbarkeit der Tueren auf einen Blick.</p>
-          <span class="cta">Oeffnen →</span>
+          <h3 data-i18n="card_lager_title">Lagerbestand Tueren</h3>
+          <p data-i18n="card_lager_desc">Bestand und Verfuegbarkeit der Tueren auf einen Blick.</p>
+          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
         </a>
         <a class="card" href="kalender.html">
-          <h3>Kalender</h3>
-          <p>Termine, Lieferungen und interne Ablaufe gebuendelt.</p>
-          <span class="cta">Oeffnen →</span>
+          <h3 data-i18n="card_kal_title">Kalender</h3>
+          <p data-i18n="card_kal_desc">Termine, Lieferungen und interne Ablaufe gebuendelt.</p>
+          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
         </a>
         <a class="card" href="aggregate.html">
-          <h3>Aggregate</h3>
-          <p>Alle Geraete aus Govi und Zanotti im direkten Vergleich.</p>
-          <span class="cta">Oeffnen →</span>
+          <h3 data-i18n="card_all_title">Aggregate</h3>
+          <p data-i18n="card_all_desc">Alle Geraete aus Govi und Zanotti im direkten Vergleich.</p>
+          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
         </a>
       </section>
     </main>
@@ -327,6 +356,79 @@
       year: "numeric"
     });
     document.getElementById("today").textContent = format;
+
+    const translations = {
+      de: {
+        title: "Europaneel Automations",
+        brand_subtitle: "Intranet Hub",
+        hero_title: "Europaneel Automations",
+        hero_desc: "Ihr Intranet fuer schnelle Werkzeuge, Berechnungen und Uebersichten. Waehlen Sie ein Modul aus der Navigation oder den Kacheln.",
+        nav_zellen: "Zellenrechner",
+        nav_aggr: "Aggregatauswahl",
+        nav_paneel: "Paneelrechner",
+        nav_lager: "Lagerbestand Tueren",
+        nav_kalender: "Kalender",
+        nav_aggregate: "Aggregate",
+        card_zellen_title: "Zellenrechner",
+        card_zellen_desc: "Berechnungen fuer Paneel- und Zellensysteme kompakt im Zugriff.",
+        card_aggr_title: "Aggregatauswahl",
+        card_aggr_desc: "Passende Aggregate und Komponenten schnell zusammenstellen.",
+        card_paneel_title: "Paneelrechner",
+        card_paneel_desc: "Abmessungen, Stuecklisten und Varianten zentral kalkulieren.",
+        card_lager_title: "Lagerbestand Tueren",
+        card_lager_desc: "Bestand und Verfuegbarkeit der Tueren auf einen Blick.",
+        card_kal_title: "Kalender",
+        card_kal_desc: "Termine, Lieferungen und interne Ablaufe gebuendelt.",
+        card_all_title: "Aggregate",
+        card_all_desc: "Alle Geraete aus Govi und Zanotti im direkten Vergleich.",
+        cta_open: "Oeffnen →"
+      },
+      tr: {
+        title: "Europaneel Automations",
+        brand_subtitle: "Intranet Merkezi",
+        hero_title: "Europaneel Automations",
+        hero_desc: "Hizli araclar, hesaplamalar ve genel bakislar icin intranet. Modulu menuden veya kartlardan secin.",
+        nav_zellen: "Hucre Hesaplayici",
+        nav_aggr: "Agrega Secimi",
+        nav_paneel: "Panel Hesaplayici",
+        nav_lager: "Kapi Stogu",
+        nav_kalender: "Takvim",
+        nav_aggregate: "Agregalar",
+        card_zellen_title: "Hucre Hesaplayici",
+        card_zellen_desc: "Panel ve hucre sistemleri icin hizli hesaplama.",
+        card_aggr_title: "Agrega Secimi",
+        card_aggr_desc: "Uygun agregalari ve bilesenleri hizlica secin.",
+        card_paneel_title: "Panel Hesaplayici",
+        card_paneel_desc: "Olculer, listeler ve varyantlar icin hesaplama.",
+        card_lager_title: "Kapi Stogu",
+        card_lager_desc: "Kapilarin stok ve uygunluk durumu.",
+        card_kal_title: "Takvim",
+        card_kal_desc: "Tarih, teslimat ve is akislari tek yerde.",
+        card_all_title: "Agregalar",
+        card_all_desc: "Govi ve Zanotti cihazlarinin karsilastirmasi.",
+        cta_open: "Ac →"
+      }
+    };
+
+    function applyLanguage(lang) {
+      const dict = translations[lang] || translations.de;
+      document.documentElement.lang = lang === "tr" ? "tr" : "de";
+      document.title = dict.title;
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.querySelectorAll(".lang-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.lang === lang);
+      });
+      localStorage.setItem("europaneel_lang", lang);
+    }
+
+    const savedLang = localStorage.getItem("europaneel_lang") || "de";
+    applyLanguage(savedLang);
+    document.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
+    });
 
   </script>
 </body>
