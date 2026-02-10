@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Europaneel | Lagerbestand Tueren</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #e30613;
+      --red-dark: #b00510;
+      --graphite: #4a4f55;
+      --steel: #6b7178;
+      --paper: #f6f7f9;
+      --white: #ffffff;
+      --border: #e3e7eb;
+      --shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Barlow", sans-serif;
+      color: var(--graphite);
+      background:
+        radial-gradient(1100px 520px at -10% -10%, rgba(227, 6, 19, 0.08), transparent 55%),
+        radial-gradient(900px 480px at 110% 0%, rgba(74, 79, 85, 0.08), transparent 55%),
+        linear-gradient(120deg, #f9fafb 0%, #f1f4f7 50%, #f9fafb 100%);
+      min-height: 100vh;
+    }
+    .page { max-width: 980px; margin: 0 auto; padding: 28px 22px 60px; }
+    .header {
+      background: var(--white);
+      padding: 22px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border-left: 6px solid var(--red);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--red-dark);
+      text-decoration: none;
+      background: #fff1f1;
+      border: 1px solid #f5c2c7;
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+    .header img { height: 48px; width: auto; }
+    .header h1 { margin: 0; font-size: 24px; color: #1f2933; }
+    .header p { margin: 4px 0 0; color: var(--steel); font-size: 14px; }
+    .card {
+      background: var(--white);
+      padding: 26px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .placeholder {
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 22px;
+      background: #fbfbfc;
+      color: var(--steel);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff1f1;
+      color: var(--red-dark);
+      font-weight: 600;
+      font-size: 12px;
+      border: 1px solid #f5c2c7;
+    }
+    @media (max-width: 900px) {
+      .page { padding: 20px 16px 50px; }
+      .header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+  </head>
+<body>
+  <div class="page">
+    <div class="header">
+      <img src="logo.png" alt="Europaneel GmbH" />
+      <div>
+        <h1>Lagerbestand Tueren</h1>
+        <p>Bestand und Verfuegbarkeit der Tueren im Ueberblick.</p>
+      </div>
+      <a class="back-link" href="index.html">← Zurueck</a>
+    </div>
+
+    <div class="card">
+      <div class="placeholder">
+        Inhalte folgen. Sag mir, welche Listen, Filter oder Importquellen hier gebraucht werden.
+        <div class="chip-row">
+          <div class="chip">Tuertyp</div>
+          <div class="chip">Groesse</div>
+          <div class="chip">Lagerort</div>
+          <div class="chip">Bestand</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

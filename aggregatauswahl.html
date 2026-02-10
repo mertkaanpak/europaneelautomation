@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Europaneel | Aggregatauswahl</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #e30613;
+      --red-dark: #b00510;
+      --graphite: #4a4f55;
+      --steel: #6b7178;
+      --paper: #f6f7f9;
+      --white: #ffffff;
+      --border: #e3e7eb;
+      --shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Barlow", sans-serif;
+      color: var(--graphite);
+      background:
+        radial-gradient(1100px 520px at -10% -10%, rgba(227, 6, 19, 0.08), transparent 55%),
+        radial-gradient(900px 480px at 110% 0%, rgba(74, 79, 85, 0.08), transparent 55%),
+        linear-gradient(120deg, #f9fafb 0%, #f1f4f7 50%, #f9fafb 100%);
+      min-height: 100vh;
+    }
+    .page { max-width: 980px; margin: 0 auto; padding: 28px 22px 60px; }
+    .header {
+      background: var(--white);
+      padding: 22px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border-left: 6px solid var(--red);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--red-dark);
+      text-decoration: none;
+      background: #fff1f1;
+      border: 1px solid #f5c2c7;
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+    .header img { height: 48px; width: auto; }
+    .header h1 { margin: 0; font-size: 24px; color: #1f2933; }
+    .header p { margin: 4px 0 0; color: var(--steel); font-size: 14px; }
+    .card {
+      background: var(--white);
+      padding: 26px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .section-title {
+      margin: 0 0 8px;
+      font-weight: 700;
+      font-size: 16px;
+      color: #1f2933;
+    }
+    .helper { margin: 0 0 16px; color: var(--steel); font-size: 14px; }
+    .control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .input-group label { display: block; font-size: 13px; font-weight: 600; color: #1f2933; margin-bottom: 6px; }
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #fff;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    .input-group input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.12); }
+    .toggle-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .toggle-btn {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      background: #fff;
+      cursor: pointer;
+      color: var(--graphite);
+      transition: 0.2s;
+    }
+    .toggle-btn.active {
+      background: linear-gradient(120deg, var(--red), #ff4b55);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 10px 22px rgba(227, 6, 19, 0.24);
+    }
+    .mode-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .mode-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .primary-btn {
+      margin-top: 16px;
+      width: 100%;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      background: linear-gradient(120deg, var(--red), #ff4b55);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(227, 6, 19, 0.28);
+    }
+    .result-grid {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+    }
+    .result-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 180px;
+    }
+    .result-card h3 { margin: 0; font-size: 16px; color: #1f2933; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--red-dark);
+      background: #fff1f1;
+      border: 1px solid #f5c2c7;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--steel);
+    }
+    .result-row span:last-child { font-weight: 600; color: #1f2933; }
+    .muted { color: var(--steel); font-size: 13px; }
+    @media (max-width: 900px) {
+      .page { padding: 20px 16px 50px; }
+      .header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+  </head>
+<body>
+  <div class="page">
+    <div class="header">
+      <img src="logo.png" alt="Europaneel GmbH" />
+      <div>
+        <h1>Aggregatauswahl</h1>
+        <p>Hier wird die Auswahl fuer Aggregate und Komponenten aufgebaut.</p>
+      </div>
+      <a class="back-link" href="index.html">← Zurueck</a>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">1. Kuehlart</h2>
+      <p class="helper">Bitte Normalkuehlung oder Tiefkuehlung auswaehlen.</p>
+      <div class="toggle-row" id="coolingToggle">
+        <button class="toggle-btn active" data-cooling="normal">Normalkuehlung</button>
+        <button class="toggle-btn" data-cooling="tief">Tiefkuehlung</button>
+      </div>
+
+      <h2 class="section-title" style="margin-top:22px;">2. Raumvolumen</h2>
+      <p class="helper">Geben Sie entweder das Volumen direkt ein oder die Masse in Metern.</p>
+      <div class="mode-row">
+        <label><input type="radio" name="volumeMode" value="direct" checked> Volumen direkt</label>
+        <label><input type="radio" name="volumeMode" value="dimensions"> Laenge/Breite/Hoehe</label>
+      </div>
+
+      <div class="control-grid" style="margin-top:14px;">
+        <div class="input-group">
+          <label>Volumen (m3)</label>
+          <input id="volumeInput" type="number" step="0.01" placeholder="z.B. 18.5" />
+        </div>
+        <div class="input-group">
+          <label>Laenge (m)</label>
+          <input id="lengthInput" type="number" step="0.01" placeholder="z.B. 3.0" />
+        </div>
+        <div class="input-group">
+          <label>Breite (m)</label>
+          <input id="widthInput" type="number" step="0.01" placeholder="z.B. 2.5" />
+        </div>
+        <div class="input-group">
+          <label>Hoehe (m)</label>
+          <input id="heightInput" type="number" step="0.01" placeholder="z.B. 2.2" />
+        </div>
+      </div>
+
+      <button class="primary-btn" id="calcBtn">Aggregat finden</button>
+
+      <div class="result-grid" id="resultGrid">
+        <div class="result-card" data-maker="Govi" data-mount="Wand">
+          <div class="tag">Govi · Wand</div>
+          <h3>Empfohlenes Aggregat</h3>
+          <div class="muted" data-field="status">Noch keine Berechnung.</div>
+        </div>
+        <div class="result-card" data-maker="Govi" data-mount="Decke">
+          <div class="tag">Govi · Decke</div>
+          <h3>Empfohlenes Aggregat</h3>
+          <div class="muted" data-field="status">Noch keine Berechnung.</div>
+        </div>
+        <div class="result-card" data-maker="Zanotti" data-mount="Wand">
+          <div class="tag">Zanotti · Wand</div>
+          <h3>Empfohlenes Aggregat</h3>
+          <div class="muted" data-field="status">Noch keine Berechnung.</div>
+        </div>
+        <div class="result-card" data-maker="Zanotti" data-mount="Decke">
+          <div class="tag">Zanotti · Decke</div>
+          <h3>Empfohlenes Aggregat</h3>
+          <div class="muted" data-field="status">Keine Decken-Geraete in der Datei.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      govi: [
+        {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 10WN1","volume":10,"listPrice":1980,"salePrice":1565.7,"voltage":"230V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 13WN1","volume":13,"listPrice":2350,"salePrice":1830.25,"voltage":"230V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"PolariK 18WN2","volume":18,"listPrice":3030,"salePrice":2316.45,"voltage":"230V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 31WN2","volume":31,"listPrice":3240,"salePrice":2466.6,"voltage":"400V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 39WN3","volume":39,"listPrice":4000,"salePrice":3010,"voltage":"400V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 47WN3","volume":47,"listPrice":4150,"salePrice":3117.25,"voltage":"400V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"normal","model":"Polarik 56WN3","volume":56,"listPrice":4300,"salePrice":3224.5,"voltage":"400V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 8WL1","volume":8,"listPrice":2220,"salePrice":1737.3,"voltage":"230V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 12WL2","volume":12,"listPrice":3100,"salePrice":2366.5,"voltage":"230V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 23WL2","volume":23,"listPrice":3740,"salePrice":2824.1,"voltage":"400V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 26WL3","volume":26,"listPrice":4500,"salePrice":3367.5,"voltage":"400V/50Hz"},
+        {"manufacturer":"Govi","mount":"Wand","cooling":"tief","model":"Polarik 35WL3","volume":35,"listPrice":4650,"salePrice":3474.75,"voltage":"400V/50Hz"},
+        {"manufacturer":"Govi","mount":"Decke","cooling":"normal","model":"Polarik 10TN1","volume":10,"listPrice":3130,"salePrice":2387.95,"voltage":"230V/50Hz"},
+        {"manufacturer":"Govi","mount":"Decke","cooling":"normal","model":"Polarik 20TN2","volume":20,"listPrice":3490,"salePrice":2645.35,"voltage":"230V/50Hz"},
+        {"manufacturer":"Govi","mount":"Decke","cooling":"normal","model":"Polarik 25TN2","volume":25,"listPrice":4700,"salePrice":3510.5,"voltage":"400V/50Hz"},
+        {"manufacturer":"Govi","mount":"Decke","cooling":"tief","model":"Polarik 6TL1","volume":6,"listPrice":2960,"salePrice":2266.4,"voltage":"230V/50Hz"},
+        {"manufacturer":"Govi","mount":"Decke","cooling":"tief","model":"Polarik 15TL2","volume":15,"listPrice":5185,"salePrice":3857.28,"voltage":"400V/50Hz"}
+      ],
+      zanotti: [
+        {"manufacturer":"Zanotti","mount":"Wand","cooling":"normal","model":"MPS110YA11A","volume":7,"listPrice":2604,"salePrice":1707.39,"voltage":""},
+        {"manufacturer":"Zanotti","mount":"Wand","cooling":"normal","model":"MPS1110YA11A","volume":13.5,"listPrice":2996,"salePrice":1964.42,"voltage":"230V/ 50Hz"},
+        {"manufacturer":"Zanotti","mount":"Wand","cooling":"normal","model":"MPS3112YA11A","volume":19.8,"listPrice":3765,"salePrice":2468.64,"voltage":""},
+        {"manufacturer":"Zanotti","mount":"Wand","cooling":"normal","model":"MPS3220YA11A","volume":36.1,"listPrice":5214,"salePrice":3418.72,"voltage":""},
+        {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3112YA11A","volume":6.2,"listPrice":3250,"salePrice":2130.96,"voltage":""},
+        {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3115YA11A","volume":7.7,"listPrice":3753,"salePrice":2460.77,"voltage":""},
+        {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3224YA11A","volume":16.8,"listPrice":4137,"salePrice":2712.55,"voltage":""},
+        {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3230YA11A","volume":20.8,"listPrice":5240,"salePrice":3435.77,"voltage":""}
+      ]
+    };
+
+    const coolingToggle = document.getElementById("coolingToggle");
+    const calcBtn = document.getElementById("calcBtn");
+    const volumeInput = document.getElementById("volumeInput");
+    const lengthInput = document.getElementById("lengthInput");
+    const widthInput = document.getElementById("widthInput");
+    const heightInput = document.getElementById("heightInput");
+
+    function getCooling() {
+      const active = coolingToggle.querySelector(".toggle-btn.active");
+      return active ? active.dataset.cooling : "normal";
+    }
+
+    function parseValue(el) {
+      if (!el) return 0;
+      const raw = (el.value || "").replace(",", ".");
+      const val = parseFloat(raw);
+      return Number.isFinite(val) ? val : 0;
+    }
+
+    function getVolume() {
+      const mode = document.querySelector("input[name='volumeMode']:checked").value;
+      if (mode === "direct") {
+        return parseValue(volumeInput);
+      }
+      const l = parseValue(lengthInput);
+      const w = parseValue(widthInput);
+      const h = parseValue(heightInput);
+      if (!l || !w || !h) return 0;
+      return l * w * h;
+    }
+
+    function pickAggregate(list, targetVolume) {
+      if (!list.length) return null;
+      const sorted = [...list].sort((a, b) => a.volume - b.volume);
+      return sorted.find(item => item.volume >= targetVolume) || sorted[sorted.length - 1];
+    }
+
+    function formatCurrency(value) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return "-";
+      return value.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+    }
+
+    function updateResults() {
+      const targetVolume = getVolume();
+      const cooling = getCooling();
+      const cards = document.querySelectorAll(".result-card");
+
+      cards.forEach(card => {
+        const maker = card.dataset.maker;
+        const mount = card.dataset.mount;
+        const statusEl = card.querySelector("[data-field='status']");
+        if (maker === "Zanotti" && mount === "Decke") {
+          statusEl.textContent = "Keine Decken-Geraete in der Datei.";
+          return;
+        }
+        if (!targetVolume) {
+          statusEl.textContent = "Bitte Volumen eingeben.";
+          return;
+        }
+
+        const source = maker === "Govi" ? data.govi : data.zanotti;
+        const filtered = source.filter(item => item.cooling === cooling && item.mount === mount);
+        const pick = pickAggregate(filtered, targetVolume);
+        if (!pick) {
+          statusEl.textContent = "Keine Daten gefunden.";
+          return;
+        }
+
+        card.innerHTML = `
+          <div class="tag">${pick.manufacturer} · ${mount}</div>
+          <h3>${pick.model.trim()}</h3>
+          <div class="result-row"><span>Raumvolumen Auswahl</span><span>${pick.volume} m3</span></div>
+          <div class="result-row"><span>Berechnet aus</span><span>${targetVolume.toFixed(2)} m3</span></div>
+          <div class="result-row"><span>Herstellerpreis</span><span>${formatCurrency(pick.listPrice)}</span></div>
+          <div class="result-row"><span>VK</span><span>${formatCurrency(pick.salePrice)}</span></div>
+          <div class="result-row"><span>Volt/Hz</span><span>${pick.voltage || "-"}</span></div>
+        `;
+      });
+    }
+
+    coolingToggle.addEventListener("click", (event) => {
+      const btn = event.target.closest(".toggle-btn");
+      if (!btn) return;
+      coolingToggle.querySelectorAll(".toggle-btn").forEach(el => el.classList.remove("active"));
+      btn.classList.add("active");
+    });
+
+    calcBtn.addEventListener("click", updateResults);
+  </script>
+</body>
+</html>
