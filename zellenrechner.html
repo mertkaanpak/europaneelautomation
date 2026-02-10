@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Europaneel | Zellenrechner</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #e30613;
+      --red-dark: #b00510;
+      --graphite: #4a4f55;
+      --steel: #6b7178;
+      --paper: #f6f7f9;
+      --white: #ffffff;
+      --border: #e3e7eb;
+      --shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Barlow", sans-serif;
+      color: var(--graphite);
+      background:
+        radial-gradient(1100px 520px at -10% -10%, rgba(227, 6, 19, 0.08), transparent 55%),
+        radial-gradient(900px 480px at 110% 0%, rgba(74, 79, 85, 0.08), transparent 55%),
+        linear-gradient(120deg, #f9fafb 0%, #f1f4f7 50%, #f9fafb 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    .header {
+      background: var(--white);
+      padding: 22px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border-left: 6px solid var(--red);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .header img {
+      height: 48px;
+      width: auto;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #1f2933;
+    }
+
+    .header p {
+      margin: 4px 0 0;
+      color: var(--steel);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--white);
+      padding: 26px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .step-content { display: none; animation: fadeIn 0.3s ease-out; }
+    .step-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    h2 {
+      font-weight: 800;
+      color: #1f2933;
+      font-size: 22px;
+      margin: 0 0 8px;
+      letter-spacing: -0.4px;
+    }
+    .subtitle { font-size: 14px; color: var(--steel); margin: 0 0 20px; }
+
+    .selection-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .selection-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 34px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+    .selection-card:hover {
+      border-color: var(--red);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 28px rgba(227, 6, 19, 0.15);
+    }
+    .icon { font-size: 42px; margin-bottom: 12px; display: block; }
+    .card-title { font-weight: 700; font-size: 17px; color: #1f2933; display: block; margin-bottom: 4px; }
+    .card-desc { color: var(--steel); font-size: 13px; }
+
+    .config-card {
+      background: var(--white);
+      padding: 26px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--steel);
+      cursor: pointer;
+      margin-bottom: 18px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+    }
+    .back-btn:hover { color: var(--red); }
+
+    .status-badge {
+      background: #fff1f1;
+      color: var(--red-dark);
+      border: 1px solid #f5c2c7;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--steel);
+      letter-spacing: 1px;
+      margin-top: 22px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 5px;
+    }
+
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 14px; }
+    .input-group label { display: block; font-size: 13px; font-weight: 600; color: #1f2933; margin-bottom: 6px; }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #fff;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.12); }
+
+    .price-input { border-color: #fca5a5 !important; background: #fff5f5 !important; color: #7f1d1d; font-weight: 600; }
+
+    .btn-calc {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(120deg, var(--red), #ff4b55);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 18px 0;
+      transition: 0.2s;
+      box-shadow: 0 10px 22px rgba(227, 6, 19, 0.28);
+    }
+    .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 14px 26px rgba(227, 6, 19, 0.35); }
+
+    .summary-box {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; color: var(--steel); }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row span:last-child { font-weight: 600; color: #1f2933; font-family: "Courier New", monospace; font-size: 14px; }
+
+    .result-bar {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 2px solid var(--border);
+      text-align: center;
+    }
+    .price-big { font-size: 30px; font-weight: 800; color: var(--red-dark); margin-top: 4px; }
+
+    @media (max-width: 900px) {
+      .page { padding: 20px 16px 50px; }
+      .selection-grid { grid-template-columns: 1fr; }
+      .input-row { grid-template-columns: 1fr; gap: 10px; }
+      .header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <img src="logo.png" alt="Europaneel GmbH" />
+      <div>
+        <h1>Zellenrechner</h1>
+        <p>Kuehlzellen schnell konfigurieren und Preise berechnen.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="step-1" class="step-content active">
+        <div style="text-align:center; margin-bottom:30px;">
+          <h2>Kuehlzelle konfigurieren</h2>
+          <p class="subtitle">Waehlen Sie die Bauart fuer die Kalkulation.</p>
+        </div>
+
+        <div class="selection-grid">
+          <div class="selection-card" onclick="startConfig(false)">
+            <span class="icon">🏠</span>
+            <span class="card-title">Ohne Boden</span>
+            <span class="card-desc">Standard U-Profil Montage</span>
+          </div>
+
+          <div class="selection-card" onclick="startConfig(true)">
+            <span class="icon">📦</span>
+            <span class="card-title">Mit Boden</span>
+            <span class="card-desc">Inkl. isoliertem Boden &amp; Siebdruckplatte</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="step-2" class="step-content">
+        <div class="config-card">
+          <button class="back-btn" onclick="goToStep(1)">← Zurueck zur Auswahl</button>
+
+          <div class="status-badge">
+            <span id="badge-icon"></span>
+            <span id="badge-text"></span>
+          </div>
+
+          <div class="section-label">1. Aussenmasse der Zelle</div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>Laenge (m)</label>
+              <input type="number" id="inp-laenge" placeholder="3.00" step="0.01" oninput="berechnePreis()">
+            </div>
+            <div class="input-group">
+              <label>Breite (m)</label>
+              <input type="number" id="inp-breite" placeholder="2.50" step="0.01" oninput="berechnePreis()">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Hoehe (m)</label>
+            <input type="number" id="inp-hoehe" placeholder="z.B. 2.20" step="0.01" oninput="berechnePreis()">
+          </div>
+
+          <div class="section-label">2. Kalkulations-Basis (EUR/m2)</div>
+          <div class="input-row">
+            <div class="input-group">
+              <label style="color:#7f1d1d;">Paneel Preis:</label>
+              <input type="number" id="inp-preis-qm" class="price-input" value="55.00" oninput="berechnePreis()">
+            </div>
+
+            <div class="input-group" id="div-siebdruck">
+              <label style="color:#7f1d1d;">Siebdruckplatten:</label>
+              <input type="number" id="inp-preis-siebdruck" class="price-input" value="50.00" oninput="berechnePreis()">
+            </div>
+          </div>
+
+          <div class="section-label">3. Tuer &amp; Ausstattung</div>
+          <div class="input-group">
+            <label>Tuergroesse:</label>
+            <select id="inp-tuer" onchange="berechnePreis()">
+              <option value="0" selected>Keine Tuer [0 EUR]</option>
+              <option value="550">Drehtuer 75 x 175 cm [550 EUR]</option>
+              <option value="580">Drehtuer 75 x 190 cm [580 EUR]</option>
+              <option value="600">Drehtuer 80 x 190 cm [600 EUR]</option>
+              <option value="650">Drehtuer 90 x 190 cm [650 EUR]</option>
+              <option value="700">Drehtuer 110 x 190 cm [700 EUR]</option>
+              <option value="800">Drehtuer 100 x 200 cm [800 EUR]</option>
+              <option value="900">Drehtuer 120 x 200 cm [900 EUR]</option>
+              <option value="1000">Drehtuer 120 x 220 cm [1.000 EUR]</option>
+              <option value="0">Schiebetuer (Auf Anfrage)</option>
+            </select>
+          </div>
+
+          <button class="btn-calc" onclick="berechnePreis()">Preis aktualisieren</button>
+
+          <div class="summary-box" id="summary-area" style="display:none;">
+            <div style="font-weight:700; margin-bottom:10px; color:#1f2933;">Details zur Berechnung:</div>
+
+            <div class="summary-row">
+              <span>Huelle (Wand+Decke) <small id="val-huelle-qm">(0 m2)</small></span>
+              <span id="val-huelle-eur">0,00 EUR</span>
+            </div>
+
+            <div class="summary-row" id="row-boden-details">
+              <span>Boden Paneel <small id="val-boden-qm">(0 m2)</small></span>
+              <span id="val-boden-eur">0,00 EUR</span>
+            </div>
+
+            <div class="summary-row" id="row-siebdruck-details">
+              <span>Boden Siebdruck <small>Aufpreis</small></span>
+              <span id="val-siebdruck-eur">0,00 EUR</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Tuer Element</span>
+              <span id="val-tuer-eur">0,00 EUR</span>
+            </div>
+
+            <div class="result-bar">
+              <div style="font-size:13px; color:var(--steel); text-transform:uppercase; letter-spacing:1px;">Gesamtpreis (Netto)</div>
+              <div class="price-big" id="preis-ausgabe">0,00 EUR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let hatBoden = false;
+
+    function goToStep(stepNumber) {
+      document.querySelectorAll(".step-content").forEach((el) => el.classList.remove("active"));
+      document.getElementById("step-" + stepNumber).classList.add("active");
+    }
+
+    function startConfig(mitBoden) {
+      hatBoden = mitBoden;
+
+      if (hatBoden) {
+        document.getElementById("badge-icon").innerText = "📦";
+        document.getElementById("badge-text").innerText = "Kuehlzelle MIT Boden";
+        document.getElementById("row-boden-details").style.display = "flex";
+        document.getElementById("row-siebdruck-details").style.display = "flex";
+      } else {
+        document.getElementById("badge-icon").innerText = "🏠";
+        document.getElementById("badge-text").innerText = "Kuehlzelle OHNE Boden";
+        document.getElementById("row-boden-details").style.display = "none";
+        document.getElementById("row-siebdruck-details").style.display = "none";
+      }
+
+      goToStep(2);
+      setTimeout(berechnePreis, 100);
+    }
+
+    function berechnePreis() {
+      const L = parseFloat(document.getElementById("inp-laenge").value) || 0;
+      const B = parseFloat(document.getElementById("inp-breite").value) || 0;
+      const H = parseFloat(document.getElementById("inp-hoehe").value) || 0;
+      const tuerPreis = parseFloat(document.getElementById("inp-tuer").value) || 0;
+
+      const preisPaneel = parseFloat(document.getElementById("inp-preis-qm").value) || 0;
+      const preisSiebdruck = parseFloat(document.getElementById("inp-preis-siebdruck").value) || 0;
+
+      const wandFlaeche = (L + B) * 2 * H;
+      const deckenFlaeche = L * B;
+      const bodenFlaeche = L * B;
+
+      let kostenHuelle = 0;
+      let kostenBodenPaneel = 0;
+      let kostenSiebdruck = 0;
+
+      if (hatBoden) {
+        kostenHuelle = (wandFlaeche + deckenFlaeche) * preisPaneel;
+        kostenBodenPaneel = bodenFlaeche * preisPaneel;
+        kostenSiebdruck = bodenFlaeche * preisSiebdruck;
+      } else {
+        kostenHuelle = (wandFlaeche + deckenFlaeche) * preisPaneel;
+      }
+
+      const gesamt = kostenHuelle + kostenBodenPaneel + kostenSiebdruck + tuerPreis;
+
+      document.getElementById("summary-area").style.display = "block";
+
+      const flaecheHuelle = wandFlaeche + deckenFlaeche;
+      document.getElementById("val-huelle-qm").innerText = "(" + flaecheHuelle.toFixed(2) + " m2)";
+      document.getElementById("val-huelle-eur").innerText = kostenHuelle.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+
+      if (hatBoden) {
+        document.getElementById("val-boden-qm").innerText = "(" + bodenFlaeche.toFixed(2) + " m2)";
+        document.getElementById("val-boden-eur").innerText = kostenBodenPaneel.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+        document.getElementById("val-siebdruck-eur").innerText = kostenSiebdruck.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+      }
+
+      document.getElementById("val-tuer-eur").innerText = tuerPreis.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+      document.getElementById("preis-ausgabe").innerText = gesamt.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+    }
+  </script>
+</body>
+</html>
