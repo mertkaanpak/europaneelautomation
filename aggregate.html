@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Europaneel | Aggregate</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #e30613;
+      --red-dark: #b00510;
+      --graphite: #4a4f55;
+      --steel: #6b7178;
+      --paper: #f6f7f9;
+      --white: #ffffff;
+      --border: #e3e7eb;
+      --shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Barlow", sans-serif;
+      color: var(--graphite);
+      background:
+        radial-gradient(1100px 520px at -10% -10%, rgba(227, 6, 19, 0.08), transparent 55%),
+        radial-gradient(900px 480px at 110% 0%, rgba(74, 79, 85, 0.08), transparent 55%),
+        linear-gradient(120deg, #f9fafb 0%, #f1f4f7 50%, #f9fafb 100%);
+      min-height: 100vh;
+    }
+    .page { max-width: 1080px; margin: 0 auto; padding: 28px 22px 60px; }
+    .header {
+      background: var(--white);
+      padding: 22px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border-left: 6px solid var(--red);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .header img { height: 48px; width: auto; }
+    .header h1 { margin: 0; font-size: 24px; color: #1f2933; }
+    .header p { margin: 4px 0 0; color: var(--steel); font-size: 14px; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--red-dark);
+      text-decoration: none;
+      background: #fff1f1;
+      border: 1px solid #f5c2c7;
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+    .card {
+      background: var(--white);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef1f4;
+      white-space: nowrap;
+    }
+    th {
+      background: #f8fafc;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--steel);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--red-dark);
+      background: #fff1f1;
+      border: 1px solid #f5c2c7;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    @media (max-width: 900px) {
+      .page { padding: 20px 16px 50px; }
+      .header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <img src="logo.png" alt="Europaneel GmbH" />
+      <div>
+        <h1>Aggregate Uebersicht</h1>
+        <p>Alle Aggregate von Govi und Zanotti mit Preisen und Eigenschaften.</p>
+      </div>
+      <a class="back-link" href="index.html">← Zurueck</a>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Hersteller</th>
+              <th>Montage</th>
+              <th>Kuehlart</th>
+              <th>Modell</th>
+              <th>Raumvolumen (m3)</th>
+              <th>Herstellerpreis</th>
+              <th>VK</th>
+              <th>Volt/Hz</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const rows = [
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Normalkuehlung","model":"Polarik 10WN1","volume":10,"listPrice":1980,"salePrice":1565.7,"voltage":"230V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Normalkuehlung","model":"Polarik 13WN1","volume":13,"listPrice":2350,"salePrice":1830.25,"voltage":"230V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Normalkuehlung","model":"PolariK 18WN2","volume":18,"listPrice":3030,"salePrice":2316.45,"voltage":"230V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Normalkuehlung","model":"Polarik 31WN2","volume":31,"listPrice":3240,"salePrice":2466.6,"voltage":"400V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Normalkuehlung","model":"Polarik 39WN3","volume":39,"listPrice":4000,"salePrice":3010,"voltage":"400V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Normalkuehlung","model":"Polarik 47WN3","volume":47,"listPrice":4150,"salePrice":3117.25,"voltage":"400V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Normalkuehlung","model":"Polarik 56WN3","volume":56,"listPrice":4300,"salePrice":3224.5,"voltage":"400V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Tiefkuehlung","model":"Polarik 8WL1","volume":8,"listPrice":2220,"salePrice":1737.3,"voltage":"230V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Tiefkuehlung","model":"Polarik 12WL2","volume":12,"listPrice":3100,"salePrice":2366.5,"voltage":"230V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Tiefkuehlung","model":"Polarik 23WL2","volume":23,"listPrice":3740,"salePrice":2824.1,"voltage":"400V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Tiefkuehlung","model":"Polarik 26WL3","volume":26,"listPrice":4500,"salePrice":3367.5,"voltage":"400V/50Hz"},
+      {"manufacturer":"Govi","mount":"Wand","cooling":"Tiefkuehlung","model":"Polarik 35WL3","volume":35,"listPrice":4650,"salePrice":3474.75,"voltage":"400V/50Hz"},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"Normalkuehlung","model":"Polarik 10TN1","volume":10,"listPrice":3130,"salePrice":2387.95,"voltage":"230V/50Hz"},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"Normalkuehlung","model":"Polarik 20TN2","volume":20,"listPrice":3490,"salePrice":2645.35,"voltage":"230V/50Hz"},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"Normalkuehlung","model":"Polarik 25TN2","volume":25,"listPrice":4700,"salePrice":3510.5,"voltage":"400V/50Hz"},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"Tiefkuehlung","model":"Polarik 6TL1","volume":6,"listPrice":2960,"salePrice":2266.4,"voltage":"230V/50Hz"},
+      {"manufacturer":"Govi","mount":"Decke","cooling":"Tiefkuehlung","model":"Polarik 15TL2","volume":15,"listPrice":5185,"salePrice":3857.28,"voltage":"400V/50Hz"},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"Normalkuehlung","model":"MPS110YA11A","volume":7,"listPrice":2604,"salePrice":1707.39,"voltage":""},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"Normalkuehlung","model":"MPS1110YA11A","volume":13.5,"listPrice":2996,"salePrice":1964.42,"voltage":"230V/ 50Hz"},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"Normalkuehlung","model":"MPS3112YA11A","volume":19.8,"listPrice":3765,"salePrice":2468.64,"voltage":""},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"Normalkuehlung","model":"MPS3220YA11A","volume":36.1,"listPrice":5214,"salePrice":3418.72,"voltage":""},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"Tiefkuehlung","model":"BPS3112YA11A","volume":6.2,"listPrice":3250,"salePrice":2130.96,"voltage":""},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"Tiefkuehlung","model":"BPS3115YA11A","volume":7.7,"listPrice":3753,"salePrice":2460.77,"voltage":""},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"Tiefkuehlung","model":"BPS3224YA11A","volume":16.8,"listPrice":4137,"salePrice":2712.55,"voltage":""},
+      {"manufacturer":"Zanotti","mount":"Wand","cooling":"Tiefkuehlung","model":"BPS3230YA11A","volume":20.8,"listPrice":5240,"salePrice":3435.77,"voltage":""}
+    ];
+
+    function formatCurrency(value) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return "-";
+      return value.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+    }
+
+    const body = document.getElementById("tableBody");
+    rows.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="tag">${row.manufacturer}</span></td>
+        <td>${row.mount}</td>
+        <td>${row.cooling}</td>
+        <td>${row.model.trim()}</td>
+        <td>${row.volume}</td>
+        <td>${formatCurrency(row.listPrice)}</td>
+        <td>${formatCurrency(row.salePrice)}</td>
+        <td>${row.voltage || "-"}</td>
+      `;
+      body.appendChild(tr);
+    });
+  </script>
+</body>
+</html>
