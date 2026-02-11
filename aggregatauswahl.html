@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
@@ -198,7 +198,38 @@
       .card { padding: 18px; }
       .result-card { min-height: 160px; }
     }
-  </style>
+  
+    /* mobile-modern */
+    :root {
+      --border: #e3e7eb;
+      --radius-lg: 20px;
+      --shadow-soft: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    body {
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a, button, input, select { font-family: inherit; }
+    button, .btn, .primary-btn, .toggle-btn, .back-link { min-height: 44px; }
+    input, select { font-size: 16px; }
+    @media (max-width: 720px) {
+      .page { padding: 18px 14px 70px; }
+      .header { border-left: 0; border-top: 6px solid var(--red); }
+      .header img { height: 40px; }
+      .header h1 { font-size: clamp(20px, 5vw, 24px); }
+      .card { padding: 18px; border-radius: 18px; }
+    }    @media (hover: none) {
+      .toggle-btn:hover { transform: none; }
+    }
+    @media (max-width: 720px) {
+      .toggle-row { gap: 8px; }
+      .toggle-btn { flex: 1 1 100%; text-align: center; }
+      .mode-row { flex-direction: column; }
+      .mode-row label { width: 100%; }
+      .control-grid { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+    }  </style>
   </head>
 <body>
   <div class="page">
@@ -208,7 +239,7 @@
         <h1 data-i18n="title">Aggregatauswahl</h1>
         <p data-i18n="subtitle">Hier wird die Auswahl fuer Aggregate und Komponenten aufgebaut.</p>
       </div>
-      <a class="back-link" href="index.html" data-i18n="back">← Zurueck</a>
+      <a class="back-link" href="index.html" data-i18n="back">â† Zurueck</a>
       <div class="lang-switch" role="group" aria-label="Sprache">
         <button class="lang-btn" data-lang="de">DE</button>
         <button class="lang-btn" data-lang="tr">TR</button>
@@ -253,22 +284,22 @@
 
       <div class="result-grid" id="resultGrid">
         <div class="result-card" data-maker="Govi" data-mount="Wand">
-          <div class="tag" data-i18n="tag_govi_wall">Govi · Wand</div>
+          <div class="tag" data-i18n="tag_govi_wall">Govi Â· Wand</div>
           <h3 data-i18n="result_title">Empfohlenes Aggregat</h3>
           <div class="muted" data-field="status" data-i18n="status_idle">Noch keine Berechnung.</div>
         </div>
         <div class="result-card" data-maker="Govi" data-mount="Decke">
-          <div class="tag" data-i18n="tag_govi_ceiling">Govi · Decke</div>
+          <div class="tag" data-i18n="tag_govi_ceiling">Govi Â· Decke</div>
           <h3 data-i18n="result_title">Empfohlenes Aggregat</h3>
           <div class="muted" data-field="status" data-i18n="status_idle">Noch keine Berechnung.</div>
         </div>
         <div class="result-card" data-maker="Zanotti" data-mount="Wand">
-          <div class="tag" data-i18n="tag_zanotti_wall">Zanotti · Wand</div>
+          <div class="tag" data-i18n="tag_zanotti_wall">Zanotti Â· Wand</div>
           <h3 data-i18n="result_title">Empfohlenes Aggregat</h3>
           <div class="muted" data-field="status" data-i18n="status_idle">Noch keine Berechnung.</div>
         </div>
         <div class="result-card" data-maker="Zanotti" data-mount="Decke">
-          <div class="tag" data-i18n="tag_zanotti_ceiling">Zanotti · Decke</div>
+          <div class="tag" data-i18n="tag_zanotti_ceiling">Zanotti Â· Decke</div>
           <h3 data-i18n="result_title">Empfohlenes Aggregat</h3>
           <div class="muted" data-field="status" data-i18n="status_no_ceiling">Keine Decken-Geraete in der Datei.</div>
         </div>
@@ -314,7 +345,7 @@
       de: {
         title: "Aggregatauswahl",
         subtitle: "Hier wird die Auswahl fuer Aggregate und Komponenten aufgebaut.",
-        back: "← Zurueck",
+        back: "â† Zurueck",
         section_cooling: "1. Kuehlart",
         helper_cooling: "Bitte Normalkuehlung oder Tiefkuehlung auswaehlen.",
         cooling_normal: "Normalkuehlung",
@@ -328,10 +359,10 @@
         label_width: "Breite (m)",
         label_height: "Hoehe (m)",
         btn_find: "Aggregat finden",
-        tag_govi_wall: "Govi · Wand",
-        tag_govi_ceiling: "Govi · Decke",
-        tag_zanotti_wall: "Zanotti · Wand",
-        tag_zanotti_ceiling: "Zanotti · Decke",
+        tag_govi_wall: "Govi Â· Wand",
+        tag_govi_ceiling: "Govi Â· Decke",
+        tag_zanotti_wall: "Zanotti Â· Wand",
+        tag_zanotti_ceiling: "Zanotti Â· Decke",
         result_title: "Empfohlenes Aggregat",
         status_idle: "Noch keine Berechnung.",
         status_no_ceiling: "Keine Decken-Geraete in der Datei.",
@@ -347,7 +378,7 @@
       tr: {
         title: "Agrega Secimi",
         subtitle: "Agrega ve bilesen secimi burada yapilir.",
-        back: "← Geri",
+        back: "â† Geri",
         section_cooling: "1. Sogutma tipi",
         helper_cooling: "Normal veya derin sogutma secin.",
         cooling_normal: "Normal sogutma",
@@ -361,10 +392,10 @@
         label_width: "Genislik (m)",
         label_height: "Yukseklik (m)",
         btn_find: "Agrega bul",
-        tag_govi_wall: "Govi · Duvar",
-        tag_govi_ceiling: "Govi · Tavan",
-        tag_zanotti_wall: "Zanotti · Duvar",
-        tag_zanotti_ceiling: "Zanotti · Tavan",
+        tag_govi_wall: "Govi Â· Duvar",
+        tag_govi_ceiling: "Govi Â· Tavan",
+        tag_zanotti_wall: "Zanotti Â· Duvar",
+        tag_zanotti_ceiling: "Zanotti Â· Tavan",
         result_title: "Onerilen agrega",
         status_idle: "Henuz hesaplama yok.",
         status_no_ceiling: "Dosyada tavan cihazlari yok.",
@@ -456,7 +487,7 @@
         }
 
         card.innerHTML = `
-          <div class="tag">${pick.manufacturer} · ${translateMount(mount)}</div>
+          <div class="tag">${pick.manufacturer} Â· ${translateMount(mount)}</div>
           <h3>${pick.model.trim()}</h3>
           <div class="result-row"><span>${t("label_pick_volume")}</span><span>${pick.volume} m3</span></div>
           <div class="result-row"><span>${t("label_calc_volume")}</span><span>${targetVolume.toFixed(2)} m3</span></div>
@@ -499,3 +530,4 @@
   </script>
 </body>
 </html>
+

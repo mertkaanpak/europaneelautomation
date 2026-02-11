@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
@@ -298,7 +298,36 @@
       .lang-btn { flex: 1; text-align: center; }
       .card { padding: 16px; }
     }
-  </style>
+  
+    /* mobile-modern */
+    :root {
+      --border: #e3e7eb;
+      --radius-lg: 20px;
+      --shadow-soft: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    body {
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a, button { font-family: inherit; }
+    .nav .nav-link, .card, .lang-btn { min-height: 44px; }
+    @media (hover: none) {
+      .nav .nav-link:hover { transform: none; }
+      .card:hover { transform: none; }
+    }
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      .shell { height: auto; min-height: 100vh; }
+      .main { overflow: visible; }
+      .sidebar { position: sticky; top: 0; z-index: 5; backdrop-filter: blur(10px); }
+    }
+    @media (max-width: 720px) {
+      .hero { border-left: 0; border-top: 6px solid var(--red); }
+      .hero-actions { width: 100%; flex-wrap: wrap; }
+      .grid { grid-template-columns: 1fr; }
+      .card { min-height: auto; }
+    }  </style>
 </head>
 <body>
   <div class="shell">
@@ -309,27 +338,27 @@
       </div>
       <nav class="nav">
         <a class="nav-link active" href="zellenrechner.html">
-          <span class="icon">🔢</span>
+          <span class="icon">ðŸ”¢</span>
           <span data-i18n="nav_zellen">Zellenrechner</span>
         </a>
         <a class="nav-link" href="aggregatauswahl.html">
-          <span class="icon">🧩</span>
+          <span class="icon">ðŸ§©</span>
           <span data-i18n="nav_aggr">Aggregatauswahl</span>
         </a>
         <a class="nav-link" href="paneelrechner.html">
-          <span class="icon">📐</span>
+          <span class="icon">ðŸ“</span>
           <span data-i18n="nav_paneel">Paneelrechner</span>
         </a>
         <a class="nav-link" href="lagerbestand_tueren.html">
-          <span class="icon">📦</span>
+          <span class="icon">ðŸ“¦</span>
           <span data-i18n="nav_lager">Lagerbestand Tueren</span>
         </a>
         <a class="nav-link" href="kalender.html">
-          <span class="icon">🗓️</span>
+          <span class="icon">ðŸ—“ï¸</span>
           <span data-i18n="nav_kalender">Kalender</span>
         </a>
         <a class="nav-link" href="aggregate.html">
-          <span class="icon">📋</span>
+          <span class="icon">ðŸ“‹</span>
           <span data-i18n="nav_aggregate">Aggregate</span>
         </a>
       </nav>
@@ -354,32 +383,32 @@
         <a class="card" href="zellenrechner.html">
           <h3 data-i18n="card_zellen_title">Zellenrechner</h3>
           <p data-i18n="card_zellen_desc">Berechnungen fuer Paneel- und Zellensysteme kompakt im Zugriff.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
+          <span class="cta" data-i18n="cta_open">Oeffnen â†’</span>
         </a>
         <a class="card" href="aggregatauswahl.html">
           <h3 data-i18n="card_aggr_title">Aggregatauswahl</h3>
           <p data-i18n="card_aggr_desc">Passende Aggregate und Komponenten schnell zusammenstellen.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
+          <span class="cta" data-i18n="cta_open">Oeffnen â†’</span>
         </a>
         <a class="card" href="paneelrechner.html">
           <h3 data-i18n="card_paneel_title">Paneelrechner</h3>
           <p data-i18n="card_paneel_desc">Abmessungen, Stuecklisten und Varianten zentral kalkulieren.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
+          <span class="cta" data-i18n="cta_open">Oeffnen â†’</span>
         </a>
         <a class="card" href="lagerbestand_tueren.html">
           <h3 data-i18n="card_lager_title">Lagerbestand Tueren</h3>
           <p data-i18n="card_lager_desc">Bestand und Verfuegbarkeit der Tueren auf einen Blick.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
+          <span class="cta" data-i18n="cta_open">Oeffnen â†’</span>
         </a>
         <a class="card" href="kalender.html">
           <h3 data-i18n="card_kal_title">Kalender</h3>
           <p data-i18n="card_kal_desc">Termine, Lieferungen und interne Ablaufe gebuendelt.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
+          <span class="cta" data-i18n="cta_open">Oeffnen â†’</span>
         </a>
         <a class="card" href="aggregate.html">
           <h3 data-i18n="card_all_title">Aggregate</h3>
           <p data-i18n="card_all_desc">Alle Geraete aus Govi und Zanotti im direkten Vergleich.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen →</span>
+          <span class="cta" data-i18n="cta_open">Oeffnen â†’</span>
         </a>
       </section>
     </main>
@@ -419,7 +448,7 @@
         card_kal_desc: "Termine, Lieferungen und interne Ablaufe gebuendelt.",
         card_all_title: "Aggregate",
         card_all_desc: "Alle Geraete aus Govi und Zanotti im direkten Vergleich.",
-        cta_open: "Oeffnen →"
+        cta_open: "Oeffnen â†’"
       },
       tr: {
         title: "Europaneel Automations",
@@ -444,7 +473,7 @@
         card_kal_desc: "Tarih, teslimat ve is akislari tek yerde.",
         card_all_title: "Agregalar",
         card_all_desc: "Govi ve Zanotti cihazlarinin karsilastirmasi.",
-        cta_open: "Ac →"
+        cta_open: "Ac â†’"
       }
     };
 
@@ -471,3 +500,4 @@
   </script>
 </body>
 </html>
+

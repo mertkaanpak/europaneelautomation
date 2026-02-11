@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
@@ -263,7 +263,38 @@
       .config-card { padding: 18px; }
       .card { padding: 20px; }
     }
-  </style>
+  
+    /* mobile-modern */
+    :root {
+      --border: #e3e7eb;
+      --radius-lg: 20px;
+      --shadow-soft: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    body {
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a, button, input, select { font-family: inherit; }
+    button, .btn, .primary-btn, .toggle-btn, .back-link { min-height: 44px; }
+    input, select { font-size: 16px; }
+    @media (max-width: 720px) {
+      .page { padding: 18px 14px 70px; }
+      .header { border-left: 0; border-top: 6px solid var(--red); }
+      .header img { height: 40px; }
+      .header h1 { font-size: clamp(20px, 5vw, 24px); }
+      .card { padding: 18px; border-radius: 18px; }
+    }    @media (hover: none) {
+      .selection-card:hover { transform: none; }
+      .btn-calc:hover { transform: none; }
+    }
+    @media (max-width: 720px) {
+      .input-row { grid-template-columns: 1fr; }
+      .selection-card { padding: 24px 16px; }
+      .config-card { padding: 18px; }
+      .status-badge { flex-wrap: wrap; }
+      .summary-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+    }  </style>
 </head>
 <body>
   <div class="page">
@@ -273,7 +304,7 @@
         <h1 data-i18n="title">Zellenrechner</h1>
         <p data-i18n="subtitle">Kuehlzellen schnell konfigurieren und Preise berechnen.</p>
       </div>
-      <a class="back-link" href="index.html" data-i18n="back">← Zurueck</a>
+      <a class="back-link" href="index.html" data-i18n="back">â† Zurueck</a>
       <div class="lang-switch" role="group" aria-label="Sprache">
         <button class="lang-btn" data-lang="de">DE</button>
         <button class="lang-btn" data-lang="tr">TR</button>
@@ -289,13 +320,13 @@
 
         <div class="selection-grid">
           <div class="selection-card" onclick="startConfig(false)">
-            <span class="icon">🏠</span>
+            <span class="icon">ðŸ </span>
             <span class="card-title" data-i18n="card_no_floor">Ohne Boden</span>
             <span class="card-desc" data-i18n="card_no_floor_desc">Standard U-Profil Montage</span>
           </div>
 
           <div class="selection-card" onclick="startConfig(true)">
-            <span class="icon">📦</span>
+            <span class="icon">ðŸ“¦</span>
             <span class="card-title" data-i18n="card_with_floor">Mit Boden</span>
             <span class="card-desc" data-i18n="card_with_floor_desc">Inkl. isoliertem Boden &amp; Siebdruckplatte</span>
           </div>
@@ -304,7 +335,7 @@
 
       <div id="step-2" class="step-content">
         <div class="config-card">
-          <button class="back-btn" onclick="goToStep(1)" data-i18n="back_to_select">← Zurueck zur Auswahl</button>
+          <button class="back-btn" onclick="goToStep(1)" data-i18n="back_to_select">â† Zurueck zur Auswahl</button>
 
           <div class="status-badge">
             <span id="badge-icon"></span>
@@ -441,14 +472,14 @@
       de: {
         title: "Zellenrechner",
         subtitle: "Kuehlzellen schnell konfigurieren und Preise berechnen.",
-        back: "← Zurueck",
+        back: "â† Zurueck",
         step1_title: "Kuehlzelle konfigurieren",
         step1_sub: "Waehlen Sie die Bauart fuer die Kalkulation.",
         card_no_floor: "Ohne Boden",
         card_no_floor_desc: "Standard U-Profil Montage",
         card_with_floor: "Mit Boden",
         card_with_floor_desc: "Inkl. isoliertem Boden & Siebdruckplatte",
-        back_to_select: "← Zurueck zur Auswahl",
+        back_to_select: "â† Zurueck zur Auswahl",
         section_dims: "1. Aussenmasse der Zelle",
         label_length: "Laenge (m)",
         label_width: "Breite (m)",
@@ -496,14 +527,14 @@
       tr: {
         title: "Soguk Oda Hesaplama",
         subtitle: "Soguk oda hizli kurulum ve fiyat hesabi.",
-        back: "← Geri",
+        back: "â† Geri",
         step1_title: "Soguk oda konfigurasyonu",
         step1_sub: "Hesaplama icin yapi tipini secin.",
         card_no_floor: "Zeminsiz",
         card_no_floor_desc: "Standart U-profil montaj",
         card_with_floor: "Zeminli",
         card_with_floor_desc: "Izolasyonlu zemin ve siebdruckplatte",
-        back_to_select: "← Secime geri don",
+        back_to_select: "â† Secime geri don",
         section_dims: "1. Oda dis olculeri",
         label_length: "Uzunluk (m)",
         label_width: "Genislik (m)",
@@ -514,14 +545,14 @@
         section_door: "3. Kapi ve donanim",
         label_door_size: "Kapi olcusu:",
         door_none: "Kapi yok [0 EUR]",
-        door_75_175: "Menteşeli kapi 75 x 175 cm [550 EUR]",
-        door_75_190: "Menteşeli kapi 75 x 190 cm [580 EUR]",
-        door_80_190: "Menteşeli kapi 80 x 190 cm [600 EUR]",
-        door_90_190: "Menteşeli kapi 90 x 190 cm [650 EUR]",
-        door_110_190: "Menteşeli kapi 110 x 190 cm [700 EUR]",
-        door_100_200: "Menteşeli kapi 100 x 200 cm [800 EUR]",
-        door_120_200: "Menteşeli kapi 120 x 200 cm [900 EUR]",
-        door_120_220: "Menteşeli kapi 120 x 220 cm [1.000 EUR]",
+        door_75_175: "MenteÅŸeli kapi 75 x 175 cm [550 EUR]",
+        door_75_190: "MenteÅŸeli kapi 75 x 190 cm [580 EUR]",
+        door_80_190: "MenteÅŸeli kapi 80 x 190 cm [600 EUR]",
+        door_90_190: "MenteÅŸeli kapi 90 x 190 cm [650 EUR]",
+        door_110_190: "MenteÅŸeli kapi 110 x 190 cm [700 EUR]",
+        door_100_200: "MenteÅŸeli kapi 100 x 200 cm [800 EUR]",
+        door_120_200: "MenteÅŸeli kapi 120 x 200 cm [900 EUR]",
+        door_120_220: "MenteÅŸeli kapi 120 x 220 cm [1.000 EUR]",
         door_slide: "Surgu kapi (Talep uzerine)",
         section_agg: "4. Agrega (opsiyonel)",
         section_service: "5. Teslimat ve montaj (opsiyonel)",
@@ -584,12 +615,12 @@
       hatBoden = mitBoden;
 
       if (hatBoden) {
-        document.getElementById("badge-icon").innerText = "📦";
+        document.getElementById("badge-icon").innerText = "ðŸ“¦";
         document.getElementById("badge-text").innerText = t("badge_with_floor");
         document.getElementById("row-boden-details").style.display = "flex";
         document.getElementById("row-siebdruck-details").style.display = "flex";
       } else {
-        document.getElementById("badge-icon").innerText = "🏠";
+        document.getElementById("badge-icon").innerText = "ðŸ ";
         document.getElementById("badge-text").innerText = t("badge_no_floor");
         document.getElementById("row-boden-details").style.display = "none";
         document.getElementById("row-siebdruck-details").style.display = "none";
@@ -714,3 +745,4 @@
   </script>
 </body>
 </html>
+
