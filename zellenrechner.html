@@ -171,6 +171,14 @@
     }
     .back-btn:hover { color: var(--red); }
 
+    .status-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
     .status-badge {
       background: #fff1f1;
       color: var(--red-dark);
@@ -182,7 +190,18 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 22px;
+    }
+    .volume-badge {
+      background: #f8fafc;
+      color: var(--graphite);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .section-label {
@@ -337,9 +356,15 @@
         <div class="config-card">
           <button class="back-btn" onclick="goToStep(1)" data-i18n="back_to_select"><- Zurueck zur Auswahl</button>
 
-          <div class="status-badge">
-            <span id="badge-icon"></span>
-            <span id="badge-text"></span>
+          <div class="status-container">
+            <div class="status-badge">
+              <span id="badge-icon"></span>
+              <span id="badge-text"></span>
+            </div>
+            <div class="volume-badge" id="badge-volume-container" style="display:none;">
+              <span data-i18n="badge_volume">Volumen:</span>
+              <span id="badge-volume-value">0.00 m3</span>
+            </div>
           </div>
 
           <div class="section-label" data-i18n="section_dims">1. Aussenmasse der Zelle</div>
@@ -532,7 +557,8 @@
         summary_service: "Lieferung & Montage",
         summary_total: "Gesamtpreis (Netto)",
         badge_with_floor: "Kuehlzelle MIT Boden",
-        badge_no_floor: "Kuehlzelle OHNE Boden"
+        badge_no_floor: "Kuehlzelle OHNE Boden",
+        badge_volume: "Volumen:"
       },
       tr: {
         title: "Soguk Oda Hesaplama",
@@ -589,7 +615,8 @@
         summary_service: "Teslimat ve montaj",
         summary_total: "Toplam fiyat (Net)",
         badge_with_floor: "Zeminli soguk oda",
-        badge_no_floor: "Zeminsiz soguk oda"
+        badge_no_floor: "Zeminsiz soguk oda",
+        badge_volume: "Hacim:"
       }
     };
 
@@ -687,6 +714,18 @@
       const L = parseFloat(document.getElementById("inp-laenge").value) || 0;
       const B = parseFloat(document.getElementById("inp-breite").value) || 0;
       const H = parseFloat(document.getElementById("inp-hoehe").value) || 0;
+
+      const volumeContainer = document.getElementById("badge-volume-container");
+      const volumeValue = document.getElementById("badge-volume-value");
+
+      if (L > 0 && B > 0 && H > 0) {
+        const vol = L * B * H;
+        volumeValue.innerText = vol.toFixed(2) + " m3";
+        volumeContainer.style.display = "flex";
+      } else {
+        volumeContainer.style.display = "none";
+      }
+
       const tuerPreis = parseFloat(document.getElementById("inp-tuer").value) || 0;
       const servicePreis = parseFloat(document.getElementById("inp-service").value) || 0;
       const aggregatToggle = document.getElementById("inp-aggregat").value === "1";
