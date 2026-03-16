@@ -717,10 +717,17 @@
 
       let aggregatPreis = 0;
       const rowAggregat = document.getElementById("row-aggregat");
-      if (aggregatToggle && L && B && H) {
-        const zielVolumen = L * B * H;
+
+      if (aggregatToggle) {
         mountGroup.style.display = "block";
         if (manufGroup) manufGroup.style.display = "block";
+      } else {
+        mountGroup.style.display = "none";
+        if (manufGroup) manufGroup.style.display = "none";
+      }
+
+      if (aggregatToggle && L && B && H) {
+        const zielVolumen = L * B * H;
         const aggregat = pickAggregate(zielVolumen, kuehlart, montage, manufacturer);
         if (aggregat) {
           aggregatPreis = aggregat.salePrice || 0;
@@ -732,8 +739,6 @@
       } else {
         document.getElementById("val-aggregat-name").innerText = "-";
         rowAggregat.style.display = "none";
-        mountGroup.style.display = "none";
-        if (manufGroup) manufGroup.style.display = "none";
       }
 
       const gesamt = kostenHuelle + kostenBodenPaneel + kostenSiebdruck + tuerPreis + aggregatPreis + servicePreis;
