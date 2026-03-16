@@ -300,14 +300,14 @@
       rows.forEach(row => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><span class="tag">${row.manufacturer}</span></td>
-          <td>${translateMount(row.mount)}</td>
-          <td>${translateCooling(row.cooling)}</td>
-          <td>${row.model.trim()}</td>
-          <td>${row.volume}</td>
-          <td>${formatCurrency(row.listPrice)}</td>
-          <td>${formatCurrency(row.salePrice)}</td>
-          <td>${row.voltage || "-"}</td>
+          <td data-label="${t('th_maker')}"><span class="tag">${row.manufacturer}</span></td>
+          <td data-label="${t('th_mount')}">${translateMount(row.mount)}</td>
+          <td data-label="${t('th_cooling')}">${translateCooling(row.cooling)}</td>
+          <td data-label="${t('th_model')}">${row.model.trim()}</td>
+          <td data-label="${t('th_volume')}">${row.volume}</td>
+          <td data-label="${t('th_list')}">${formatCurrency(row.listPrice)}</td>
+          <td data-label="${t('th_vk')}">${formatCurrency(row.salePrice)}</td>
+          <td data-label="${t('th_voltage')}">${row.voltage || "-"}</td>
         `;
         body.appendChild(tr);
       });

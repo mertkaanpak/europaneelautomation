@@ -411,6 +411,14 @@
                 <option value="Decke" data-i18n="mount_ceiling">Deckengeraet</option>
               </select>
             </div>
+            <div class="input-group" id="group-manufacturer" style="display:none;">
+              <label data-i18n="label_manufacturer">Hersteller</label>
+              <select id="inp-manufacturer" onchange="berechnePreis()">
+                <option value="auto" selected data-i18n="manuf_auto">Egal (Guenstigstes)</option>
+                <option value="Govi">Govi</option>
+                <option value="Zanotti">Zanotti</option>
+              </select>
+            </div>
           </div>
 
           <div class="section-label" data-i18n="section_service">5. Lieferung & Montage (optional)</div>
@@ -508,6 +516,8 @@
         cooling_normal: "Normalkuehlung",
         cooling_tief: "Tiefkuehlung",
         label_mount: "Montage",
+        label_manufacturer: "Hersteller",
+        manuf_auto: "Egal (Guenstigstes)",
         label_service: "Lieferung & Montage (EUR)",
         mount_wall: "Wandgeraet",
         mount_ceiling: "Deckengeraet",
@@ -563,6 +573,8 @@
         cooling_normal: "Normal sogutma",
         cooling_tief: "Derin sogutma",
         label_mount: "Montaj",
+        label_manufacturer: "Uretici",
+        manuf_auto: "Farketmez (En ucuz)",
         label_service: "Teslimat ve montaj (EUR)",
         mount_wall: "Duvar tipi",
         mount_ceiling: "Tavan tipi",
@@ -658,8 +670,11 @@
       {"manufacturer":"Zanotti","mount":"Wand","cooling":"tief","model":"BPS3230YA11A","volume":20.8,"salePrice":3435.77}
     ];
 
-    function pickAggregate(targetVolume, cooling, mount) {
-      const filtered = aggregateData.filter(item => item.cooling === cooling && item.mount === mount);
+    function pickAggregate(targetVolume, cooling, mount, manufacturer) {
+      let filtered = aggregateData.filter(item => item.cooling === cooling && item.mount === mount);
+      if (manufacturer && manufacturer !== "auto") {
+        filtered = filtered.filter(item => item.manufacturer === manufacturer);
+      }
       if (!filtered.length) return null;
       const sorted = filtered.slice().sort((a, b) => a.volume - b.volume);
       const candidate = sorted.find(item => item.volume >= targetVolume) || sorted[sorted.length - 1];
@@ -677,7 +692,9 @@
       const aggregatToggle = document.getElementById("inp-aggregat").value === "1";
       const kuehlart = document.getElementById("inp-kuehlart").value;
       const montage = document.getElementById("inp-montage").value;
+      const manufacturer = document.getElementById("inp-manufacturer") ? document.getElementById("inp-manufacturer").value : "auto";
       const mountGroup = document.getElementById("group-mount");
+      const manufGroup = document.getElementById("group-manufacturer");
 
       const preisPaneel = parseFloat(document.getElementById("inp-preis-qm").value) || 0;
       const preisSiebdruck = parseFloat(document.getElementById("inp-preis-siebdruck").value) || 0;
@@ -703,7 +720,8 @@
       if (aggregatToggle && L && B && H) {
         const zielVolumen = L * B * H;
         mountGroup.style.display = "block";
-        const aggregat = pickAggregate(zielVolumen, kuehlart, montage);
+        if (manufGroup) manufGroup.style.display = "block";
+        const aggregat = pickAggregate(zielVolumen, kuehlart, montage, manufacturer);
         if (aggregat) {
           aggregatPreis = aggregat.salePrice || 0;
           document.getElementById("val-aggregat-name").innerText = aggregat.model + " (" + aggregat.manufacturer + " " + aggregat.mount + ")";
@@ -715,6 +733,7 @@
         document.getElementById("val-aggregat-name").innerText = "-";
         rowAggregat.style.display = "none";
         mountGroup.style.display = "none";
+        if (manufGroup) manufGroup.style.display = "none";
       }
 
       const gesamt = kostenHuelle + kostenBodenPaneel + kostenSiebdruck + tuerPreis + aggregatPreis + servicePreis;
