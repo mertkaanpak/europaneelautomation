@@ -145,6 +145,33 @@
       .tw-badge { writing-mode: horizontal-tb; transform: none; padding: 4px 8px; }
     }
     @media (hover: none) { .selection-card:hover { transform: none; } }
+
+    /* ===== OFFER MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; padding: 20px;
+    }
+    .modal-box {
+      background: white; border-radius: var(--radius-lg);
+      padding: 32px; max-width: 420px; width: 100%;
+      box-shadow: 0 32px 80px rgba(0,0,0,.25);
+      animation: fadeUp .25s var(--ease) both;
+    }
+    .modal-icon { font-size: 32px; margin-bottom: 12px; }
+    .modal-title { font-size: 20px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+    .modal-sub { font-size: 13px; color: var(--steel); margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+    .btn-offer {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; margin-top: 14px; padding: 11px 18px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-weight: 700; font-size: 13px;
+      color: var(--ink); cursor: pointer; font-family: inherit;
+      transition: all .18s;
+    }
+    .btn-offer:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
   </style>
 </head>
 <body>
@@ -338,6 +365,9 @@
                 <div class="price-label" data-i18n="summary_total">Gesamtpreis (Netto)</div>
                 <div class="price-big" id="preis-ausgabe">0,00 EUR</div>
               </div>
+              <button class="btn-offer" onclick="openOfferModal('single')">
+                <span>📄</span><span data-i18n="btn_offer">Angebot als PDF erstellen</span>
+              </button>
             </div>
           </div>
         </div>
@@ -659,6 +689,9 @@
                 <div class="price-label" data-i18n="summary_total">Gesamtpreis (Netto)</div>
                 <div class="price-big" id="k-gesamt">0,00 EUR</div>
               </div>
+              <button class="btn-offer" onclick="openOfferModal('kombi')">
+                <span>📄</span><span data-i18n="btn_offer">Angebot als PDF erstellen</span>
+              </button>
             </div>
 
           </div>
@@ -667,6 +700,24 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- OFFER MODAL -->
+<div id="offer-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeOfferModal()">
+  <div class="modal-box">
+    <div class="modal-icon">📄</div>
+    <div class="modal-title" data-i18n="offer_modal_title">Angebot erstellen</div>
+    <div class="modal-sub" data-i18n="offer_modal_sub">Name des Kunden eingeben — das Angebot öffnet sich als druckfertiges PDF.</div>
+    <div class="input-group">
+      <label data-i18n="offer_customer_label">Kundenname / Firma</label>
+      <input type="text" id="offer-customer" placeholder="Max Mustermann GmbH" style="font-size:15px;"
+             onkeydown="if(event.key==='Enter')generateOffer()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="flex:1;" onclick="generateOffer()" data-i18n="offer_btn_create">PDF erstellen</button>
+      <button class="btn btn-ghost" onclick="closeOfferModal()" data-i18n="offer_btn_cancel">Abbrechen</button>
+    </div>
+  </div>
 </div>
 
 <nav class="bottom-nav" aria-label="Navigation">
@@ -688,6 +739,7 @@ let hatBoden = false;
 let kombiMitBoden1 = false, kombiMitBoden2 = false;
 let kombiCool1 = 'normal', kombiCool2 = 'normal';
 let currentLang = 'de';
+let lastSingleResult = null, lastKombiResult = null, currentOfferMode = 'single';
 
 /* ────────────────────────────────────────
    TRANSLATIONS
@@ -729,7 +781,13 @@ const translations = {
     label_tw_manual:"Trennwand-Fläche (m²) — manuell",
     label_tw_price:"Trennwand Preis (EUR/m²)",
     kombi_room_total:"Raum Gesamt", kombi_tw_summary:"Trennwand",
-    kombi_tw_notice:"⚠ Trennwand konnte nicht automatisch erkannt werden — bitte Fläche manuell eingeben."
+    kombi_tw_notice:"⚠ Trennwand konnte nicht automatisch erkannt werden — bitte Fläche manuell eingeben.",
+    btn_offer:"Angebot als PDF erstellen",
+    offer_modal_title:"Angebot erstellen",
+    offer_modal_sub:"Name des Kunden eingeben — das Angebot öffnet sich als druckfertiges PDF.",
+    offer_customer_label:"Kundenname / Firma",
+    offer_btn_create:"PDF erstellen",
+    offer_btn_cancel:"Abbrechen"
   },
   tr: {
     brand_sub:"Intranet Merkezi", nav_tools:"Araçlar", nav_data:"Veriler",
@@ -767,7 +825,13 @@ const translations = {
     label_tw_manual:"Bölme duvarı alanı (m²) — manuel",
     label_tw_price:"Bölme duvarı fiyatı (EUR/m²)",
     kombi_room_total:"Oda Toplamı", kombi_tw_summary:"Bölme Duvarı",
-    kombi_tw_notice:"⚠ Bölme duvarı otomatik tespit edilemedi — lütfen alanı manuel girin."
+    kombi_tw_notice:"⚠ Bölme duvarı otomatik tespit edilemedi — lütfen alanı manuel girin.",
+    btn_offer:"PDF teklif oluştur",
+    offer_modal_title:"Teklif oluştur",
+    offer_modal_sub:"Müşteri adını girin — teklif yazdırılabilir PDF olarak açılacak.",
+    offer_customer_label:"Müşteri adı / Firma",
+    offer_btn_create:"PDF oluştur",
+    offer_btn_cancel:"İptal"
   }
 };
 
@@ -898,6 +962,22 @@ function berechnePreis() {
   document.getElementById('val-aggregat-eur').textContent = fmt(aggPreis);
   document.getElementById('val-service-eur').textContent = fmt(servicePreis);
   document.getElementById('preis-ausgabe').textContent = fmt(gesamt);
+  const doorSel = document.getElementById('inp-tuer');
+  lastSingleResult = {
+    mode:'single', L, B, H,
+    typ: hatBoden ? t('badge_with_floor') : t('badge_no_floor'),
+    kuehlart: aggToggle ? (kuehlart==='tief'?t('cooling_tief'):t('cooling_normal')) : '',
+    aggOn: aggToggle,
+    aggName: aggToggle ? document.getElementById('val-aggregat-name').textContent : '',
+    aggEur: aggPreis,
+    doorEur: tuerPreis,
+    doorText: tuerPreis>0 ? doorSel.options[doorSel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '',
+    huelleEur: huelle,
+    bodenEur: boden,
+    siebdEur: siebd,
+    serviceEur: servicePreis,
+    gesamt
+  };
 }
 
 /* ────────────────────────────────────────
@@ -1061,6 +1141,270 @@ function berechneKombi() {
   document.getElementById('k-service-eur').textContent=fmt(service);
   document.getElementById('k-gesamt').textContent=fmt(gesamt);
   document.getElementById('kombi-summary').classList.add('show');
+  function getDoorTxt(id,price){
+    if(!price)return'';
+    const s=document.getElementById(id);
+    return s.options[s.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim();
+  }
+  lastKombiResult = {
+    mode:'kombi',
+    r1:{ L:L1,B:B1,H:H1, typ:kombiMitBoden1?t('card_with_floor'):t('card_no_floor'),
+         kuehlart:t(kombiCool1==='tief'?'cooling_tief':'cooling_normal'),
+         doorEur:door1, doorText:getDoorTxt('k1-tuer',door1),
+         aggOn:agg1on, aggName:agg1Name, aggEur:agg1Cost,
+         huelleEur:r1_huelle, bodenEur:r1_boden, siebdEur:r1_siebd, total:r1Total },
+    r2:{ L:L2,B:B2,H:H2, typ:kombiMitBoden2?t('card_with_floor'):t('card_no_floor'),
+         kuehlart:t(kombiCool2==='tief'?'cooling_tief':'cooling_normal'),
+         doorEur:door2, doorText:getDoorTxt('k2-tuer',door2),
+         aggOn:agg2on, aggName:agg2Name, aggEur:agg2Cost,
+         huelleEur:r2_huelle, bodenEur:r2_boden, siebdEur:r2_siebd, total:r2Total },
+    tw:{ area:twArea, cost:twCost, label:tw?tw.label:twArea.toFixed(2)+' m²' },
+    serviceEur:service, gesamt
+  };
+}
+
+/* ────────────────────────────────────────
+   OFFER / PDF
+──────────────────────────────────────── */
+function openOfferModal(mode) {
+  currentOfferMode = mode;
+  const data = mode === 'single' ? lastSingleResult : lastKombiResult;
+  if (!data) return;
+  document.getElementById('offer-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('offer-customer').focus(), 80);
+}
+function closeOfferModal() {
+  document.getElementById('offer-modal').style.display = 'none';
+}
+
+async function getLogoBase64() {
+  try {
+    const base = window.location.href.replace(/[^/\\]+$/, '');
+    const r = await fetch(base + 'logo.png');
+    const blob = await r.blob();
+    return await new Promise(res => {
+      const fr = new FileReader();
+      fr.onload = () => res(fr.result);
+      fr.readAsDataURL(blob);
+    });
+  } catch(e) { return null; }
+}
+
+async function generateOffer() {
+  const customer = document.getElementById('offer-customer').value.trim() || 'Kunde';
+  const data = currentOfferMode === 'single' ? lastSingleResult : lastKombiResult;
+  if (!data) return;
+  const logob64 = await getLogoBase64();
+  const html = buildOfferHTML(customer, data, logob64);
+  closeOfferModal();
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => { w.focus(); w.print(); }, 600);
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString('de-DE', { day:'2-digit', month:'long', year:'numeric' });
+}
+
+function buildOfferHTML(customer, data, logoSrc) {
+  const now = new Date();
+  const validUntil = new Date(now); validUntil.setDate(validUntil.getDate() + 30);
+  const offerNr = 'EP-' + now.getFullYear() +
+    String(now.getMonth()+1).padStart(2,'0') +
+    String(now.getDate()).padStart(2,'0') + '-' +
+    String(Math.floor(Math.random()*900)+100);
+
+  const logoImg = logoSrc
+    ? `<img src="${logoSrc}" alt="Europaneel" style="height:52px;display:block;">`
+    : `<div style="font-size:20px;font-weight:900;color:#e30613;letter-spacing:-1px;">EUROPANEEL</div>`;
+
+  const fmtEur = v => isFinite(v) ? v.toLocaleString('de-DE',{style:'currency',currency:'EUR'}) : '—';
+  const fmtM  = v => v ? v.toFixed(2).replace('.',',') + ' m' : '—';
+
+  /* ── config rows ── */
+  function configRow(label, value) {
+    return `<tr><td class="cfg-label">${label}</td><td class="cfg-value">${value}</td></tr>`;
+  }
+  function priceRow(label, value, sub) {
+    return `<tr><td class="pr-label">${label}${sub?`<br><small style="opacity:.6;font-size:9pt;">${sub}</small>`:''}</td><td class="pr-value">${fmtEur(value)}</td></tr>`;
+  }
+
+  let configSection = '', priceRows = '';
+
+  if (data.mode === 'single') {
+    const d = data;
+    const dims = `${fmtM(d.L)} × ${fmtM(d.B)} × ${fmtM(d.H)}`;
+    configSection = `
+      <div class="section-hdr">Konfiguration der Kühlzelle</div>
+      <table class="cfg-table">
+        ${configRow('Außenmaße (L × B × H)', dims)}
+        ${configRow('Bauart', d.typ)}
+        ${d.kuehlart ? configRow('Kühlart', d.kuehlart) : ''}
+        ${d.doorText ? configRow('Tür', d.doorText) : ''}
+        ${d.aggOn && d.aggName !== '-' ? configRow('Aggregat', d.aggName) : ''}
+      </table>`;
+    priceRows = `
+      ${priceRow('Kühlzelle — Sandwichpaneele', d.huelleEur + d.bodenEur + d.siebdEur)}
+      ${d.doorEur > 0 ? priceRow(d.doorText || 'Tür', d.doorEur) : ''}
+      ${d.aggOn && d.aggEur > 0 ? priceRow('Aggregat', d.aggEur, d.aggName) : ''}
+      ${d.serviceEur > 0 ? priceRow('Lieferung & Montage', d.serviceEur) : ''}`;
+  } else {
+    const r1 = data.r1, r2 = data.r2, tw = data.tw;
+    const dims1 = `${fmtM(r1.L)} × ${fmtM(r1.B)} × ${fmtM(r1.H)}`;
+    const dims2 = `${fmtM(r2.L)} × ${fmtM(r2.B)} × ${fmtM(r2.H)}`;
+    configSection = `
+      <div class="section-hdr">Konfiguration — Kombi-Zelle</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div>
+          <div style="font-weight:700;font-size:10pt;color:#3b82f6;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #93c5fd;">RAUM 1</div>
+          <table class="cfg-table" style="margin-bottom:0;">
+            ${configRow('Außenmaße', dims1)}
+            ${configRow('Bauart', r1.typ)}
+            ${configRow('Kühlart', r1.kuehlart)}
+            ${r1.doorText ? configRow('Tür', r1.doorText) : ''}
+            ${r1.aggOn && r1.aggName !== '-' ? configRow('Aggregat', r1.aggName) : ''}
+          </table>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:10pt;color:#10b981;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #6ee7b7;">RAUM 2</div>
+          <table class="cfg-table" style="margin-bottom:0;">
+            ${configRow('Außenmaße', dims2)}
+            ${configRow('Bauart', r2.typ)}
+            ${configRow('Kühlart', r2.kuehlart)}
+            ${r2.doorText ? configRow('Tür', r2.doorText) : ''}
+            ${r2.aggOn && r2.aggName !== '-' ? configRow('Aggregat', r2.aggName) : ''}
+          </table>
+        </div>
+      </div>
+      <table class="cfg-table">
+        ${configRow('Trennwand', tw.label)}
+      </table>`;
+    priceRows = `
+      ${priceRow('Raum 1 — Sandwichpaneele', r1.huelleEur + r1.bodenEur + r1.siebdEur)}
+      ${r1.doorEur > 0 ? priceRow('Raum 1 — ' + (r1.doorText||'Tür'), r1.doorEur) : ''}
+      ${r1.aggOn && r1.aggEur > 0 ? priceRow('Raum 1 — Aggregat', r1.aggEur, r1.aggName) : ''}
+      ${priceRow('Raum 2 — Sandwichpaneele', r2.huelleEur + r2.bodenEur + r2.siebdEur)}
+      ${r2.doorEur > 0 ? priceRow('Raum 2 — ' + (r2.doorText||'Tür'), r2.doorEur) : ''}
+      ${r2.aggOn && r2.aggEur > 0 ? priceRow('Raum 2 — Aggregat', r2.aggEur, r2.aggName) : ''}
+      ${tw.cost > 0 ? priceRow('Trennwand — Sandwichpaneele', tw.cost) : ''}
+      ${data.serviceEur > 0 ? priceRow('Lieferung & Montage', data.serviceEur) : ''}`;
+  }
+
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Angebot ${offerNr}</title>
+<style>
+  @page { margin: 22mm 20mm 28mm; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',Arial,sans-serif; font-size:10.5pt; color:#111827; line-height:1.5; }
+
+  /* Header */
+  .hdr { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:18px; border-bottom:3px solid #e30613; margin-bottom:28px; }
+  .co-info { text-align:right; font-size:9pt; color:#6b7280; line-height:1.7; }
+  .co-info strong { font-size:11pt; color:#111827; display:block; margin-bottom:2px; }
+
+  /* Title */
+  .offer-title { font-size:26pt; font-weight:900; color:#e30613; letter-spacing:-1px; margin-bottom:4px; }
+  .offer-nr { font-size:9pt; color:#9ca3af; margin-bottom:22px; }
+
+  /* Meta */
+  .meta-grid { display:grid; grid-template-columns:repeat(3,auto); gap:32px; margin-bottom:30px; }
+  .meta-item label { font-size:8pt; text-transform:uppercase; letter-spacing:.1em; color:#9ca3af; display:block; margin-bottom:3px; }
+  .meta-item span { font-weight:700; font-size:11.5pt; }
+
+  /* Sections */
+  .section-hdr {
+    font-size:9pt; font-weight:800; text-transform:uppercase; letter-spacing:.1em;
+    color:#e30613; margin-bottom:10px; padding-bottom:5px;
+    border-bottom:1px solid #fca5a5;
+  }
+
+  /* Config table */
+  .cfg-table { width:100%; border-collapse:collapse; margin-bottom:24px; font-size:10pt; }
+  .cfg-table td { padding:7px 12px; }
+  .cfg-label { color:#6b7280; width:42%; }
+  .cfg-value { font-weight:600; }
+  .cfg-table tr:nth-child(odd) td { background:#f9fafb; }
+  .cfg-table tr td { border-bottom:1px solid #f0f0f0; }
+
+  /* Price table */
+  .section-hdr-price {
+    font-size:9pt; font-weight:800; text-transform:uppercase; letter-spacing:.1em;
+    color:#e30613; margin-bottom:10px; padding-bottom:5px;
+    border-bottom:1px solid #fca5a5; margin-top:8px;
+  }
+  .pr-table { width:100%; border-collapse:collapse; font-size:10.5pt; }
+  .pr-table td { padding:8px 12px; }
+  .pr-label { color:#374151; }
+  .pr-value { text-align:right; font-weight:600; white-space:nowrap; }
+  .pr-table tr td { border-bottom:1px solid #f3f4f6; }
+  .pr-table .total-row td { background:#fff1f2; font-weight:800 !important; font-size:13pt !important; color:#e30613; border-top:2px solid #e30613 !important; border-bottom:none !important; padding:12px 12px !important; }
+  .pr-table .total-row td.pr-label-total { color:#111827 !important; }
+
+  /* Note + footer */
+  .note { font-size:8.5pt; color:#9ca3af; margin-top:28px; padding-top:14px; border-top:1px solid #e5e7eb; line-height:1.7; }
+  .footer { margin-top:20px; border-top:1px solid #e5e7eb; padding-top:10px; font-size:8pt; color:#9ca3af; display:flex; justify-content:space-between; }
+
+  @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>${logoImg}</div>
+  <div class="co-info">
+    <strong>Europaneel GmbH</strong>
+    info@europaneel.de<br>
+    www.europaneel.de
+  </div>
+</div>
+
+<div class="offer-title">ANGEBOT</div>
+<div class="offer-nr">Angebots-Nr. ${offerNr} &nbsp;·&nbsp; Erstellt am ${fmtDate(now)}</div>
+
+<div class="meta-grid">
+  <div class="meta-item">
+    <label>Angebot für</label>
+    <span>${customer}</span>
+  </div>
+  <div class="meta-item">
+    <label>Datum</label>
+    <span>${fmtDate(now)}</span>
+  </div>
+  <div class="meta-item">
+    <label>Gültig bis</label>
+    <span>${fmtDate(validUntil)}</span>
+  </div>
+</div>
+
+${configSection}
+
+<div class="section-hdr-price">Preisübersicht</div>
+<table class="pr-table">
+  ${priceRows}
+  <tr class="total-row">
+    <td class="pr-label pr-label-total">Gesamtpreis (Netto)</td>
+    <td class="pr-value">${fmtEur(data.gesamt)}</td>
+  </tr>
+</table>
+
+<div class="note">
+  Alle Preise verstehen sich netto, zuzüglich der gesetzlichen Mehrwertsteuer.<br>
+  Dieses Angebot ist gültig bis ${fmtDate(validUntil)}.<br>
+  Irrtümer und technische Änderungen vorbehalten. Lieferbedingungen lt. unseren AGB.
+</div>
+
+<div class="footer">
+  <span>Europaneel GmbH</span>
+  <span>Angebots-Nr. ${offerNr}</span>
+  <span>${fmtDate(now)}</span>
+</div>
+
+</body>
+</html>`;
 }
 
 /* ────────────────────────────────────────
