@@ -7,29 +7,106 @@
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDK (Compat Mode) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
   <style>
-    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
-    .toolbar input { flex: 1; min-width: 140px; max-width: 280px; }
-    .stock-badge { display: inline-block; padding: 3px 9px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 700; }
+    /* ── Connection badge ── */
+    .conn-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: var(--radius-pill);
+      font-size: 11.5px; font-weight: 700;
+    }
+    .conn-badge .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .conn-firebase { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
+    .conn-firebase .dot { background: #22c55e; }
+    .conn-local  { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+    .conn-local  .dot { background: #f59e0b; }
+    .conn-error  { background: var(--red-bg); color: var(--red-dark); border: 1px solid var(--red-border); }
+    .conn-error  .dot { background: var(--red); }
+
+    /* ── Stats row ── */
+    .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .stat-chip {
+      display: flex; flex-direction: column; align-items: center;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 20px; min-width: 90px; flex: 1;
+    }
+    .stat-chip .stat-num { font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1; }
+    .stat-chip .stat-lbl { font-size: 11px; color: var(--steel); margin-top: 4px; text-align: center; }
+    .stat-chip.warn .stat-num { color: #d97706; }
+    .stat-chip.danger .stat-num { color: var(--red); }
+
+    /* ── Toolbar ── */
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .toolbar input { flex: 1; min-width: 180px; max-width: 320px; }
+    .save-hint { font-size: 12px; color: #22c55e; font-weight: 600; opacity: 0; transition: opacity .4s; }
+    .save-hint.visible { opacity: 1; }
+
+    /* ── Status badge ── */
+    .stock-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 700;
+    }
     .stock-ok  { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
     .stock-low { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
     .stock-out { background: var(--red-bg); color: var(--red-dark); border: 1px solid var(--red-border); }
-    .add-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; align-items: end; }
-    .edit-input { border: none; background: transparent; width: 100%; font-size: 13.5px; font-family: inherit; color: var(--ink); padding: 3px 6px; border-radius: 6px; }
-    .edit-input:focus { outline: none; background: var(--surface); border: 1px solid var(--red); }
+
+    /* ── Anschlag pill ── */
+    .anschlag-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 700;
+    }
+    .links-pill  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .rechts-pill { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+
+    /* ── Stock control ── */
     .stock-ctrl { display: flex; align-items: center; gap: 6px; }
-    .stock-ctrl button { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; line-height: 1; }
-    .stock-ctrl button:hover { background: var(--red-bg); border-color: var(--red-border); }
-    .count-label { font-size: 12px; color: var(--steel); }
+    .stock-ctrl button {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+      width: 28px; height: 28px; cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1; transition: all .15s; font-weight: 700;
+    }
+    .stock-ctrl button:hover { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
+    .stock-ctrl input[type=number] {
+      width: 52px; text-align: center; font-size: 15px; font-weight: 800;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 4px 6px; font-family: inherit; color: var(--ink);
+      background: var(--white);
+    }
+    .stock-ctrl input[type=number]:focus { outline: none; border-color: var(--red); }
+    .stock-ctrl input::-webkit-inner-spin-button,
+    .stock-ctrl input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    /* ── Note input ── */
+    .note-input {
+      border: 1px solid transparent; background: transparent; width: 100%;
+      font-size: 13px; font-family: inherit; color: var(--ink);
+      padding: 4px 8px; border-radius: 6px; transition: all .15s;
+    }
+    .note-input:hover { background: var(--surface); }
+    .note-input:focus { outline: none; background: var(--surface); border-color: var(--red); }
+
+    /* ── Group separator ── */
+    .group-header td {
+      background: var(--surface); font-weight: 700; font-size: 12px;
+      color: var(--steel); text-transform: uppercase; letter-spacing: .06em;
+      padding: 6px 14px; border-top: 2px solid var(--border);
+    }
+
+    /* ── Mobile cards ── */
     @media (max-width: 680px) {
       .table-wrap { overflow: visible; }
       table { min-width: 0; }
       thead { display: none; }
-      tbody tr { display: block; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; background: var(--white); }
-      tbody td { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; border: none; font-size: 13.5px; }
+      .group-header { display: none; }
+      tbody tr:not(.group-header) { display: block; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; background: var(--white); }
+      tbody td { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 5px 0; border: none; font-size: 13.5px; }
       tbody td::before { content: attr(data-label); font-weight: 600; color: var(--steel); font-size: 11.5px; flex-shrink: 0; min-width: 80px; }
-      .add-form { grid-template-columns: 1fr; }
-      .toolbar input { max-width: 100%; }
+      .note-input { text-align: right; }
     }
   </style>
 </head>
@@ -63,9 +140,13 @@
     <div class="topbar">
       <div class="topbar-left">
         <div class="topbar-title" data-i18n="title">Lagerbestand Türen</div>
-        <div class="topbar-sub" data-i18n="subtitle">Bestand und Verfügbarkeit der Türen verwalten.</div>
+        <div class="topbar-sub" data-i18n="subtitle">Bestand der Kühlraumtüren verwalten.</div>
       </div>
-      <div class="topbar-right">
+      <div class="topbar-right" style="gap:10px;">
+        <span id="conn-badge" class="conn-badge conn-local">
+          <span class="dot"></span>
+          <span id="conn-text" data-i18n="conn_local">Lokaler Speicher</span>
+        </span>
         <div class="lang-switch" role="group" aria-label="Sprache">
           <button class="lang-btn" data-lang="de">DE</button>
           <button class="lang-btn" data-lang="tr">TR</button>
@@ -75,56 +156,44 @@
 
     <div class="content">
 
-      <!-- Add form card -->
-      <div class="card" style="margin-bottom:16px;">
-        <div class="section-label" data-i18n="form_section">Neuer Eintrag</div>
-        <div class="add-form" id="addForm">
-          <div class="input-group">
-            <label data-i18n="col_type">Türtyp</label>
-            <input type="text" id="inpType" placeholder="z. B. Kühlzelltür" />
-          </div>
-          <div class="input-group">
-            <label data-i18n="col_size">Größe</label>
-            <input type="text" id="inpSize" placeholder="z. B. 80×200 cm" />
-          </div>
-          <div class="input-group">
-            <label data-i18n="col_location">Lagerort</label>
-            <input type="text" id="inpLocation" placeholder="z. B. Halle A" />
-          </div>
-          <div class="input-group">
-            <label data-i18n="col_stock">Bestand</label>
-            <input type="number" id="inpStock" min="0" step="1" value="1" />
-          </div>
-          <div class="input-group">
-            <label data-i18n="col_note">Notiz</label>
-            <input type="text" id="inpNote" placeholder="Optional" />
-          </div>
-          <div class="input-group" style="display:flex;align-items:flex-end;">
-            <button class="btn btn-primary btn-full" id="addBtn" data-i18n="btn_add">Hinzufügen</button>
-          </div>
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-chip">
+          <span class="stat-num" id="stat-total">14</span>
+          <span class="stat-lbl" data-i18n="stat_positions">Positionen</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-num" id="stat-total-units">0</span>
+          <span class="stat-lbl" data-i18n="stat_total_units">Stück gesamt</span>
+        </div>
+        <div class="stat-chip warn">
+          <span class="stat-num" id="stat-low">0</span>
+          <span class="stat-lbl" data-i18n="stat_low">Niedriger Bestand</span>
+        </div>
+        <div class="stat-chip danger">
+          <span class="stat-num" id="stat-out">0</span>
+          <span class="stat-lbl" data-i18n="stat_out">Kein Bestand</span>
         </div>
       </div>
 
-      <!-- Main table card -->
       <div class="card">
         <div class="toolbar">
-          <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Suchen…" />
-          <span class="count-label" id="countLabel"></span>
+          <input type="text" id="search-inp" placeholder="Suchen…" oninput="renderTable()" data-i18n-placeholder="search_placeholder" />
+          <span id="save-hint" class="save-hint">✓ Gespeichert</span>
         </div>
+
         <div class="table-wrap">
-          <table id="stockTable">
+          <table id="lager-table">
             <thead>
               <tr>
-                <th data-i18n="col_type">Türtyp</th>
-                <th data-i18n="col_size">Größe</th>
-                <th data-i18n="col_location">Lagerort</th>
-                <th data-i18n="col_stock">Bestand</th>
-                <th data-i18n="col_note">Notiz</th>
-                <th data-i18n="col_status">Status</th>
-                <th></th>
+                <th data-i18n="th_size">Türgröße</th>
+                <th data-i18n="th_anschlag">Anschlag</th>
+                <th data-i18n="th_bestand">Bestand</th>
+                <th data-i18n="th_status">Status</th>
+                <th data-i18n="th_notiz">Notiz</th>
               </tr>
             </thead>
-            <tbody id="stockBody"></tbody>
+            <tbody id="lager-body"></tbody>
           </table>
         </div>
       </div>
@@ -133,7 +202,6 @@
   </main>
 </div>
 
-<!-- Mobile bottom nav -->
 <nav class="bottom-nav" aria-label="Navigation">
   <div class="bottom-nav-inner">
     <a class="bottom-nav-item" href="index.html"><span class="nav-icon">🏠</span><span>Home</span></a>
@@ -146,248 +214,309 @@
 </nav>
 
 <script>
+/* ════════════════════════════════════════════════════════════
+   FIREBASE KONFIGURATION
+   ────────────────────────────────────────────────────────────
+   1. Gehe zu: https://console.firebase.google.com
+   2. Neues Projekt erstellen (kostenlos)
+   3. "Realtime Database" aktivieren → Testmodus (30 Tage)
+      Danach Regeln auf open setzen:
+      { "rules": { ".read": true, ".write": true } }
+   4. Projekt-Einstellungen → Deine Apps → Web-App hinzufügen
+   5. Die Config-Werte unten ersetzen
+   ────────────────────────────────────────────────────────────
+   Solange die Config nicht gesetzt ist, wird localStorage
+   als Fallback verwendet — Daten bleiben im Browser erhalten.
+════════════════════════════════════════════════════════════ */
+const FIREBASE_CONFIG = {
+  apiKey:            "HIER_API_KEY",
+  authDomain:        "HIER_PROJECT_ID.firebaseapp.com",
+  databaseURL:       "https://HIER_PROJECT_ID-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "HIER_PROJECT_ID",
+  storageBucket:     "HIER_PROJECT_ID.appspot.com",
+  messagingSenderId: "000000000000",
+  appId:             "HIER_APP_ID"
+};
+const FB_PATH = 'ep_lager_tueren';
+
+/* ────────────────────────────────────────────────────────── */
+
+const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "HIER_API_KEY";
+
+/* ── Default door list ── */
+const DOOR_SIZES = [
+  "75 × 175 cm",
+  "75 × 190 cm",
+  "80 × 190 cm",
+  "90 × 190 cm",
+  "110 × 190 cm",
+  "100 × 200 cm",
+  "100 × 220 cm"
+];
+
+let doors = [];
+DOOR_SIZES.forEach((size, si) => {
+  ['Links','Rechts'].forEach((anschlag, ai) => {
+    doors.push({ id: si * 2 + ai + 1, size, anschlag, bestand: 0, notiz: '' });
+  });
+});
+
+/* ── i18n ── */
+let currentLang = localStorage.getItem('europaneel_lang') || 'de';
 const translations = {
   de: {
-    brand_sub:"Intranet Hub",
-    nav_tools:"Werkzeuge",
-    nav_data:"Daten",
-    nav_home:"Dashboard",
-    nav_zellen:"Zellenrechner",
-    nav_aggr:"Aggregatauswahl",
-    nav_paneel:"Paneelrechner",
-    nav_lager:"Lagerbestand Türen",
-    nav_kal:"Kalender",
-    nav_aggregate:"Aggregate",
-    title:"Lagerbestand Türen",
-    subtitle:"Bestand und Verfügbarkeit der Türen verwalten.",
-    form_section:"Neuer Eintrag",
-    col_type:"Türtyp",
-    col_size:"Größe",
-    col_location:"Lagerort",
-    col_stock:"Bestand",
-    col_note:"Notiz",
-    col_status:"Status",
-    btn_add:"Hinzufügen",
-    search_placeholder:"Suchen…",
-    empty:"Keine Einträge. Oben einen neuen Eintrag hinzufügen.",
-    status_ok:"Verfügbar",
-    status_low:"Niedrig",
-    status_out:"Leer",
-    entries:"Einträge",
-    btn_del:"Löschen"
+    brand_sub:"Intranet Hub", nav_tools:"Werkzeuge", nav_data:"Daten",
+    nav_home:"Dashboard", nav_zellen:"Zellenrechner", nav_aggr:"Aggregatauswahl",
+    nav_paneel:"Paneelrechner", nav_lager:"Lagerbestand Türen", nav_kal:"Kalender", nav_aggregate:"Aggregate",
+    title:"Lagerbestand Türen", subtitle:"Bestand der Kühlraumtüren verwalten.",
+    conn_firebase:"Firebase verbunden", conn_local:"Lokaler Speicher", conn_error:"Verbindungsfehler",
+    stat_positions:"Positionen", stat_total_units:"Stück gesamt",
+    stat_low:"Niedriger Bestand", stat_out:"Kein Bestand",
+    search_placeholder:"Suchen nach Größe oder Anschlag…",
+    th_size:"Türgröße", th_anschlag:"Anschlag", th_bestand:"Bestand",
+    th_status:"Status", th_notiz:"Notiz",
+    status_ok:"Verfügbar", status_low:"Niedrig", status_out:"Kein Bestand",
+    anschlag_links:"Links", anschlag_rechts:"Rechts",
+    notiz_placeholder:"Notiz…",
+    saved_hint:"✓ Gespeichert"
   },
   tr: {
-    brand_sub:"Intranet Hub",
-    nav_tools:"Araçlar",
-    nav_data:"Veriler",
-    nav_home:"Ana Sayfa",
-    nav_zellen:"Hücre Hesaplayıcı",
-    nav_aggr:"Agrega Seçimi",
-    nav_paneel:"Panel Hesaplayıcı",
-    nav_lager:"Kapı Stoğu",
-    nav_kal:"Takvim",
-    nav_aggregate:"Agregatlar",
-    title:"Kapı Stoğu",
-    subtitle:"Kapıların stok ve uygunluk durumunu yönetin.",
-    form_section:"Yeni kayıt",
-    col_type:"Kapı tipi",
-    col_size:"Ölçü",
-    col_location:"Depo",
-    col_stock:"Stok",
-    col_note:"Not",
-    col_status:"Durum",
-    btn_add:"Ekle",
-    search_placeholder:"Ara…",
-    empty:"Kayıt yok. Yukarıdan yeni kayıt ekleyin.",
-    status_ok:"Mevcut",
-    status_low:"Az",
-    status_out:"Tükenmiş",
-    entries:"Kayıt",
-    btn_del:"Sil"
+    brand_sub:"Intranet Merkezi", nav_tools:"Araçlar", nav_data:"Veriler",
+    nav_home:"Anasayfa", nav_zellen:"Soğuk Oda", nav_aggr:"Agrega Seçimi",
+    nav_paneel:"Panel Hesap", nav_lager:"Kapı Stoğu", nav_kal:"Takvim", nav_aggregate:"Agregalar",
+    title:"Kapı Stok Takibi", subtitle:"Soğuk oda kapı stok yönetimi.",
+    conn_firebase:"Firebase bağlı", conn_local:"Yerel depolama", conn_error:"Bağlantı hatası",
+    stat_positions:"Pozisyon", stat_total_units:"Toplam adet",
+    stat_low:"Düşük stok", stat_out:"Stok yok",
+    search_placeholder:"Boyut veya menteşe yönü ara…",
+    th_size:"Kapı boyutu", th_anschlag:"Menteşe", th_bestand:"Stok",
+    th_status:"Durum", th_notiz:"Not",
+    status_ok:"Mevcut", status_low:"Düşük", status_out:"Stok yok",
+    anschlag_links:"Sol", anschlag_rechts:"Sağ",
+    notiz_placeholder:"Not…",
+    saved_hint:"✓ Kaydedildi"
   }
 };
-
-const STORAGE_KEY = "ep_stock";
-let currentLang = localStorage.getItem("europaneel_lang") || "de";
-
-function t(key) {
-  return (translations[currentLang] && translations[currentLang][key]) || (translations["de"] && translations["de"][key]) || key;
-}
-
+function t(k) { return (translations[currentLang]||{})[k] || translations.de[k] || k; }
 function applyLanguage(lang) {
-  currentLang = lang;
-  localStorage.setItem("europaneel_lang", lang);
-  document.documentElement.lang = lang;
-  document.title = "Europaneel — " + t("title");
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    el.textContent = t(el.getAttribute("data-i18n"));
+  currentLang = translations[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.title = 'Europaneel — ' + t('title');
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = translations[currentLang][el.dataset.i18n];
+    if (v !== undefined) el.textContent = v;
   });
-  // Update placeholders
-  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
-    el.placeholder = t(el.getAttribute("data-i18n-placeholder"));
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const v = translations[currentLang][el.dataset.i18nPlaceholder];
+    if (v) el.placeholder = v;
   });
-  document.querySelectorAll(".lang-btn").forEach(btn => {
-    btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
-  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+  localStorage.setItem('europaneel_lang', currentLang);
   renderTable();
 }
 
-// ---- Storage ----
-function loadStock() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch(e) { return []; }
-}
-function saveStock(items) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
+/* ── Status helpers ── */
+function statusClass(n) { return n <= 0 ? 'stock-out' : n <= 2 ? 'stock-low' : 'stock-ok'; }
+function statusLabel(n) { return n <= 0 ? t('status_out') : n <= 2 ? t('status_low') : t('status_ok'); }
+function statusDot(n) { return n <= 0 ? '🔴' : n <= 2 ? '🟡' : '🟢'; }
 
-// ---- Helpers ----
-function escHtml(str) {
-  return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-function statusBadge(stock) {
-  if (stock > 2)  return `<span class="stock-badge stock-ok">${t("status_ok")}</span>`;
-  if (stock >= 1) return `<span class="stock-badge stock-low">${t("status_low")}</span>`;
-  return `<span class="stock-badge stock-out">${t("status_out")}</span>`;
-}
-
-// ---- Render ----
+/* ── Render table ── */
 function renderTable() {
-  const search = (document.getElementById("searchInput").value || "").toLowerCase().trim();
-  const items  = loadStock();
-  const filtered = items.filter(it => {
-    if (!search) return true;
-    const hay = [it.type, it.size, it.location, it.note, it.stock].join(" ").toLowerCase();
-    return hay.includes(search);
+  const q = (document.getElementById('search-inp')?.value || '').toLowerCase().trim();
+  const tbody = document.getElementById('lager-body');
+  if (!tbody) return;
+
+  const filtered = q
+    ? doors.filter(d =>
+        d.size.toLowerCase().includes(q) ||
+        d.anschlag.toLowerCase().includes(q) ||
+        t('anschlag_' + d.anschlag.toLowerCase()).toLowerCase().includes(q) ||
+        (d.notiz && d.notiz.toLowerCase().includes(q))
+      )
+    : doors;
+
+  let html = '';
+  let lastSize = null;
+  filtered.forEach(d => {
+    if (d.size !== lastSize) {
+      lastSize = d.size;
+      html += `<tr class="group-header"><td colspan="5">${d.size}</td></tr>`;
+    }
+    const aClass = d.anschlag === 'Links' ? 'links-pill' : 'rechts-pill';
+    const aLabel = d.anschlag === 'Links' ? t('anschlag_links') : t('anschlag_rechts');
+    const sClass = statusClass(d.bestand);
+    const sLabel = statusLabel(d.bestand);
+    const sDot   = statusDot(d.bestand);
+    html += `
+      <tr data-id="${d.id}">
+        <td data-label="${t('th_size')}">${d.size}</td>
+        <td data-label="${t('th_anschlag')}">
+          <span class="anschlag-pill ${aClass}">${aLabel}</span>
+        </td>
+        <td data-label="${t('th_bestand')}">
+          <div class="stock-ctrl">
+            <button onclick="changeStock(${d.id},-1)" title="-1">−</button>
+            <input type="number" min="0" value="${d.bestand}"
+                   onchange="setStock(${d.id},+this.value)"
+                   onfocus="this.select()" />
+            <button onclick="changeStock(${d.id},+1)" title="+1">+</button>
+          </div>
+        </td>
+        <td data-label="${t('th_status')}">
+          <span class="stock-badge ${sClass}">${sDot} ${sLabel}</span>
+        </td>
+        <td data-label="${t('th_notiz')}">
+          <input class="note-input" type="text" value="${escHtml(d.notiz)}"
+                 placeholder="${t('notiz_placeholder')}"
+                 onchange="setNote(${d.id},this.value)" />
+        </td>
+      </tr>`;
   });
 
-  const tbody = document.getElementById("stockBody");
-  tbody.innerHTML = "";
-
-  document.getElementById("countLabel").textContent = `${filtered.length} ${t("entries")}`;
-
-  const colType     = t("col_type");
-  const colSize     = t("col_size");
-  const colLocation = t("col_location");
-  const colStock    = t("col_stock");
-  const colNote     = t("col_note");
-  const colStatus   = t("col_status");
-  const btnDel      = t("btn_del");
-
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--steel);padding:24px;">${t("empty")}</td></tr>`;
+    html = `<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--steel);">Keine Einträge gefunden.</td></tr>`;
+  }
+  tbody.innerHTML = html;
+  updateStats();
+}
+
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+/* ── Stats ── */
+function updateStats() {
+  const total  = doors.reduce((s,d) => s + d.bestand, 0);
+  const low    = doors.filter(d => d.bestand > 0 && d.bestand <= 2).length;
+  const out    = doors.filter(d => d.bestand <= 0).length;
+  document.getElementById('stat-total').textContent  = doors.length;
+  document.getElementById('stat-total-units').textContent = total;
+  document.getElementById('stat-low').textContent  = low;
+  document.getElementById('stat-out').textContent  = out;
+}
+
+/* ── Stock changes ── */
+function changeStock(id, delta) {
+  const d = doors.find(x => x.id === id);
+  if (!d) return;
+  d.bestand = Math.max(0, (d.bestand || 0) + delta);
+  renderTable();
+  saveEntry(id);
+}
+function setStock(id, val) {
+  const d = doors.find(x => x.id === id);
+  if (!d) return;
+  d.bestand = Math.max(0, Math.round(val) || 0);
+  renderTable();
+  saveEntry(id);
+}
+function setNote(id, val) {
+  const d = doors.find(x => x.id === id);
+  if (!d) return;
+  d.notiz = val.trim();
+  saveEntry(id);
+}
+
+/* ── Save hint ── */
+let saveHintTimer = null;
+function showSaveHint() {
+  const el = document.getElementById('save-hint');
+  if (!el) return;
+  el.textContent = t('saved_hint');
+  el.classList.add('visible');
+  clearTimeout(saveHintTimer);
+  saveHintTimer = setTimeout(() => el.classList.remove('visible'), 2000);
+}
+
+/* ── Storage ── */
+let fbDb = null;
+let useFirebase = false;
+
+function saveEntry(id) {
+  const d = doors.find(x => x.id === id);
+  if (!d) return;
+  if (useFirebase && fbDb) {
+    fbDb.ref(FB_PATH + '/' + id).set({ bestand: d.bestand, notiz: d.notiz })
+      .then(showSaveHint)
+      .catch(err => { console.error('Firebase save error:', err); saveFallback(); });
+  } else {
+    saveFallback();
+  }
+}
+
+function saveFallback() {
+  localStorage.setItem('ep_lager_tueren', JSON.stringify(
+    doors.map(d => ({ id: d.id, bestand: d.bestand, notiz: d.notiz }))
+  ));
+  showSaveHint();
+}
+
+function loadFromLocalStorage() {
+  const raw = localStorage.getItem('ep_lager_tueren');
+  if (raw) {
+    try {
+      const saved = JSON.parse(raw);
+      saved.forEach(s => {
+        const d = doors.find(x => x.id === s.id);
+        if (d) { d.bestand = s.bestand || 0; d.notiz = s.notiz || ''; }
+      });
+    } catch(e) {}
+  }
+}
+
+function setConnBadge(mode) {
+  const badge = document.getElementById('conn-badge');
+  const text  = document.getElementById('conn-text');
+  badge.className = 'conn-badge conn-' + mode;
+  text.textContent = t('conn_' + mode);
+}
+
+/* ── Firebase init ── */
+function initFirebase() {
+  if (!FIREBASE_ENABLED) {
+    loadFromLocalStorage();
+    setConnBadge('local');
+    renderTable();
     return;
   }
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbDb = firebase.database();
+    useFirebase = true;
+    setConnBadge('firebase');
 
-  // Map filtered items back to original indices
-  filtered.forEach(it => {
-    const origIdx = items.indexOf(it);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td data-label="${colType}"><input class="edit-input" type="text" value="${escHtml(it.type)}" data-field="type" data-idx="${origIdx}" /></td>
-      <td data-label="${colSize}"><input class="edit-input" type="text" value="${escHtml(it.size)}" data-field="size" data-idx="${origIdx}" /></td>
-      <td data-label="${colLocation}"><input class="edit-input" type="text" value="${escHtml(it.location)}" data-field="location" data-idx="${origIdx}" /></td>
-      <td data-label="${colStock}">
-        <div class="stock-ctrl">
-          <button class="stock-minus" data-idx="${origIdx}" aria-label="Minus">−</button>
-          <span class="stock-val">${it.stock}</span>
-          <button class="stock-plus" data-idx="${origIdx}" aria-label="Plus">+</button>
-        </div>
-      </td>
-      <td data-label="${colNote}"><input class="edit-input" type="text" value="${escHtml(it.note)}" data-field="note" data-idx="${origIdx}" /></td>
-      <td data-label="${colStatus}">${statusBadge(it.stock)}</td>
-      <td>
-        <button class="btn btn-sm" style="background:var(--red-bg);color:var(--red-dark);border:1px solid var(--red-border);" data-del="${origIdx}" aria-label="${btnDel}">${btnDel}</button>
-      </td>
-    `;
-
-    // Edit inputs
-    tr.querySelectorAll(".edit-input").forEach(inp => {
-      inp.addEventListener("change", () => {
-        const its = loadStock();
-        const idx = parseInt(inp.getAttribute("data-idx"));
-        const field = inp.getAttribute("data-field");
-        its[idx][field] = inp.value;
-        saveStock(its);
-        // Don't re-render to keep focus; just update status badge
-        const stockVal = its[idx].stock;
-        const statusTd = tr.querySelector(`td[data-label="${colStatus}"]`);
-        if (statusTd) statusTd.innerHTML = statusBadge(stockVal);
-      });
-    });
-
-    // Stock +/-
-    tr.querySelector(".stock-minus").addEventListener("click", () => {
-      const its = loadStock();
-      const idx = parseInt(tr.querySelector(".stock-minus").getAttribute("data-idx"));
-      if (its[idx].stock > 0) its[idx].stock--;
-      saveStock(its);
-      tr.querySelector(".stock-val").textContent = its[idx].stock;
-      const statusTd = tr.querySelector(`td[data-label="${colStatus}"]`);
-      if (statusTd) statusTd.innerHTML = statusBadge(its[idx].stock);
-    });
-    tr.querySelector(".stock-plus").addEventListener("click", () => {
-      const its = loadStock();
-      const idx = parseInt(tr.querySelector(".stock-plus").getAttribute("data-idx"));
-      its[idx].stock++;
-      saveStock(its);
-      tr.querySelector(".stock-val").textContent = its[idx].stock;
-      const statusTd = tr.querySelector(`td[data-label="${colStatus}"]`);
-      if (statusTd) statusTd.innerHTML = statusBadge(its[idx].stock);
-    });
-
-    // Delete
-    tr.querySelector("[data-del]").addEventListener("click", () => {
-      const its = loadStock();
-      const idx = parseInt(tr.querySelector("[data-del]").getAttribute("data-del"));
-      its.splice(idx, 1);
-      saveStock(its);
+    // Real-time listener — updates page whenever data changes in Firebase
+    fbDb.ref(FB_PATH).on('value', snap => {
+      const data = snap.val();
+      if (data) {
+        Object.keys(data).forEach(id => {
+          const d = doors.find(x => x.id === parseInt(id));
+          if (d) {
+            d.bestand = data[id].bestand ?? 0;
+            d.notiz   = data[id].notiz ?? '';
+          }
+        });
+      }
+      renderTable();
+    }, err => {
+      console.error('Firebase read error:', err);
+      useFirebase = false;
+      fbDb = null;
+      setConnBadge('error');
+      loadFromLocalStorage();
       renderTable();
     });
 
-    tbody.appendChild(tr);
-  });
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    loadFromLocalStorage();
+    setConnBadge('error');
+    renderTable();
+  }
 }
 
-// ---- Add ----
-document.getElementById("addBtn").addEventListener("click", () => {
-  const type     = document.getElementById("inpType").value.trim();
-  const size     = document.getElementById("inpSize").value.trim();
-  const location = document.getElementById("inpLocation").value.trim();
-  const stock    = parseInt(document.getElementById("inpStock").value) || 0;
-  const note     = document.getElementById("inpNote").value.trim();
-
-  if (!type) { document.getElementById("inpType").focus(); return; }
-
-  const items = loadStock();
-  items.push({ type, size, location, stock, note });
-  saveStock(items);
-
-  document.getElementById("inpType").value     = "";
-  document.getElementById("inpSize").value     = "";
-  document.getElementById("inpLocation").value = "";
-  document.getElementById("inpStock").value    = "1";
-  document.getElementById("inpNote").value     = "";
-
-  renderTable();
-});
-
-// Allow Enter key in add form
-document.getElementById("addForm").addEventListener("keydown", e => {
-  if (e.key === "Enter") document.getElementById("addBtn").click();
-});
-
-// Search
-document.getElementById("searchInput").addEventListener("input", renderTable);
-
-// Lang
-document.querySelectorAll(".lang-btn").forEach(btn => {
-  btn.addEventListener("click", () => applyLanguage(btn.getAttribute("data-lang")));
-});
-
-// ---- Init ----
+/* ── Init ── */
 applyLanguage(currentLang);
+document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => applyLanguage(b.dataset.lang)));
+initFirebase();
 </script>
 </body>
 </html>
