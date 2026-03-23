@@ -3,232 +3,288 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Europaneel | Aggregate</title>
+  <title>Europaneel — Aggregate Übersicht</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    .filter-bar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-      align-items: center;
-    }
-    .filter-bar select { max-width: 180px; }
-    .filter-bar input[type="text"] { max-width: 200px; }
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    .filter-bar select { max-width: 170px; }
+    .filter-bar input { flex: 1; min-width: 120px; }
     .govi-row td:first-child { border-left: 3px solid #3b82f6; }
     .zanotti-row td:first-child { border-left: 3px solid #f59e0b; }
-
-    /* Mobile card layout */
-    @media (max-width: 700px) {
+    @media (max-width: 680px) {
       .table-wrap { overflow: visible; }
       table { min-width: 0; }
       thead { display: none; }
-      tbody tr {
-        display: block;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 14px;
-        margin-bottom: 10px;
-        background: var(--white);
-        box-shadow: var(--shadow);
-      }
+      tbody tr { display: block; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; background: var(--white); box-shadow: var(--shadow-sm); }
       tbody tr.govi-row { border-left: 4px solid #3b82f6; }
       tbody tr.zanotti-row { border-left: 4px solid #f59e0b; }
-      tbody td {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 5px 0;
-        border: none;
-        font-size: 14px;
-      }
-      tbody td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--steel);
-        font-size: 12px;
-        flex-shrink: 0;
-      }
-      .filter-bar select,
-      .filter-bar input[type="text"] { max-width: 100%; width: 100%; }
+      tbody td { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; border: none; font-size: 13.5px; }
+      tbody td::before { content: attr(data-label); font-weight: 600; color: var(--steel); font-size: 11.5px; flex-shrink: 0; min-width: 80px; }
+      .filter-bar select, .filter-bar input { max-width: 100%; width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="page-wide">
-    <header class="page-header">
-      <img src="logo.png" alt="Europaneel GmbH" />
-      <div class="page-header-info">
-        <h1 data-i18n="title">Aggregate Übersicht</h1>
-        <p data-i18n="subtitle">Alle Aggregate von Govi und Zanotti mit Preisen.</p>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <img src="logo.png" alt="Europaneel" />
+        <div class="brand-text">
+          <span class="brand-name">Europaneel</span>
+          <span class="brand-sub" data-i18n="brand_sub">Intranet Hub</span>
+        </div>
       </div>
-      <div class="page-header-actions">
-        <a class="back-link" href="index.html" data-i18n="back">← Zurück</a>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label" data-i18n="nav_tools">Werkzeuge</span>
+      <a class="nav-link" href="index.html"><span class="nav-icon">🏠</span><span data-i18n="nav_home">Dashboard</span></a>
+      <a class="nav-link" href="zellenrechner.html"><span class="nav-icon">🧊</span><span data-i18n="nav_zellen">Zellenrechner</span></a>
+      <a class="nav-link" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span data-i18n="nav_aggr">Aggregatauswahl</span></a>
+      <a class="nav-link" href="paneelrechner.html"><span class="nav-icon">📋</span><span data-i18n="nav_paneel">Paneelrechner</span></a>
+      <span class="nav-section-label" data-i18n="nav_data">Daten</span>
+      <a class="nav-link" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span data-i18n="nav_lager">Lagerbestand Türen</span></a>
+      <a class="nav-link" href="kalender.html"><span class="nav-icon">📅</span><span data-i18n="nav_kal">Kalender</span></a>
+      <a class="nav-link active" href="aggregate.html"><span class="nav-icon">🗂️</span><span data-i18n="nav_aggregate">Aggregate</span></a>
+    </nav>
+    <div class="sidebar-footer">© 2025 Europaneel GmbH</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" data-i18n="title">Aggregate Übersicht</div>
+        <div class="topbar-sub" data-i18n="subtitle">Alle Aggregate von Govi und Zanotti mit Preisen.</div>
+      </div>
+      <div class="topbar-right">
         <div class="lang-switch" role="group" aria-label="Sprache">
           <button class="lang-btn" data-lang="de">DE</button>
           <button class="lang-btn" data-lang="tr">TR</button>
         </div>
       </div>
-    </header>
+    </div>
 
-    <div class="card">
-      <div class="filter-bar">
-        <select id="filterMaker">
-          <option value="">Alle Hersteller</option>
-          <option value="Govi">Govi</option>
-          <option value="Zanotti">Zanotti</option>
-        </select>
-        <select id="filterCooling">
-          <option value="">Alle Kühlarten</option>
-          <option value="Normalkühlung">Normalkühlung</option>
-          <option value="Tiefkühlung">Tiefkühlung</option>
-        </select>
-        <select id="filterMount">
-          <option value="">Alle Montagen</option>
-          <option value="Wand">Wand</option>
-          <option value="Decke">Decke</option>
-        </select>
-        <input type="text" id="filterSearch" placeholder="Modell suchen…" style="flex:1; min-width:120px;" />
-      </div>
+    <div class="content">
+      <div class="card">
+        <div class="filter-bar">
+          <select id="filterMaker">
+            <option value="">Alle Hersteller</option>
+            <option value="Govi">Govi</option>
+            <option value="Zanotti">Zanotti</option>
+          </select>
+          <select id="filterCooling">
+            <option value="">Alle Kühlarten</option>
+            <option value="Normalkühlung">Normalkühlung</option>
+            <option value="Tiefkühlung">Tiefkühlung</option>
+          </select>
+          <select id="filterMount">
+            <option value="">Alle Montagen</option>
+            <option value="Wand">Wand</option>
+            <option value="Decke">Decke</option>
+          </select>
+          <input type="text" id="filterSearch" placeholder="Suchen…" />
+        </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th data-i18n="th_maker">Hersteller</th>
-              <th data-i18n="th_mount">Montage</th>
-              <th data-i18n="th_cooling">Kühlart</th>
-              <th data-i18n="th_model">Modell</th>
-              <th data-i18n="th_volume">Volumen (m³)</th>
-              <th data-i18n="th_list">Herstellerpreis</th>
-              <th data-i18n="th_vk">VK</th>
-              <th data-i18n="th_voltage">Volt/Hz</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+        <div class="table-wrap">
+          <table id="aggTable">
+            <thead>
+              <tr>
+                <th data-i18n="th_maker">Hersteller</th>
+                <th data-i18n="th_mount">Montage</th>
+                <th data-i18n="th_cooling">Kühlart</th>
+                <th data-i18n="th_model">Modell</th>
+                <th data-i18n="th_volume">Volumen (m³)</th>
+                <th data-i18n="th_list">Herstellerpreis</th>
+                <th data-i18n="th_vk">VK</th>
+                <th data-i18n="th_voltage">Volt/Hz</th>
+              </tr>
+            </thead>
+            <tbody id="aggBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
+  </main>
+</div>
+
+<!-- Mobile bottom nav -->
+<nav class="bottom-nav" aria-label="Navigation">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-item" href="index.html"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a class="bottom-nav-item" href="zellenrechner.html"><span class="nav-icon">🧊</span><span>Zellen</span></a>
+    <a class="bottom-nav-item" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span>Agregat</span></a>
+    <a class="bottom-nav-item" href="paneelrechner.html"><span class="nav-icon">📋</span><span>Paneele</span></a>
+    <a class="bottom-nav-item" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span>Lager</span></a>
+    <a class="bottom-nav-item" href="kalender.html"><span class="nav-icon">📅</span><span>Kalender</span></a>
   </div>
+</nav>
 
-  <!-- Mobile bottom nav -->
-  <nav class="bottom-nav" aria-label="Navigation">
-    <div class="bottom-nav-inner">
-      <a class="bottom-nav-item" href="zellenrechner.html"><span class="nav-icon">🧊</span><span>Zellen</span></a>
-      <a class="bottom-nav-item" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span>Agregat</span></a>
-      <a class="bottom-nav-item" href="paneelrechner.html"><span class="nav-icon">📋</span><span>Paneele</span></a>
-      <a class="bottom-nav-item" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span>Lager</span></a>
-      <a class="bottom-nav-item" href="kalender.html"><span class="nav-icon">📅</span><span>Kalender</span></a>
-      <a class="bottom-nav-item active" href="aggregate.html"><span class="nav-icon">🗂️</span><span>Liste</span></a>
-    </div>
-  </nav>
+<script>
+const translations = {
+  de: {
+    brand_sub:"Intranet Hub",
+    nav_tools:"Werkzeuge",
+    nav_data:"Daten",
+    nav_home:"Dashboard",
+    nav_zellen:"Zellenrechner",
+    nav_aggr:"Aggregatauswahl",
+    nav_paneel:"Paneelrechner",
+    nav_lager:"Lagerbestand Türen",
+    nav_kal:"Kalender",
+    nav_aggregate:"Aggregate",
+    title:"Aggregate Übersicht",
+    subtitle:"Alle Aggregate von Govi und Zanotti mit Preisen.",
+    th_maker:"Hersteller",
+    th_mount:"Montage",
+    th_cooling:"Kühlart",
+    th_model:"Modell",
+    th_volume:"Volumen (m³)",
+    th_list:"Herstellerpreis",
+    th_vk:"VK",
+    th_voltage:"Volt/Hz"
+  },
+  tr: {
+    brand_sub:"Intranet Hub",
+    nav_tools:"Araçlar",
+    nav_data:"Veriler",
+    nav_home:"Ana Sayfa",
+    nav_zellen:"Hücre Hesaplayıcı",
+    nav_aggr:"Agrega Seçimi",
+    nav_paneel:"Panel Hesaplayıcı",
+    nav_lager:"Kapı Stoğu",
+    nav_kal:"Takvim",
+    nav_aggregate:"Agregatlar",
+    title:"Agrega Listesi",
+    subtitle:"Govi ve Zanotti agregaları fiyat ve özellikleriyle.",
+    th_maker:"Üretici",
+    th_mount:"Montaj",
+    th_cooling:"Soğutma tipi",
+    th_model:"Model",
+    th_volume:"Hacim (m³)",
+    th_list:"Üretici fiyatı",
+    th_vk:"Satış fiyatı",
+    th_voltage:"Volt/Hz"
+  }
+};
 
-  <script>
-    const rows = [
-      {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 10WN1",volume:10,listPrice:1980,salePrice:1565.7,voltage:"230V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 13WN1",volume:13,listPrice:2350,salePrice:1830.25,voltage:"230V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"PolariK 18WN2",volume:18,listPrice:3030,salePrice:2316.45,voltage:"230V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 31WN2",volume:31,listPrice:3240,salePrice:2466.6,voltage:"400V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 39WN3",volume:39,listPrice:4000,salePrice:3010,voltage:"400V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 47WN3",volume:47,listPrice:4150,salePrice:3117.25,voltage:"400V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 56WN3",volume:56,listPrice:4300,salePrice:3224.5,voltage:"400V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 8WL1",volume:8,listPrice:2220,salePrice:1737.3,voltage:"230V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 12WL2",volume:12,listPrice:3100,salePrice:2366.5,voltage:"230V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 23WL2",volume:23,listPrice:3740,salePrice:2824.1,voltage:"400V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 26WL3",volume:26,listPrice:4500,salePrice:3367.5,voltage:"400V/50Hz"},
-      {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 35WL3",volume:35,listPrice:4650,salePrice:3474.75,voltage:"400V/50Hz"},
-      {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 10TN1",volume:10,listPrice:3130,salePrice:2387.95,voltage:"230V/50Hz"},
-      {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 20TN2",volume:20,listPrice:3490,salePrice:2645.35,voltage:"230V/50Hz"},
-      {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 25TN2",volume:25,listPrice:4700,salePrice:3510.5,voltage:"400V/50Hz"},
-      {manufacturer:"Govi",mount:"Decke",cooling:"Tiefkühlung",model:"Polarik 6TL1",volume:6,listPrice:2960,salePrice:2266.4,voltage:"230V/50Hz"},
-      {manufacturer:"Govi",mount:"Decke",cooling:"Tiefkühlung",model:"Polarik 15TL2",volume:15,listPrice:5185,salePrice:3857.28,voltage:"400V/50Hz"},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS110YA11A",volume:7,listPrice:2604,salePrice:1707.39,voltage:""},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS1110YA11A",volume:13.5,listPrice:2996,salePrice:1964.42,voltage:"230V/50Hz"},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS3112YA11A",volume:19.8,listPrice:3765,salePrice:2468.64,voltage:""},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS3220YA11A",volume:36.1,listPrice:5214,salePrice:3418.72,voltage:""},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3112YA11A",volume:6.2,listPrice:3250,salePrice:2130.96,voltage:""},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3115YA11A",volume:7.7,listPrice:3753,salePrice:2460.77,voltage:""},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3224YA11A",volume:16.8,listPrice:4137,salePrice:2712.55,voltage:""},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3230YA11A",volume:20.8,listPrice:5240,salePrice:3435.77,voltage:""}
-    ];
+let currentLang = localStorage.getItem("europaneel_lang") || "de";
 
-    let currentLang = "de";
-    const translations = {
-      de: {
-        title:"Aggregate Übersicht", subtitle:"Alle Aggregate von Govi und Zanotti mit Preisen.",
-        back:"← Zurück", th_maker:"Hersteller", th_mount:"Montage", th_cooling:"Kühlart",
-        th_model:"Modell", th_volume:"Volumen (m³)", th_list:"Herstellerpreis", th_vk:"VK", th_voltage:"Volt/Hz"
-      },
-      tr: {
-        title:"Agrega Listesi", subtitle:"Govi ve Zanotti agregaları fiyat ve özellikleriyle.",
-        back:"← Geri", th_maker:"Üretici", th_mount:"Montaj", th_cooling:"Soğutma tipi",
-        th_model:"Model", th_volume:"Hacim (m³)", th_list:"Üretici fiyatı", th_vk:"Satış fiyatı", th_voltage:"Volt/Hz"
-      }
-    };
+function t(key) {
+  return (translations[currentLang] && translations[currentLang][key]) || (translations["de"] && translations["de"][key]) || key;
+}
 
-    function t(k) { return (translations[currentLang]||{})[k] || translations.de[k] || k; }
-    function fmt(v) { return (typeof v==="number"&&isFinite(v)) ? v.toLocaleString("de-DE",{style:"currency",currency:"EUR"}) : "–"; }
+function applyLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem("europaneel_lang", lang);
+  document.documentElement.lang = lang;
+  document.title = "Europaneel — " + t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = t(el.getAttribute("data-i18n"));
+  });
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+  });
+  renderTable();
+}
 
-    function renderRows() {
-      const maker   = document.getElementById("filterMaker").value;
-      const cooling = document.getElementById("filterCooling").value;
-      const mount   = document.getElementById("filterMount").value;
-      const search  = document.getElementById("filterSearch").value.trim().toLowerCase();
+// ---- Data ----
+const rows = [
+  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 10WN1",volume:10,listPrice:1980,salePrice:1565.7,voltage:"230V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 13WN1",volume:13,listPrice:2350,salePrice:1830.25,voltage:"230V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"PolariK 18WN2",volume:18,listPrice:3030,salePrice:2316.45,voltage:"230V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 31WN2",volume:31,listPrice:3240,salePrice:2466.6,voltage:"400V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 39WN3",volume:39,listPrice:4000,salePrice:3010,voltage:"400V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 47WN3",volume:47,listPrice:4150,salePrice:3117.25,voltage:"400V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 56WN3",volume:56,listPrice:4300,salePrice:3224.5,voltage:"400V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 8WL1",volume:8,listPrice:2220,salePrice:1737.3,voltage:"230V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 12WL2",volume:12,listPrice:3100,salePrice:2366.5,voltage:"230V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 23WL2",volume:23,listPrice:3740,salePrice:2824.1,voltage:"400V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 26WL3",volume:26,listPrice:4500,salePrice:3367.5,voltage:"400V/50Hz"},
+  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 35WL3",volume:35,listPrice:4650,salePrice:3474.75,voltage:"400V/50Hz"},
+  {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 10TN1",volume:10,listPrice:3130,salePrice:2387.95,voltage:"230V/50Hz"},
+  {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 20TN2",volume:20,listPrice:3490,salePrice:2645.35,voltage:"230V/50Hz"},
+  {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 25TN2",volume:25,listPrice:4700,salePrice:3510.5,voltage:"400V/50Hz"},
+  {manufacturer:"Govi",mount:"Decke",cooling:"Tiefkühlung",model:"Polarik 6TL1",volume:6,listPrice:2960,salePrice:2266.4,voltage:"230V/50Hz"},
+  {manufacturer:"Govi",mount:"Decke",cooling:"Tiefkühlung",model:"Polarik 15TL2",volume:15,listPrice:5185,salePrice:3857.28,voltage:"400V/50Hz"},
+  {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS110YA11A",volume:7,listPrice:2604,salePrice:1707.39,voltage:""},
+  {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS1110YA11A",volume:13.5,listPrice:2996,salePrice:1964.42,voltage:"230V/50Hz"},
+  {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS3112YA11A",volume:19.8,listPrice:3765,salePrice:2468.64,voltage:""},
+  {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS3220YA11A",volume:36.1,listPrice:5214,salePrice:3418.72,voltage:""},
+  {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3112YA11A",volume:6.2,listPrice:3250,salePrice:2130.96,voltage:""},
+  {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3115YA11A",volume:7.7,listPrice:3753,salePrice:2460.77,voltage:""},
+  {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3224YA11A",volume:16.8,listPrice:4137,salePrice:2712.55,voltage:""},
+  {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3230YA11A",volume:20.8,listPrice:5240,salePrice:3435.77,voltage:""}
+];
 
-      const filtered = rows.filter(r =>
-        (!maker   || r.manufacturer === maker) &&
-        (!cooling || r.cooling === cooling) &&
-        (!mount   || r.mount === mount) &&
-        (!search  || r.model.toLowerCase().includes(search))
-      );
+function fmtEur(val) {
+  return val.toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2}) + " €";
+}
 
-      const body = document.getElementById("tableBody");
-      body.innerHTML = "";
-      filtered.forEach(r => {
-        const cls = r.manufacturer === "Govi" ? "govi-row" : "zanotti-row";
-        const tr = document.createElement("tr");
-        tr.className = cls;
-        tr.innerHTML = `
-          <td data-label="${t("th_maker")}">${r.manufacturer}</td>
-          <td data-label="${t("th_mount")}">${r.mount}</td>
-          <td data-label="${t("th_cooling")}">${r.cooling}</td>
-          <td data-label="${t("th_model")}"><strong>${r.model}</strong></td>
-          <td data-label="${t("th_volume")}">${r.volume}</td>
-          <td data-label="${t("th_list")}">${fmt(r.listPrice)}</td>
-          <td data-label="${t("th_vk")}" style="color:var(--red-dark);font-weight:700;">${fmt(r.salePrice)}</td>
-          <td data-label="${t("th_voltage")}">${r.voltage || "–"}</td>`;
-        body.appendChild(tr);
-      });
+function renderTable() {
+  const maker   = document.getElementById("filterMaker").value;
+  const cooling = document.getElementById("filterCooling").value;
+  const mount   = document.getElementById("filterMount").value;
+  const search  = document.getElementById("filterSearch").value.toLowerCase().trim();
 
-      if (!filtered.length) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="8" style="text-align:center;padding:32px;color:var(--steel);">Keine Einträge gefunden.</td>`;
-        body.appendChild(tr);
-      }
+  const thMaker   = t("th_maker");
+  const thMount   = t("th_mount");
+  const thCooling = t("th_cooling");
+  const thModel   = t("th_model");
+  const thVolume  = t("th_volume");
+  const thList    = t("th_list");
+  const thVk      = t("th_vk");
+  const thVoltage = t("th_voltage");
+
+  const filtered = rows.filter(r => {
+    if (maker   && r.manufacturer !== maker)   return false;
+    if (cooling && r.cooling      !== cooling)  return false;
+    if (mount   && r.mount        !== mount)    return false;
+    if (search) {
+      const hay = [r.manufacturer, r.mount, r.cooling, r.model, r.volume, r.voltage].join(" ").toLowerCase();
+      if (!hay.includes(search)) return false;
     }
+    return true;
+  });
 
-    function applyLanguage(lang) {
-      currentLang = translations[lang] ? lang : "de";
-      document.documentElement.lang = currentLang;
-      document.title = t("title");
-      document.querySelectorAll("[data-i18n]").forEach(el => {
-        const k = el.getAttribute("data-i18n");
-        if (translations[currentLang][k]) el.textContent = translations[currentLang][k];
-      });
-      document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === currentLang));
-      localStorage.setItem("europaneel_lang", currentLang);
-      renderRows();
-    }
+  const tbody = document.getElementById("aggBody");
+  tbody.innerHTML = "";
 
-    ["filterMaker","filterCooling","filterMount","filterSearch"].forEach(id => {
-      document.getElementById(id).addEventListener("input", renderRows);
-    });
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--steel);padding:24px;">—</td></tr>`;
+    return;
+  }
 
-    const savedLang = localStorage.getItem("europaneel_lang") || "de";
-    applyLanguage(savedLang);
-    document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => applyLanguage(b.dataset.lang)));
-  </script>
+  filtered.forEach(r => {
+    const cls = r.manufacturer === "Govi" ? "govi-row" : "zanotti-row";
+    const tr = document.createElement("tr");
+    tr.className = cls;
+    tr.innerHTML = `
+      <td data-label="${thMaker}">${r.manufacturer}</td>
+      <td data-label="${thMount}">${r.mount}</td>
+      <td data-label="${thCooling}">${r.cooling}</td>
+      <td data-label="${thModel}">${r.model}</td>
+      <td data-label="${thVolume}">${r.volume}</td>
+      <td data-label="${thList}">${fmtEur(r.listPrice)}</td>
+      <td data-label="${thVk}" style="color:var(--red-dark);font-weight:700;">${fmtEur(r.salePrice)}</td>
+      <td data-label="${thVoltage}">${r.voltage || "—"}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+["filterMaker","filterCooling","filterMount","filterSearch"].forEach(id => {
+  document.getElementById(id).addEventListener("input", renderTable);
+  document.getElementById(id).addEventListener("change", renderTable);
+});
+
+document.querySelectorAll(".lang-btn").forEach(btn => {
+  btn.addEventListener("click", () => applyLanguage(btn.getAttribute("data-lang")));
+});
+
+// Init
+applyLanguage(currentLang);
+</script>
 </body>
 </html>

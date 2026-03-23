@@ -3,495 +3,443 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Europaneel | Zellenrechner</title>
+  <title>Europaneel — Zellenrechner</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="stylesheet" href="style.css" />
   <style>
     .step-content { display: none; }
-    .step-content.active { display: block; animation: fadeUp 0.3s ease-out both; }
+    .step-content.active { display: block; animation: fadeUp .3s var(--ease) both; }
 
     .selection-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      max-width: 680px;
+      gap: 14px;
+      max-width: 640px;
       margin: 20px auto 0;
     }
     .selection-card {
       background: var(--white);
       border: 2px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 32px 20px;
+      padding: 32px 18px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: var(--shadow);
+      transition: all .2s var(--ease);
+      box-shadow: var(--shadow-sm);
     }
-    .selection-card:hover {
-      border-color: var(--red);
-      transform: translateY(-4px);
-      box-shadow: 0 14px 28px rgba(227,6,19,0.14);
-    }
-    .selection-card .icon { font-size: 40px; display: block; margin-bottom: 12px; }
-    .selection-card .card-title { font-weight: 700; font-size: 16px; color: var(--ink); display: block; margin-bottom: 4px; }
-    .selection-card .card-desc { color: var(--steel); font-size: 13px; }
+    .selection-card:hover { border-color: var(--red); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(227,6,19,0.14); }
+    .selection-card .s-icon { font-size: 38px; display: block; margin-bottom: 12px; }
+    .selection-card .s-title { font-weight: 700; font-size: 15px; color: var(--ink); display: block; margin-bottom: 4px; }
+    .selection-card .s-desc { color: var(--steel); font-size: 12.5px; }
 
-    .config-card {
-      background: var(--white);
-      padding: 24px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-md);
-      max-width: 760px;
-      margin: 0 auto;
-    }
+    .config-inner { max-width: 680px; }
     .back-btn {
-      background: none;
-      border: none;
-      color: var(--steel);
-      cursor: pointer;
-      margin-bottom: 20px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      padding: 8px 0;
-      min-height: 0;
+      background: none; border: none; color: var(--steel); cursor: pointer;
+      margin-bottom: 18px; font-weight: 600; display: inline-flex;
+      align-items: center; gap: 6px; font-size: 13px; padding: 0; font-family: inherit;
     }
     .back-btn:hover { color: var(--red); }
 
-    .status-container { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    .status-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
     .status-badge {
-      background: var(--red-bg);
-      color: var(--red-dark);
-      border: 1px solid var(--red-border);
-      padding: 10px 16px;
-      border-radius: var(--radius);
-      font-weight: 600;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--red-bg); color: var(--red-dark); border: 1px solid var(--red-border);
+      padding: 8px 14px; border-radius: var(--radius); font-weight: 600; font-size: 13px;
     }
     .volume-badge {
-      background: var(--paper);
-      color: var(--graphite);
-      border: 1px solid var(--border);
-      padding: 10px 16px;
-      border-radius: var(--radius);
-      font-weight: 600;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface); color: var(--graphite); border: 1px solid var(--border);
+      padding: 8px 14px; border-radius: var(--radius); font-weight: 600; font-size: 13px;
     }
-
+    #row-boden-details, #row-siebdruck-details, #row-aggregat { display: none; }
     .summary-box { display: none; }
     .summary-box.show { display: block; }
 
-    #row-boden-details, #row-siebdruck-details { display: none; }
-
-    @media (max-width: 768px) {
-      .selection-grid { grid-template-columns: 1fr; max-width: 100%; }
-      .selection-card { padding: 22px 16px; }
-      .config-card { padding: 18px; }
-      .status-container { gap: 8px; }
-    }
-    @media (hover: none) {
-      .selection-card:hover { transform: none; }
-    }
+    @media (max-width: 768px) { .selection-grid { grid-template-columns: 1fr; max-width: 100%; } }
+    @media (hover: none) { .selection-card:hover { transform: none; } }
   </style>
 </head>
 <body>
-  <div class="page">
-    <header class="page-header">
-      <img src="logo.png" alt="Europaneel GmbH" />
-      <div class="page-header-info">
-        <h1 data-i18n="title">Zellenrechner</h1>
-        <p data-i18n="subtitle">Kühlzellen schnell konfigurieren und Preise berechnen.</p>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <img src="logo.png" alt="Europaneel" />
+        <div class="brand-text">
+          <span class="brand-name">Europaneel</span>
+          <span class="brand-sub" data-i18n="brand_sub">Intranet Hub</span>
+        </div>
       </div>
-      <div class="page-header-actions">
-        <a class="back-link" href="index.html" data-i18n="back">← Zurück</a>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label" data-i18n="nav_tools">Werkzeuge</span>
+      <a class="nav-link" href="index.html"><span class="nav-icon">🏠</span><span data-i18n="nav_home">Dashboard</span></a>
+      <a class="nav-link active" href="zellenrechner.html"><span class="nav-icon">🧊</span><span data-i18n="nav_zellen">Zellenrechner</span></a>
+      <a class="nav-link" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span data-i18n="nav_aggr">Aggregatauswahl</span></a>
+      <a class="nav-link" href="paneelrechner.html"><span class="nav-icon">📋</span><span data-i18n="nav_paneel">Paneelrechner</span></a>
+      <span class="nav-section-label" data-i18n="nav_data">Daten</span>
+      <a class="nav-link" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span data-i18n="nav_lager">Lagerbestand Türen</span></a>
+      <a class="nav-link" href="kalender.html"><span class="nav-icon">📅</span><span data-i18n="nav_kal">Kalender</span></a>
+      <a class="nav-link" href="aggregate.html"><span class="nav-icon">🗂️</span><span data-i18n="nav_aggregate">Aggregate</span></a>
+    </nav>
+    <div class="sidebar-footer">© 2025 Europaneel GmbH</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" data-i18n="title">Zellenrechner</div>
+        <div class="topbar-sub" data-i18n="subtitle">Kühlzellen konfigurieren und Preise berechnen.</div>
+      </div>
+      <div class="topbar-right">
         <div class="lang-switch" role="group" aria-label="Sprache">
           <button class="lang-btn" data-lang="de">DE</button>
           <button class="lang-btn" data-lang="tr">TR</button>
         </div>
       </div>
-    </header>
+    </div>
 
-    <div class="card">
-      <!-- Step 1: Selection -->
-      <div id="step-1" class="step-content active">
-        <div style="text-align:center;">
-          <h2 style="margin:0 0 6px; font-size:20px; color:var(--ink);" data-i18n="step1_title">Kühlzelle konfigurieren</h2>
-          <p style="color:var(--steel); margin:0;" data-i18n="step1_sub">Wählen Sie die Bauart für die Kalkulation.</p>
+    <div class="content">
+      <div class="card">
+        <!-- Step 1 -->
+        <div id="step-1" class="step-content active">
+          <div style="text-align:center;">
+            <h2 style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;" data-i18n="step1_title">Kühlzelle konfigurieren</h2>
+            <p style="color:var(--steel);font-size:13px;" data-i18n="step1_sub">Bauart für die Kalkulation wählen.</p>
+          </div>
+          <div class="selection-grid">
+            <div class="selection-card" onclick="startConfig(false)">
+              <span class="s-icon">🏠</span>
+              <span class="s-title" data-i18n="card_no_floor">Ohne Boden</span>
+              <span class="s-desc" data-i18n="card_no_floor_desc">Standard U-Profil Montage</span>
+            </div>
+            <div class="selection-card" onclick="startConfig(true)">
+              <span class="s-icon">📦</span>
+              <span class="s-title" data-i18n="card_with_floor">Mit Boden</span>
+              <span class="s-desc" data-i18n="card_with_floor_desc">Inkl. isoliertem Boden &amp; Siebdruckplatte</span>
+            </div>
+          </div>
         </div>
-        <div class="selection-grid">
-          <div class="selection-card" onclick="startConfig(false)">
-            <span class="icon">🏠</span>
-            <span class="card-title" data-i18n="card_no_floor">Ohne Boden</span>
-            <span class="card-desc" data-i18n="card_no_floor_desc">Standard U-Profil Montage</span>
-          </div>
-          <div class="selection-card" onclick="startConfig(true)">
-            <span class="icon">📦</span>
-            <span class="card-title" data-i18n="card_with_floor">Mit Boden</span>
-            <span class="card-desc" data-i18n="card_with_floor_desc">Inkl. isoliertem Boden &amp; Siebdruckplatte</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Step 2: Configuration -->
-      <div id="step-2" class="step-content">
-        <div class="config-card">
-          <button class="back-btn" onclick="goToStep(1)" data-i18n="back_to_select">← Zurück zur Auswahl</button>
+        <!-- Step 2 -->
+        <div id="step-2" class="step-content">
+          <div class="config-inner">
+            <button class="back-btn" onclick="goToStep(1)" data-i18n="back_to_select">← Zurück zur Auswahl</button>
 
-          <div class="status-container">
-            <div class="status-badge">
-              <span id="badge-icon"></span>
-              <span id="badge-text"></span>
+            <div class="status-bar">
+              <div class="status-badge"><span id="badge-icon"></span><span id="badge-text"></span></div>
+              <div class="volume-badge" id="badge-volume-container" style="display:none;">
+                <span data-i18n="badge_volume">Volumen:</span>
+                <span id="badge-volume-value">0,00 m³</span>
+              </div>
             </div>
-            <div class="volume-badge" id="badge-volume-container" style="display:none;">
-              <span data-i18n="badge_volume">Volumen:</span>
-              <span id="badge-volume-value">0,00 m³</span>
-            </div>
-          </div>
 
-          <div class="section-label" data-i18n="section_dims">1. Außenmaße der Zelle</div>
-          <div class="input-row">
-            <div class="input-group">
-              <label data-i18n="label_length">Länge (m)</label>
-              <input type="number" id="inp-laenge" placeholder="3.00" step="0.01" oninput="berechnePreis()">
+            <div class="section-label" data-i18n="section_dims">1. Außenmaße der Zelle</div>
+            <div class="input-row">
+              <div class="input-group">
+                <label data-i18n="label_length">Länge (m)</label>
+                <input type="number" id="inp-laenge" placeholder="3.00" step="0.01" oninput="berechnePreis()">
+              </div>
+              <div class="input-group">
+                <label data-i18n="label_width">Breite (m)</label>
+                <input type="number" id="inp-breite" placeholder="2.50" step="0.01" oninput="berechnePreis()">
+              </div>
             </div>
-            <div class="input-group">
-              <label data-i18n="label_width">Breite (m)</label>
-              <input type="number" id="inp-breite" placeholder="2.50" step="0.01" oninput="berechnePreis()">
+            <div class="input-group" style="margin-bottom:12px;">
+              <label data-i18n="label_height">Höhe (m)</label>
+              <input type="number" id="inp-hoehe" placeholder="2.20" step="0.01" oninput="berechnePreis()">
             </div>
-          </div>
-          <div class="input-group" style="margin-bottom:14px;">
-            <label data-i18n="label_height">Höhe (m)</label>
-            <input type="number" id="inp-hoehe" placeholder="2.20" step="0.01" oninput="berechnePreis()">
-          </div>
 
-          <div class="section-label" data-i18n="section_pricing">2. Kalkulations-Basis (EUR/m²)</div>
-          <div class="input-row">
-            <div class="input-group">
-              <label style="color:#7f1d1d;" data-i18n="label_panel_price">Paneel Preis</label>
-              <input type="number" id="inp-preis-qm" class="price-input" value="55.00" oninput="berechnePreis()">
+            <div class="section-label" data-i18n="section_pricing">2. Kalkulations-Basis (EUR/m²)</div>
+            <div class="input-row">
+              <div class="input-group">
+                <label style="color:#7f1d1d;" data-i18n="label_panel_price">Paneel Preis</label>
+                <input type="number" id="inp-preis-qm" class="price-input" value="55.00" oninput="berechnePreis()">
+              </div>
+              <div class="input-group" id="div-siebdruck">
+                <label style="color:#7f1d1d;" data-i18n="label_siebdruck">Siebdruckplatten</label>
+                <input type="number" id="inp-preis-siebdruck" class="price-input" value="50.00" oninput="berechnePreis()">
+              </div>
             </div>
-            <div class="input-group" id="div-siebdruck">
-              <label style="color:#7f1d1d;" data-i18n="label_siebdruck">Siebdruckplatten</label>
-              <input type="number" id="inp-preis-siebdruck" class="price-input" value="50.00" oninput="berechnePreis()">
-            </div>
-          </div>
 
-          <div class="section-label" data-i18n="section_door">3. Tür &amp; Ausstattung</div>
-          <div class="input-group" style="margin-bottom:14px;">
-            <label data-i18n="label_door_size">Türgröße</label>
-            <select id="inp-tuer" onchange="berechnePreis()">
-              <option value="0" data-i18n="door_none">Keine Tür [0 EUR]</option>
-              <option value="550" data-i18n="door_75_175">Drehtür 75 × 175 cm [550 EUR]</option>
-              <option value="580" data-i18n="door_75_190">Drehtür 75 × 190 cm [580 EUR]</option>
-              <option value="600" data-i18n="door_80_190">Drehtür 80 × 190 cm [600 EUR]</option>
-              <option value="650" data-i18n="door_90_190">Drehtür 90 × 190 cm [650 EUR]</option>
-              <option value="700" data-i18n="door_110_190">Drehtür 110 × 190 cm [700 EUR]</option>
-              <option value="800" data-i18n="door_100_200">Drehtür 100 × 200 cm [800 EUR]</option>
-              <option value="900" data-i18n="door_120_200">Drehtür 120 × 200 cm [900 EUR]</option>
-              <option value="1000" data-i18n="door_120_220">Drehtür 120 × 220 cm [1.000 EUR]</option>
-              <option value="0" data-i18n="door_slide">Schiebetür (Auf Anfrage)</option>
-            </select>
-          </div>
-
-          <div class="section-label" data-i18n="section_agg">4. Aggregat (optional)</div>
-          <div class="input-row">
-            <div class="input-group">
-              <label data-i18n="label_agg_add">Aggregat hinzufügen</label>
-              <select id="inp-aggregat" onchange="berechnePreis()">
-                <option value="0" data-i18n="agg_none">Kein Aggregat</option>
-                <option value="1" data-i18n="agg_auto">Aggregat automatisch wählen</option>
+            <div class="section-label" data-i18n="section_door">3. Tür &amp; Ausstattung</div>
+            <div class="input-group" style="margin-bottom:12px;">
+              <label data-i18n="label_door_size">Türgröße</label>
+              <select id="inp-tuer" onchange="berechnePreis()">
+                <option value="0" data-i18n="door_none">Keine Tür [0 EUR]</option>
+                <option value="550" data-i18n="door_75_175">Drehtür 75 × 175 cm [550 EUR]</option>
+                <option value="580" data-i18n="door_75_190">Drehtür 75 × 190 cm [580 EUR]</option>
+                <option value="600" data-i18n="door_80_190">Drehtür 80 × 190 cm [600 EUR]</option>
+                <option value="650" data-i18n="door_90_190">Drehtür 90 × 190 cm [650 EUR]</option>
+                <option value="700" data-i18n="door_110_190">Drehtür 110 × 190 cm [700 EUR]</option>
+                <option value="800" data-i18n="door_100_200">Drehtür 100 × 200 cm [800 EUR]</option>
+                <option value="900" data-i18n="door_120_200">Drehtür 120 × 200 cm [900 EUR]</option>
+                <option value="1000" data-i18n="door_120_220">Drehtür 120 × 220 cm [1.000 EUR]</option>
+                <option value="0" data-i18n="door_slide">Schiebetür (Auf Anfrage)</option>
               </select>
             </div>
-            <div class="input-group">
-              <label data-i18n="label_cooling">Kühlart</label>
-              <select id="inp-kuehlart" onchange="berechnePreis()">
-                <option value="normal" data-i18n="cooling_normal">Normalkühlung</option>
-                <option value="tief" data-i18n="cooling_tief">Tiefkühlung</option>
-              </select>
-            </div>
-          </div>
-          <div class="input-row">
-            <div class="input-group" id="group-mount" style="display:none;">
-              <label data-i18n="label_mount">Montage</label>
-              <select id="inp-montage" onchange="berechnePreis()">
-                <option value="Wand" data-i18n="mount_wall">Wandgerät</option>
-                <option value="Decke" data-i18n="mount_ceiling">Deckengerät</option>
-              </select>
-            </div>
-            <div class="input-group" id="group-manufacturer" style="display:none;">
-              <label data-i18n="label_manufacturer">Hersteller</label>
-              <select id="inp-manufacturer" onchange="berechnePreis()">
-                <option value="auto" data-i18n="manuf_auto">Egal (Günstigstes)</option>
-                <option value="Govi">Govi</option>
-                <option value="Zanotti">Zanotti</option>
-              </select>
-            </div>
-          </div>
 
-          <div class="section-label" data-i18n="section_service">5. Lieferung &amp; Montage (optional)</div>
-          <div class="input-group" style="margin-bottom:16px;">
-            <label data-i18n="label_service">Lieferung &amp; Montage (EUR)</label>
-            <input type="number" id="inp-service" placeholder="0.00" step="0.01" oninput="berechnePreis()">
-          </div>
-
-          <button class="btn btn-primary btn-full" onclick="berechnePreis()" data-i18n="btn_calc">Preis aktualisieren</button>
-
-          <div class="summary-box" id="summary-area">
-            <div style="font-weight:700; margin-bottom:10px; color:var(--ink);" data-i18n="summary_title">Details zur Berechnung</div>
-
-            <div class="summary-row">
-              <span class="label"><span data-i18n="summary_shell">Hülle (Wand+Decke)</span> <small id="val-huelle-qm" style="opacity:.6"></small></span>
-              <strong id="val-huelle-eur">0,00 EUR</strong>
+            <div class="section-label" data-i18n="section_agg">4. Aggregat (optional)</div>
+            <div class="input-row">
+              <div class="input-group">
+                <label data-i18n="label_agg_add">Aggregat hinzufügen</label>
+                <select id="inp-aggregat" onchange="berechnePreis()">
+                  <option value="0" data-i18n="agg_none">Kein Aggregat</option>
+                  <option value="1" data-i18n="agg_auto">Automatisch wählen</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label data-i18n="label_cooling">Kühlart</label>
+                <select id="inp-kuehlart" onchange="berechnePreis()">
+                  <option value="normal" data-i18n="cooling_normal">Normalkühlung</option>
+                  <option value="tief" data-i18n="cooling_tief">Tiefkühlung</option>
+                </select>
+              </div>
             </div>
-            <div class="summary-row" id="row-boden-details">
-              <span class="label"><span data-i18n="summary_floor_panel">Boden Paneel</span> <small id="val-boden-qm" style="opacity:.6"></small></span>
-              <strong id="val-boden-eur">0,00 EUR</strong>
-            </div>
-            <div class="summary-row" id="row-siebdruck-details">
-              <span class="label"><span data-i18n="summary_floor_siebdruck">Boden Siebdruck</span> <small data-i18n="summary_surcharge" style="opacity:.6">Aufpreis</small></span>
-              <strong id="val-siebdruck-eur">0,00 EUR</strong>
-            </div>
-            <div class="summary-row">
-              <span class="label" data-i18n="summary_door">Tür Element</span>
-              <strong id="val-tuer-eur">0,00 EUR</strong>
-            </div>
-            <div class="summary-row" id="row-aggregat">
-              <span class="label"><span data-i18n="summary_agg">Aggregat</span> <small id="val-aggregat-name" style="opacity:.6">-</small></span>
-              <strong id="val-aggregat-eur">0,00 EUR</strong>
-            </div>
-            <div class="summary-row" id="row-service">
-              <span class="label" data-i18n="summary_service">Lieferung &amp; Montage</span>
-              <strong id="val-service-eur">0,00 EUR</strong>
+            <div class="input-row">
+              <div class="input-group" id="group-mount" style="display:none;">
+                <label data-i18n="label_mount">Montage</label>
+                <select id="inp-montage" onchange="berechnePreis()">
+                  <option value="Wand" data-i18n="mount_wall">Wandgerät</option>
+                  <option value="Decke" data-i18n="mount_ceiling">Deckengerät</option>
+                </select>
+              </div>
+              <div class="input-group" id="group-manufacturer" style="display:none;">
+                <label data-i18n="label_manufacturer">Hersteller</label>
+                <select id="inp-manufacturer" onchange="berechnePreis()">
+                  <option value="auto" data-i18n="manuf_auto">Günstigstes</option>
+                  <option value="Govi">Govi</option>
+                  <option value="Zanotti">Zanotti</option>
+                </select>
+              </div>
             </div>
 
-            <div class="result-bar">
-              <div class="price-label" data-i18n="summary_total">Gesamtpreis (Netto)</div>
-              <div class="price-big" id="preis-ausgabe">0,00 EUR</div>
+            <div class="section-label" data-i18n="section_service">5. Lieferung &amp; Montage (optional)</div>
+            <div class="input-group" style="margin-bottom:16px;">
+              <label data-i18n="label_service">Lieferung &amp; Montage (EUR)</label>
+              <input type="number" id="inp-service" placeholder="0.00" step="0.01" oninput="berechnePreis()">
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="berechnePreis()" data-i18n="btn_calc">Preis aktualisieren</button>
+
+            <div class="summary-box" id="summary-area">
+              <div style="font-weight:700;font-size:14px;color:var(--ink);margin-bottom:10px;" data-i18n="summary_title">Details zur Berechnung</div>
+              <div class="summary-row">
+                <span><span data-i18n="summary_shell">Hülle (Wand+Decke)</span> <small id="val-huelle-qm" style="opacity:.55;font-size:11px;"></small></span>
+                <strong id="val-huelle-eur">0,00 EUR</strong>
+              </div>
+              <div class="summary-row" id="row-boden-details">
+                <span><span data-i18n="summary_floor_panel">Boden Paneel</span> <small id="val-boden-qm" style="opacity:.55;font-size:11px;"></small></span>
+                <strong id="val-boden-eur">0,00 EUR</strong>
+              </div>
+              <div class="summary-row" id="row-siebdruck-details">
+                <span data-i18n="summary_floor_siebdruck">Boden Siebdruck</span>
+                <strong id="val-siebdruck-eur">0,00 EUR</strong>
+              </div>
+              <div class="summary-row">
+                <span data-i18n="summary_door">Tür Element</span>
+                <strong id="val-tuer-eur">0,00 EUR</strong>
+              </div>
+              <div class="summary-row" id="row-aggregat">
+                <span><span data-i18n="summary_agg">Aggregat</span> <small id="val-aggregat-name" style="opacity:.55;font-size:11px;">-</small></span>
+                <strong id="val-aggregat-eur">0,00 EUR</strong>
+              </div>
+              <div class="summary-row">
+                <span data-i18n="summary_service">Lieferung &amp; Montage</span>
+                <strong id="val-service-eur">0,00 EUR</strong>
+              </div>
+              <div class="result-bar">
+                <div class="price-label" data-i18n="summary_total">Gesamtpreis (Netto)</div>
+                <div class="price-big" id="preis-ausgabe">0,00 EUR</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </main>
+</div>
+
+<nav class="bottom-nav" aria-label="Navigation">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-item" href="index.html"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a class="bottom-nav-item active" href="zellenrechner.html"><span class="nav-icon">🧊</span><span>Zellen</span></a>
+    <a class="bottom-nav-item" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span>Agregat</span></a>
+    <a class="bottom-nav-item" href="paneelrechner.html"><span class="nav-icon">📋</span><span>Paneele</span></a>
+    <a class="bottom-nav-item" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span>Lager</span></a>
+    <a class="bottom-nav-item" href="kalender.html"><span class="nav-icon">📅</span><span>Kalender</span></a>
   </div>
+</nav>
 
-  <!-- Mobile bottom nav -->
-  <nav class="bottom-nav" aria-label="Navigation">
-    <div class="bottom-nav-inner">
-      <a class="bottom-nav-item active" href="zellenrechner.html"><span class="nav-icon">🧊</span><span>Zellen</span></a>
-      <a class="bottom-nav-item" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span>Agregat</span></a>
-      <a class="bottom-nav-item" href="paneelrechner.html"><span class="nav-icon">📋</span><span>Paneele</span></a>
-      <a class="bottom-nav-item" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span>Lager</span></a>
-      <a class="bottom-nav-item" href="kalender.html"><span class="nav-icon">📅</span><span>Kalender</span></a>
-      <a class="bottom-nav-item" href="aggregate.html"><span class="nav-icon">🗂️</span><span>Liste</span></a>
-    </div>
-  </nav>
-
-  <script>
-    let hatBoden = false;
-    let currentLang = "de";
-
-    const translations = {
-      de: {
-        title:"Zellenrechner", subtitle:"Kühlzellen schnell konfigurieren und Preise berechnen.",
-        back:"← Zurück", step1_title:"Kühlzelle konfigurieren", step1_sub:"Wählen Sie die Bauart für die Kalkulation.",
-        card_no_floor:"Ohne Boden", card_no_floor_desc:"Standard U-Profil Montage",
-        card_with_floor:"Mit Boden", card_with_floor_desc:"Inkl. isoliertem Boden & Siebdruckplatte",
-        back_to_select:"← Zurück zur Auswahl", section_dims:"1. Außenmaße der Zelle",
-        label_length:"Länge (m)", label_width:"Breite (m)", label_height:"Höhe (m)",
-        section_pricing:"2. Kalkulations-Basis (EUR/m²)", label_panel_price:"Paneel Preis",
-        label_siebdruck:"Siebdruckplatten", section_door:"3. Tür & Ausstattung",
-        label_door_size:"Türgröße", door_none:"Keine Tür [0 EUR]",
-        door_75_175:"Drehtür 75 × 175 cm [550 EUR]", door_75_190:"Drehtür 75 × 190 cm [580 EUR]",
-        door_80_190:"Drehtür 80 × 190 cm [600 EUR]", door_90_190:"Drehtür 90 × 190 cm [650 EUR]",
-        door_110_190:"Drehtür 110 × 190 cm [700 EUR]", door_100_200:"Drehtür 100 × 200 cm [800 EUR]",
-        door_120_200:"Drehtür 120 × 200 cm [900 EUR]", door_120_220:"Drehtür 120 × 220 cm [1.000 EUR]",
-        door_slide:"Schiebetür (Auf Anfrage)", section_agg:"4. Aggregat (optional)",
-        label_agg_add:"Aggregat hinzufügen", agg_none:"Kein Aggregat", agg_auto:"Aggregat automatisch wählen",
-        label_cooling:"Kühlart", cooling_normal:"Normalkühlung", cooling_tief:"Tiefkühlung",
-        label_mount:"Montage", mount_wall:"Wandgerät", mount_ceiling:"Deckengerät",
-        label_manufacturer:"Hersteller", manuf_auto:"Egal (Günstigstes)",
-        section_service:"5. Lieferung & Montage (optional)", label_service:"Lieferung & Montage (EUR)",
-        btn_calc:"Preis aktualisieren", summary_title:"Details zur Berechnung",
-        summary_shell:"Hülle (Wand+Decke)", summary_floor_panel:"Boden Paneel",
-        summary_floor_siebdruck:"Boden Siebdruck", summary_surcharge:"Aufpreis",
-        summary_door:"Tür Element", summary_agg:"Aggregat",
-        summary_service:"Lieferung & Montage", summary_total:"Gesamtpreis (Netto)",
-        badge_volume:"Volumen:", badge_with_floor:"Kühlzelle MIT Boden", badge_no_floor:"Kühlzelle OHNE Boden"
-      },
-      tr: {
-        title:"Soğuk Oda Hesaplama", subtitle:"Soğuk oda hızlı kurulum ve fiyat hesabı.",
-        back:"← Geri", step1_title:"Soğuk oda konfigürasyonu", step1_sub:"Hesaplama için yapı tipini seçin.",
-        card_no_floor:"Zeminsiz", card_no_floor_desc:"Standart U-profil montaj",
-        card_with_floor:"Zeminli", card_with_floor_desc:"Izolasyonlu zemin ve siebdruckplatte",
-        back_to_select:"← Seçime geri dön", section_dims:"1. Oda dış ölçüleri",
-        label_length:"Uzunluk (m)", label_width:"Genişlik (m)", label_height:"Yükseklik (m)",
-        section_pricing:"2. Hesaplama temel değerleri (EUR/m²)", label_panel_price:"Panel fiyatı",
-        label_siebdruck:"Siebdruckplatte", section_door:"3. Kapı ve donanım",
-        label_door_size:"Kapı ölçüsü", door_none:"Kapı yok [0 EUR]",
-        door_75_175:"Menteşeli kapı 75×175 cm [550 EUR]", door_75_190:"Menteşeli kapı 75×190 cm [580 EUR]",
-        door_80_190:"Menteşeli kapı 80×190 cm [600 EUR]", door_90_190:"Menteşeli kapı 90×190 cm [650 EUR]",
-        door_110_190:"Menteşeli kapı 110×190 cm [700 EUR]", door_100_200:"Menteşeli kapı 100×200 cm [800 EUR]",
-        door_120_200:"Menteşeli kapı 120×200 cm [900 EUR]", door_120_220:"Menteşeli kapı 120×220 cm [1.000 EUR]",
-        door_slide:"Sürgü kapı (Talep üzerine)", section_agg:"4. Agrega (opsiyonel)",
-        label_agg_add:"Agrega ekle", agg_none:"Agrega yok", agg_auto:"Agrega otomatik seç",
-        label_cooling:"Soğutma tipi", cooling_normal:"Normal soğutma", cooling_tief:"Derin soğutma",
-        label_mount:"Montaj", mount_wall:"Duvar tipi", mount_ceiling:"Tavan tipi",
-        label_manufacturer:"Üretici", manuf_auto:"Farketmez (En ucuz)",
-        section_service:"5. Teslimat ve montaj (opsiyonel)", label_service:"Teslimat ve montaj (EUR)",
-        btn_calc:"Fiyatı güncelle", summary_title:"Hesaplama detayları",
-        summary_shell:"Kabuk (Duvar+Tavan)", summary_floor_panel:"Zemin panel",
-        summary_floor_siebdruck:"Zemin siebdruckplatte", summary_surcharge:"Ek ücret",
-        summary_door:"Kapı elemanı", summary_agg:"Agrega",
-        summary_service:"Teslimat ve montaj", summary_total:"Toplam fiyat (Net)",
-        badge_volume:"Hacim:", badge_with_floor:"Zeminli soğuk oda", badge_no_floor:"Zeminsiz soğuk oda"
-      }
-    };
-
-    function t(k) { return (translations[currentLang]||{})[k] || translations.de[k] || k; }
-
-    function applyLanguage(lang) {
-      currentLang = translations[lang] ? lang : "de";
-      document.documentElement.lang = currentLang;
-      document.title = t("title");
-      document.querySelectorAll("[data-i18n]").forEach(el => {
-        const k = el.getAttribute("data-i18n");
-        if (translations[currentLang][k]) el.textContent = translations[currentLang][k];
-      });
-      document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === currentLang));
-      localStorage.setItem("europaneel_lang", currentLang);
-      if (hatBoden) document.getElementById("badge-text").textContent = t("badge_with_floor");
-      else document.getElementById("badge-text").textContent = t("badge_no_floor");
+<script>
+  let hatBoden = false, currentLang = "de";
+  const translations = {
+    de: {
+      brand_sub:"Intranet Hub", nav_tools:"Werkzeuge", nav_data:"Daten",
+      nav_home:"Dashboard", nav_zellen:"Zellenrechner", nav_aggr:"Aggregatauswahl",
+      nav_paneel:"Paneelrechner", nav_lager:"Lagerbestand Türen", nav_kal:"Kalender", nav_aggregate:"Aggregate",
+      title:"Zellenrechner", subtitle:"Kühlzellen konfigurieren und Preise berechnen.",
+      step1_title:"Kühlzelle konfigurieren", step1_sub:"Bauart für die Kalkulation wählen.",
+      card_no_floor:"Ohne Boden", card_no_floor_desc:"Standard U-Profil Montage",
+      card_with_floor:"Mit Boden", card_with_floor_desc:"Inkl. isoliertem Boden & Siebdruckplatte",
+      back_to_select:"← Zurück zur Auswahl",
+      section_dims:"1. Außenmaße der Zelle", label_length:"Länge (m)", label_width:"Breite (m)", label_height:"Höhe (m)",
+      section_pricing:"2. Kalkulations-Basis (EUR/m²)", label_panel_price:"Paneel Preis", label_siebdruck:"Siebdruckplatten",
+      section_door:"3. Tür & Ausstattung", label_door_size:"Türgröße",
+      door_none:"Keine Tür [0 EUR]", door_75_175:"Drehtür 75×175 cm [550 EUR]", door_75_190:"Drehtür 75×190 cm [580 EUR]",
+      door_80_190:"Drehtür 80×190 cm [600 EUR]", door_90_190:"Drehtür 90×190 cm [650 EUR]",
+      door_110_190:"Drehtür 110×190 cm [700 EUR]", door_100_200:"Drehtür 100×200 cm [800 EUR]",
+      door_120_200:"Drehtür 120×200 cm [900 EUR]", door_120_220:"Drehtür 120×220 cm [1.000 EUR]",
+      door_slide:"Schiebetür (Auf Anfrage)",
+      section_agg:"4. Aggregat (optional)", label_agg_add:"Aggregat hinzufügen",
+      agg_none:"Kein Aggregat", agg_auto:"Automatisch wählen",
+      label_cooling:"Kühlart", cooling_normal:"Normalkühlung", cooling_tief:"Tiefkühlung",
+      label_mount:"Montage", mount_wall:"Wandgerät", mount_ceiling:"Deckengerät",
+      label_manufacturer:"Hersteller", manuf_auto:"Günstigstes",
+      section_service:"5. Lieferung & Montage (optional)", label_service:"Lieferung & Montage (EUR)",
+      btn_calc:"Preis aktualisieren", summary_title:"Details zur Berechnung",
+      summary_shell:"Hülle (Wand+Decke)", summary_floor_panel:"Boden Paneel",
+      summary_floor_siebdruck:"Boden Siebdruck", summary_door:"Tür Element",
+      summary_agg:"Aggregat", summary_service:"Lieferung & Montage", summary_total:"Gesamtpreis (Netto)",
+      badge_volume:"Volumen:", badge_with_floor:"Kühlzelle MIT Boden", badge_no_floor:"Kühlzelle OHNE Boden"
+    },
+    tr: {
+      brand_sub:"Intranet Merkezi", nav_tools:"Araçlar", nav_data:"Veriler",
+      nav_home:"Anasayfa", nav_zellen:"Soğuk Oda", nav_aggr:"Agrega Seçimi",
+      nav_paneel:"Panel Hesap", nav_lager:"Kapı Stoğu", nav_kal:"Takvim", nav_aggregate:"Agregalar",
+      title:"Soğuk Oda Hesaplama", subtitle:"Soğuk oda yapılandırma ve fiyat hesabı.",
+      step1_title:"Soğuk oda konfigürasyonu", step1_sub:"Hesaplama için yapı tipini seçin.",
+      card_no_floor:"Zeminsiz", card_no_floor_desc:"Standart U-profil montaj",
+      card_with_floor:"Zeminli", card_with_floor_desc:"İzolasyonlu zemin ve siebdruckplatte",
+      back_to_select:"← Seçime geri dön",
+      section_dims:"1. Oda dış ölçüleri", label_length:"Uzunluk (m)", label_width:"Genişlik (m)", label_height:"Yükseklik (m)",
+      section_pricing:"2. Hesaplama temel değerleri (EUR/m²)", label_panel_price:"Panel fiyatı", label_siebdruck:"Siebdruckplatte",
+      section_door:"3. Kapı ve donanım", label_door_size:"Kapı ölçüsü",
+      door_none:"Kapı yok [0 EUR]", door_75_175:"Menteşeli 75×175 cm [550 EUR]", door_75_190:"Menteşeli 75×190 cm [580 EUR]",
+      door_80_190:"Menteşeli 80×190 cm [600 EUR]", door_90_190:"Menteşeli 90×190 cm [650 EUR]",
+      door_110_190:"Menteşeli 110×190 cm [700 EUR]", door_100_200:"Menteşeli 100×200 cm [800 EUR]",
+      door_120_200:"Menteşeli 120×200 cm [900 EUR]", door_120_220:"Menteşeli 120×220 cm [1.000 EUR]",
+      door_slide:"Sürgü kapı (Talep üzerine)",
+      section_agg:"4. Agrega (opsiyonel)", label_agg_add:"Agrega ekle",
+      agg_none:"Agrega yok", agg_auto:"Otomatik seç",
+      label_cooling:"Soğutma tipi", cooling_normal:"Normal soğutma", cooling_tief:"Derin soğutma",
+      label_mount:"Montaj", mount_wall:"Duvar tipi", mount_ceiling:"Tavan tipi",
+      label_manufacturer:"Üretici", manuf_auto:"En ucuz",
+      section_service:"5. Teslimat ve montaj (opsiyonel)", label_service:"Teslimat ve montaj (EUR)",
+      btn_calc:"Fiyatı güncelle", summary_title:"Hesaplama detayları",
+      summary_shell:"Kabuk (Duvar+Tavan)", summary_floor_panel:"Zemin panel",
+      summary_floor_siebdruck:"Zemin siebdruckplatte", summary_door:"Kapı elemanı",
+      summary_agg:"Agrega", summary_service:"Teslimat ve montaj", summary_total:"Toplam fiyat (Net)",
+      badge_volume:"Hacim:", badge_with_floor:"Zeminli soğuk oda", badge_no_floor:"Zeminsiz soğuk oda"
     }
-
-    function goToStep(n) {
-      document.querySelectorAll(".step-content").forEach(el => el.classList.remove("active"));
-      document.getElementById("step-" + n).classList.add("active");
+  };
+  function t(k) { return (translations[currentLang]||{})[k] || translations.de[k] || k; }
+  function applyLanguage(lang) {
+    currentLang = translations[lang] ? lang : "de";
+    document.documentElement.lang = currentLang;
+    document.title = "Europaneel — " + t("title");
+    document.querySelectorAll("[data-i18n]").forEach(el => { const v = translations[currentLang][el.dataset.i18n]; if (v) el.textContent = v; });
+    document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === currentLang));
+    localStorage.setItem("europaneel_lang", currentLang);
+    if (document.getElementById("badge-text").textContent)
+      document.getElementById("badge-text").textContent = t(hatBoden ? "badge_with_floor" : "badge_no_floor");
+  }
+  function goToStep(n) {
+    document.querySelectorAll(".step-content").forEach(el => el.classList.remove("active"));
+    document.getElementById("step-" + n).classList.add("active");
+  }
+  function startConfig(mitBoden) {
+    hatBoden = mitBoden;
+    document.getElementById("badge-icon").textContent = mitBoden ? "B" : "O";
+    document.getElementById("badge-text").textContent = t(mitBoden ? "badge_with_floor" : "badge_no_floor");
+    document.getElementById("row-boden-details").style.display = mitBoden ? "flex" : "none";
+    document.getElementById("row-siebdruck-details").style.display = mitBoden ? "flex" : "none";
+    goToStep(2);
+    setTimeout(berechnePreis, 100);
+  }
+  const aggregateData = [
+    {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 10WN1",volume:10,salePrice:1565.7},
+    {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 13WN1",volume:13,salePrice:1830.25},
+    {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"PolariK 18WN2",volume:18,salePrice:2316.45},
+    {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 31WN2",volume:31,salePrice:2466.6},
+    {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 39WN3",volume:39,salePrice:3010},
+    {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 47WN3",volume:47,salePrice:3117.25},
+    {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 56WN3",volume:56,salePrice:3224.5},
+    {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 8WL1",volume:8,salePrice:1737.3},
+    {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 12WL2",volume:12,salePrice:2366.5},
+    {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 23WL2",volume:23,salePrice:2824.1},
+    {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 26WL3",volume:26,salePrice:3367.5},
+    {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 35WL3",volume:35,salePrice:3474.75},
+    {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 10TN1",volume:10,salePrice:2387.95},
+    {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 20TN2",volume:20,salePrice:2645.35},
+    {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 25TN2",volume:25,salePrice:3510.5},
+    {manufacturer:"Govi",mount:"Decke",cooling:"tief",model:"Polarik 6TL1",volume:6,salePrice:2266.4},
+    {manufacturer:"Govi",mount:"Decke",cooling:"tief",model:"Polarik 15TL2",volume:15,salePrice:3857.28},
+    {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS110YA11A",volume:7,salePrice:1707.39},
+    {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS1110YA11A",volume:13.5,salePrice:1964.42},
+    {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS3112YA11A",volume:19.8,salePrice:2468.64},
+    {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS3220YA11A",volume:36.1,salePrice:3418.72},
+    {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3112YA11A",volume:6.2,salePrice:2130.96},
+    {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3115YA11A",volume:7.7,salePrice:2460.77},
+    {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3224YA11A",volume:16.8,salePrice:2712.55},
+    {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3230YA11A",volume:20.8,salePrice:3435.77}
+  ];
+  function pickAggregate(vol, cooling, mount, manufacturer) {
+    let list = aggregateData.filter(i => i.cooling === cooling && i.mount === mount);
+    if (manufacturer && manufacturer !== "auto") list = list.filter(i => i.manufacturer === manufacturer);
+    if (!list.length) return null;
+    const s = list.slice().sort((a,b)=>a.volume-b.volume);
+    const c = s.find(i=>i.volume>=vol)||s[s.length-1];
+    return s.filter(i=>i.volume===c.volume).sort((a,b)=>a.salePrice-b.salePrice)[0];
+  }
+  function fmt(v) { return isFinite(v) ? v.toLocaleString("de-DE",{style:"currency",currency:"EUR"}) : "0,00 EUR"; }
+  function berechnePreis() {
+    const L=parseFloat(document.getElementById("inp-laenge").value)||0;
+    const B=parseFloat(document.getElementById("inp-breite").value)||0;
+    const H=parseFloat(document.getElementById("inp-hoehe").value)||0;
+    if (L>0&&B>0&&H>0) {
+      document.getElementById("badge-volume-value").textContent=(L*B*H).toFixed(2)+" m³";
+      document.getElementById("badge-volume-container").style.display="flex";
+    } else { document.getElementById("badge-volume-container").style.display="none"; }
+    const tuerPreis=parseFloat(document.getElementById("inp-tuer").value)||0;
+    const servicePreis=parseFloat(document.getElementById("inp-service").value)||0;
+    const aggToggle=document.getElementById("inp-aggregat").value==="1";
+    const kuehlart=document.getElementById("inp-kuehlart").value;
+    const montage=document.getElementById("inp-montage").value;
+    const manufacturer=(document.getElementById("inp-manufacturer")||{value:"auto"}).value;
+    const preisPaneel=parseFloat(document.getElementById("inp-preis-qm").value)||0;
+    const preisSiebdr=parseFloat(document.getElementById("inp-preis-siebdruck").value)||0;
+    document.getElementById("group-mount").style.display=aggToggle?"block":"none";
+    document.getElementById("group-manufacturer").style.display=aggToggle?"block":"none";
+    const wand=(L+B)*2*H, decke=L*B;
+    const huelle=(wand+decke)*preisPaneel;
+    const boden=hatBoden?decke*preisPaneel:0;
+    const siebd=hatBoden?decke*preisSiebdr:0;
+    let aggPreis=0;
+    if (aggToggle&&L&&B&&H) {
+      const agg=pickAggregate(L*B*H,kuehlart,montage,manufacturer);
+      if (agg) { aggPreis=agg.salePrice; document.getElementById("val-aggregat-name").textContent=agg.model+" ("+agg.manufacturer+" "+agg.mount+")"; }
+      else { document.getElementById("val-aggregat-name").textContent="-"; }
+      document.getElementById("row-aggregat").style.display="flex";
+    } else { document.getElementById("val-aggregat-name").textContent="-"; document.getElementById("row-aggregat").style.display="none"; }
+    const gesamt=huelle+boden+siebd+tuerPreis+aggPreis+servicePreis;
+    document.getElementById("summary-area").classList.add("show");
+    document.getElementById("val-huelle-qm").textContent="("+(wand+decke).toFixed(2)+" m²)";
+    document.getElementById("val-huelle-eur").textContent=fmt(huelle);
+    if (hatBoden) {
+      document.getElementById("val-boden-qm").textContent="("+decke.toFixed(2)+" m²)";
+      document.getElementById("val-boden-eur").textContent=fmt(boden);
+      document.getElementById("val-siebdruck-eur").textContent=fmt(siebd);
     }
-
-    function startConfig(mitBoden) {
-      hatBoden = mitBoden;
-      document.getElementById("badge-icon").textContent = mitBoden ? "B" : "O";
-      document.getElementById("badge-text").textContent = t(mitBoden ? "badge_with_floor" : "badge_no_floor");
-      document.getElementById("row-boden-details").style.display = mitBoden ? "flex" : "none";
-      document.getElementById("row-siebdruck-details").style.display = mitBoden ? "flex" : "none";
-      goToStep(2);
-      setTimeout(berechnePreis, 100);
-    }
-
-    const aggregateData = [
-      {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 10WN1",volume:10,salePrice:1565.7},
-      {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 13WN1",volume:13,salePrice:1830.25},
-      {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"PolariK 18WN2",volume:18,salePrice:2316.45},
-      {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 31WN2",volume:31,salePrice:2466.6},
-      {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 39WN3",volume:39,salePrice:3010},
-      {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 47WN3",volume:47,salePrice:3117.25},
-      {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 56WN3",volume:56,salePrice:3224.5},
-      {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 8WL1",volume:8,salePrice:1737.3},
-      {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 12WL2",volume:12,salePrice:2366.5},
-      {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 23WL2",volume:23,salePrice:2824.1},
-      {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 26WL3",volume:26,salePrice:3367.5},
-      {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 35WL3",volume:35,salePrice:3474.75},
-      {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 10TN1",volume:10,salePrice:2387.95},
-      {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 20TN2",volume:20,salePrice:2645.35},
-      {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 25TN2",volume:25,salePrice:3510.5},
-      {manufacturer:"Govi",mount:"Decke",cooling:"tief",model:"Polarik 6TL1",volume:6,salePrice:2266.4},
-      {manufacturer:"Govi",mount:"Decke",cooling:"tief",model:"Polarik 15TL2",volume:15,salePrice:3857.28},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS110YA11A",volume:7,salePrice:1707.39},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS1110YA11A",volume:13.5,salePrice:1964.42},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS3112YA11A",volume:19.8,salePrice:2468.64},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS3220YA11A",volume:36.1,salePrice:3418.72},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3112YA11A",volume:6.2,salePrice:2130.96},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3115YA11A",volume:7.7,salePrice:2460.77},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3224YA11A",volume:16.8,salePrice:2712.55},
-      {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3230YA11A",volume:20.8,salePrice:3435.77}
-    ];
-
-    function pickAggregate(vol, cooling, mount, manufacturer) {
-      let list = aggregateData.filter(i => i.cooling === cooling && i.mount === mount);
-      if (manufacturer && manufacturer !== "auto") list = list.filter(i => i.manufacturer === manufacturer);
-      if (!list.length) return null;
-      const sorted = list.slice().sort((a,b) => a.volume - b.volume);
-      const cand = sorted.find(i => i.volume >= vol) || sorted[sorted.length-1];
-      const same = sorted.filter(i => i.volume === cand.volume).sort((a,b) => a.salePrice - b.salePrice);
-      return same[0];
-    }
-
-    function fmt(v) { return isFinite(v) ? v.toLocaleString("de-DE", {style:"currency",currency:"EUR"}) : "0,00 EUR"; }
-
-    function berechnePreis() {
-      const L = parseFloat(document.getElementById("inp-laenge").value) || 0;
-      const B = parseFloat(document.getElementById("inp-breite").value) || 0;
-      const H = parseFloat(document.getElementById("inp-hoehe").value) || 0;
-
-      if (L > 0 && B > 0 && H > 0) {
-        document.getElementById("badge-volume-value").textContent = (L*B*H).toFixed(2) + " m³";
-        document.getElementById("badge-volume-container").style.display = "flex";
-      } else {
-        document.getElementById("badge-volume-container").style.display = "none";
-      }
-
-      const tuerPreis    = parseFloat(document.getElementById("inp-tuer").value) || 0;
-      const servicePreis = parseFloat(document.getElementById("inp-service").value) || 0;
-      const aggToggle    = document.getElementById("inp-aggregat").value === "1";
-      const kuehlart     = document.getElementById("inp-kuehlart").value;
-      const montage      = document.getElementById("inp-montage").value;
-      const manufacturer = (document.getElementById("inp-manufacturer") || {value:"auto"}).value;
-      const preisPaneel  = parseFloat(document.getElementById("inp-preis-qm").value) || 0;
-      const preisSiebdr  = parseFloat(document.getElementById("inp-preis-siebdruck").value) || 0;
-
-      document.getElementById("group-mount").style.display       = aggToggle ? "block" : "none";
-      document.getElementById("group-manufacturer").style.display = aggToggle ? "block" : "none";
-
-      const wand   = (L+B)*2*H;
-      const decke  = L*B;
-      const huelle = (wand+decke) * preisPaneel;
-      const boden  = hatBoden ? decke * preisPaneel : 0;
-      const siebd  = hatBoden ? decke * preisSiebdr : 0;
-
-      let aggPreis = 0;
-      if (aggToggle && L && B && H) {
-        const agg = pickAggregate(L*B*H, kuehlart, montage, manufacturer);
-        if (agg) {
-          aggPreis = agg.salePrice;
-          document.getElementById("val-aggregat-name").textContent = agg.model + " (" + agg.manufacturer + " " + agg.mount + ")";
-        } else {
-          document.getElementById("val-aggregat-name").textContent = "-";
-        }
-        document.getElementById("row-aggregat").style.display = "flex";
-      } else {
-        document.getElementById("val-aggregat-name").textContent = "-";
-        document.getElementById("row-aggregat").style.display = "none";
-      }
-
-      const gesamt = huelle + boden + siebd + tuerPreis + aggPreis + servicePreis;
-
-      document.getElementById("summary-area").classList.add("show");
-      document.getElementById("val-huelle-qm").textContent  = "(" + (wand+decke).toFixed(2) + " m²)";
-      document.getElementById("val-huelle-eur").textContent = fmt(huelle);
-      if (hatBoden) {
-        document.getElementById("val-boden-qm").textContent  = "(" + decke.toFixed(2) + " m²)";
-        document.getElementById("val-boden-eur").textContent = fmt(boden);
-        document.getElementById("val-siebdruck-eur").textContent = fmt(siebd);
-      }
-      document.getElementById("val-tuer-eur").textContent     = fmt(tuerPreis);
-      document.getElementById("val-aggregat-eur").textContent = fmt(aggPreis);
-      document.getElementById("val-service-eur").textContent  = fmt(servicePreis);
-      document.getElementById("preis-ausgabe").textContent    = fmt(gesamt);
-    }
-
-    const savedLang = localStorage.getItem("europaneel_lang") || "de";
-    applyLanguage(savedLang);
-    document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => applyLanguage(b.dataset.lang)));
-  </script>
+    document.getElementById("val-tuer-eur").textContent=fmt(tuerPreis);
+    document.getElementById("val-aggregat-eur").textContent=fmt(aggPreis);
+    document.getElementById("val-service-eur").textContent=fmt(servicePreis);
+    document.getElementById("preis-ausgabe").textContent=fmt(gesamt);
+  }
+  const savedLang=localStorage.getItem("europaneel_lang")||"de";
+  applyLanguage(savedLang);
+  document.querySelectorAll(".lang-btn").forEach(b=>b.addEventListener("click",()=>applyLanguage(b.dataset.lang)));
+</script>
 </body>
 </html>

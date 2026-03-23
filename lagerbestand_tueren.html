@@ -3,298 +3,391 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Europaneel | Lagerbestand Türen</title>
+  <title>Europaneel — Lagerbestand Türen</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-    .toolbar input[type="text"] { flex: 1; min-width: 140px; }
-
-    .stock-badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 12px;
-      font-weight: 700;
-    }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+    .toolbar input { flex: 1; min-width: 140px; max-width: 280px; }
+    .stock-badge { display: inline-block; padding: 3px 9px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 700; }
     .stock-ok  { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
     .stock-low { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
     .stock-out { background: var(--red-bg); color: var(--red-dark); border: 1px solid var(--red-border); }
-
-    .add-form {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-      align-items: end;
-    }
-    .add-form .btn { align-self: end; }
-
-    .edit-input {
-      border: none;
-      background: transparent;
-      width: 100%;
-      font-size: 14px;
-      font-family: inherit;
-      color: var(--ink);
-      padding: 4px 6px;
-      border-radius: 6px;
-    }
-    .edit-input:focus { outline: none; background: var(--paper); border: 1px solid var(--red); }
-
-    /* Mobile cards */
+    .add-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; align-items: end; }
+    .edit-input { border: none; background: transparent; width: 100%; font-size: 13.5px; font-family: inherit; color: var(--ink); padding: 3px 6px; border-radius: 6px; }
+    .edit-input:focus { outline: none; background: var(--surface); border: 1px solid var(--red); }
+    .stock-ctrl { display: flex; align-items: center; gap: 6px; }
+    .stock-ctrl button { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    .stock-ctrl button:hover { background: var(--red-bg); border-color: var(--red-border); }
+    .count-label { font-size: 12px; color: var(--steel); }
     @media (max-width: 680px) {
       .table-wrap { overflow: visible; }
       table { min-width: 0; }
       thead { display: none; }
-      tbody tr {
-        display: block;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 14px;
-        margin-bottom: 10px;
-        background: var(--white);
-        box-shadow: var(--shadow);
-      }
-      tbody td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        padding: 5px 0;
-        border: none;
-        font-size: 14px;
-      }
-      tbody td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--steel);
-        font-size: 12px;
-        flex-shrink: 0;
-        min-width: 80px;
-      }
+      tbody tr { display: block; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; background: var(--white); }
+      tbody td { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; border: none; font-size: 13.5px; }
+      tbody td::before { content: attr(data-label); font-weight: 600; color: var(--steel); font-size: 11.5px; flex-shrink: 0; min-width: 80px; }
       .add-form { grid-template-columns: 1fr; }
+      .toolbar input { max-width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="page-wide">
-    <header class="page-header">
-      <img src="logo.png" alt="Europaneel GmbH" />
-      <div class="page-header-info">
-        <h1 data-i18n="title">Lagerbestand Türen</h1>
-        <p data-i18n="subtitle">Bestand und Verfügbarkeit der Türen im Überblick.</p>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <img src="logo.png" alt="Europaneel" />
+        <div class="brand-text">
+          <span class="brand-name">Europaneel</span>
+          <span class="brand-sub" data-i18n="brand_sub">Intranet Hub</span>
+        </div>
       </div>
-      <div class="page-header-actions">
-        <a class="back-link" href="index.html" data-i18n="back">← Zurück</a>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label" data-i18n="nav_tools">Werkzeuge</span>
+      <a class="nav-link" href="index.html"><span class="nav-icon">🏠</span><span data-i18n="nav_home">Dashboard</span></a>
+      <a class="nav-link" href="zellenrechner.html"><span class="nav-icon">🧊</span><span data-i18n="nav_zellen">Zellenrechner</span></a>
+      <a class="nav-link" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span data-i18n="nav_aggr">Aggregatauswahl</span></a>
+      <a class="nav-link" href="paneelrechner.html"><span class="nav-icon">📋</span><span data-i18n="nav_paneel">Paneelrechner</span></a>
+      <span class="nav-section-label" data-i18n="nav_data">Daten</span>
+      <a class="nav-link active" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span data-i18n="nav_lager">Lagerbestand Türen</span></a>
+      <a class="nav-link" href="kalender.html"><span class="nav-icon">📅</span><span data-i18n="nav_kal">Kalender</span></a>
+      <a class="nav-link" href="aggregate.html"><span class="nav-icon">🗂️</span><span data-i18n="nav_aggregate">Aggregate</span></a>
+    </nav>
+    <div class="sidebar-footer">© 2025 Europaneel GmbH</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" data-i18n="title">Lagerbestand Türen</div>
+        <div class="topbar-sub" data-i18n="subtitle">Bestand und Verfügbarkeit der Türen verwalten.</div>
+      </div>
+      <div class="topbar-right">
         <div class="lang-switch" role="group" aria-label="Sprache">
           <button class="lang-btn" data-lang="de">DE</button>
           <button class="lang-btn" data-lang="tr">TR</button>
         </div>
       </div>
-    </header>
-
-    <!-- Add form -->
-    <div class="card" style="margin-bottom:16px;">
-      <h2 class="section-title" data-i18n="form_title">Neuer Eintrag</h2>
-      <div class="add-form">
-        <div class="input-group">
-          <label data-i18n="col_type">Türtyp</label>
-          <input type="text" id="inp-type" placeholder="z.B. Drehtür" />
-        </div>
-        <div class="input-group">
-          <label data-i18n="col_size">Größe</label>
-          <input type="text" id="inp-size" placeholder="z.B. 80×190 cm" />
-        </div>
-        <div class="input-group">
-          <label data-i18n="col_location">Lagerort</label>
-          <input type="text" id="inp-location" placeholder="z.B. Halle A" />
-        </div>
-        <div class="input-group">
-          <label data-i18n="col_stock">Bestand</label>
-          <input type="number" id="inp-stock" placeholder="0" min="0" step="1" />
-        </div>
-        <div class="input-group">
-          <label data-i18n="col_note">Notiz</label>
-          <input type="text" id="inp-note" placeholder="optional" />
-        </div>
-        <button class="btn btn-primary" id="addBtn" data-i18n="btn_add">Hinzufügen</button>
-      </div>
     </div>
 
-    <!-- Table -->
-    <div class="card">
-      <div class="toolbar">
-        <input type="text" id="searchInput" placeholder="Suchen…" style="max-width:300px;" />
-        <span id="countLabel" style="font-size:13px; color:var(--steel); margin-left:auto;"></span>
+    <div class="content">
+
+      <!-- Add form card -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="section-label" data-i18n="form_section">Neuer Eintrag</div>
+        <div class="add-form" id="addForm">
+          <div class="input-group">
+            <label data-i18n="col_type">Türtyp</label>
+            <input type="text" id="inpType" placeholder="z. B. Kühlzelltür" />
+          </div>
+          <div class="input-group">
+            <label data-i18n="col_size">Größe</label>
+            <input type="text" id="inpSize" placeholder="z. B. 80×200 cm" />
+          </div>
+          <div class="input-group">
+            <label data-i18n="col_location">Lagerort</label>
+            <input type="text" id="inpLocation" placeholder="z. B. Halle A" />
+          </div>
+          <div class="input-group">
+            <label data-i18n="col_stock">Bestand</label>
+            <input type="number" id="inpStock" min="0" step="1" value="1" />
+          </div>
+          <div class="input-group">
+            <label data-i18n="col_note">Notiz</label>
+            <input type="text" id="inpNote" placeholder="Optional" />
+          </div>
+          <div class="input-group" style="display:flex;align-items:flex-end;">
+            <button class="btn btn-primary btn-full" id="addBtn" data-i18n="btn_add">Hinzufügen</button>
+          </div>
+        </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th data-i18n="col_type">Türtyp</th>
-              <th data-i18n="col_size">Größe</th>
-              <th data-i18n="col_location">Lagerort</th>
-              <th data-i18n="col_stock">Bestand</th>
-              <th data-i18n="col_note">Notiz</th>
-              <th data-i18n="col_status">Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="stockBody"></tbody>
-        </table>
+
+      <!-- Main table card -->
+      <div class="card">
+        <div class="toolbar">
+          <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Suchen…" />
+          <span class="count-label" id="countLabel"></span>
+        </div>
+        <div class="table-wrap">
+          <table id="stockTable">
+            <thead>
+              <tr>
+                <th data-i18n="col_type">Türtyp</th>
+                <th data-i18n="col_size">Größe</th>
+                <th data-i18n="col_location">Lagerort</th>
+                <th data-i18n="col_stock">Bestand</th>
+                <th data-i18n="col_note">Notiz</th>
+                <th data-i18n="col_status">Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="stockBody"></tbody>
+          </table>
+        </div>
       </div>
-      <div id="emptyMsg" style="display:none;text-align:center;padding:36px;color:var(--steel);" data-i18n="empty">Keine Einträge vorhanden. Fügen Sie oben einen neuen Eintrag hinzu.</div>
+
     </div>
+  </main>
+</div>
+
+<!-- Mobile bottom nav -->
+<nav class="bottom-nav" aria-label="Navigation">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-item" href="index.html"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a class="bottom-nav-item" href="zellenrechner.html"><span class="nav-icon">🧊</span><span>Zellen</span></a>
+    <a class="bottom-nav-item" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span>Agregat</span></a>
+    <a class="bottom-nav-item" href="paneelrechner.html"><span class="nav-icon">📋</span><span>Paneele</span></a>
+    <a class="bottom-nav-item active" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span>Lager</span></a>
+    <a class="bottom-nav-item" href="kalender.html"><span class="nav-icon">📅</span><span>Kalender</span></a>
   </div>
+</nav>
 
-  <!-- Mobile bottom nav -->
-  <nav class="bottom-nav" aria-label="Navigation">
-    <div class="bottom-nav-inner">
-      <a class="bottom-nav-item" href="zellenrechner.html"><span class="nav-icon">🧊</span><span>Zellen</span></a>
-      <a class="bottom-nav-item" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span>Agregat</span></a>
-      <a class="bottom-nav-item" href="paneelrechner.html"><span class="nav-icon">📋</span><span>Paneele</span></a>
-      <a class="bottom-nav-item active" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span>Lager</span></a>
-      <a class="bottom-nav-item" href="kalender.html"><span class="nav-icon">📅</span><span>Kalender</span></a>
-      <a class="bottom-nav-item" href="aggregate.html"><span class="nav-icon">🗂️</span><span>Liste</span></a>
-    </div>
-  </nav>
+<script>
+const translations = {
+  de: {
+    brand_sub:"Intranet Hub",
+    nav_tools:"Werkzeuge",
+    nav_data:"Daten",
+    nav_home:"Dashboard",
+    nav_zellen:"Zellenrechner",
+    nav_aggr:"Aggregatauswahl",
+    nav_paneel:"Paneelrechner",
+    nav_lager:"Lagerbestand Türen",
+    nav_kal:"Kalender",
+    nav_aggregate:"Aggregate",
+    title:"Lagerbestand Türen",
+    subtitle:"Bestand und Verfügbarkeit der Türen verwalten.",
+    form_section:"Neuer Eintrag",
+    col_type:"Türtyp",
+    col_size:"Größe",
+    col_location:"Lagerort",
+    col_stock:"Bestand",
+    col_note:"Notiz",
+    col_status:"Status",
+    btn_add:"Hinzufügen",
+    search_placeholder:"Suchen…",
+    empty:"Keine Einträge. Oben einen neuen Eintrag hinzufügen.",
+    status_ok:"Verfügbar",
+    status_low:"Niedrig",
+    status_out:"Leer",
+    entries:"Einträge",
+    btn_del:"Löschen"
+  },
+  tr: {
+    brand_sub:"Intranet Hub",
+    nav_tools:"Araçlar",
+    nav_data:"Veriler",
+    nav_home:"Ana Sayfa",
+    nav_zellen:"Hücre Hesaplayıcı",
+    nav_aggr:"Agrega Seçimi",
+    nav_paneel:"Panel Hesaplayıcı",
+    nav_lager:"Kapı Stoğu",
+    nav_kal:"Takvim",
+    nav_aggregate:"Agregatlar",
+    title:"Kapı Stoğu",
+    subtitle:"Kapıların stok ve uygunluk durumunu yönetin.",
+    form_section:"Yeni kayıt",
+    col_type:"Kapı tipi",
+    col_size:"Ölçü",
+    col_location:"Depo",
+    col_stock:"Stok",
+    col_note:"Not",
+    col_status:"Durum",
+    btn_add:"Ekle",
+    search_placeholder:"Ara…",
+    empty:"Kayıt yok. Yukarıdan yeni kayıt ekleyin.",
+    status_ok:"Mevcut",
+    status_low:"Az",
+    status_out:"Tükenmiş",
+    entries:"Kayıt",
+    btn_del:"Sil"
+  }
+};
 
-  <script>
-    let currentLang = "de";
-    const T = {
-      de: {
-        title:"Lagerbestand Türen", subtitle:"Bestand und Verfügbarkeit der Türen im Überblick.",
-        back:"← Zurück", form_title:"Neuer Eintrag",
-        col_type:"Türtyp", col_size:"Größe", col_location:"Lagerort",
-        col_stock:"Bestand", col_note:"Notiz", col_status:"Status",
-        btn_add:"Hinzufügen", empty:"Keine Einträge vorhanden. Fügen Sie oben einen neuen Eintrag hinzu.",
-        status_ok:"Verfügbar", status_low:"Niedrig", status_out:"Leer",
-        entries:"Einträge", del:"Löschen"
-      },
-      tr: {
-        title:"Kapı Stoğu", subtitle:"Kapıların stok ve uygunluk durumu.",
-        back:"← Geri", form_title:"Yeni kayıt",
-        col_type:"Kapı tipi", col_size:"Ölçü", col_location:"Depo",
-        col_stock:"Stok", col_note:"Not", col_status:"Durum",
-        btn_add:"Ekle", empty:"Kayıt yok. Yukarıdan yeni kayıt ekleyin.",
-        status_ok:"Mevcut", status_low:"Az", status_out:"Tükenmiş",
-        entries:"Kayıt", del:"Sil"
-      }
-    };
-    function t(k) { return (T[currentLang]||{})[k] || T.de[k] || k; }
+const STORAGE_KEY = "ep_stock";
+let currentLang = localStorage.getItem("europaneel_lang") || "de";
 
-    function loadStock() { try { return JSON.parse(localStorage.getItem("ep_stock") || "[]"); } catch{ return []; } }
-    function saveStock(d) { localStorage.setItem("ep_stock", JSON.stringify(d)); }
+function t(key) {
+  return (translations[currentLang] && translations[currentLang][key]) || (translations["de"] && translations["de"][key]) || key;
+}
 
-    function stockStatus(n) {
-      if (n <= 0)  return { cls: "stock-out", label: t("status_out") };
-      if (n <= 2)  return { cls: "stock-low", label: t("status_low") };
-      return { cls: "stock-ok", label: t("status_ok") };
-    }
+function applyLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem("europaneel_lang", lang);
+  document.documentElement.lang = lang;
+  document.title = "Europaneel — " + t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = t(el.getAttribute("data-i18n"));
+  });
+  // Update placeholders
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+    el.placeholder = t(el.getAttribute("data-i18n-placeholder"));
+  });
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+  });
+  renderTable();
+}
 
-    function renderStock() {
-      const items = loadStock();
-      const q = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = q ? items.filter(i =>
-        [i.type, i.size, i.location, i.note].some(v => (v||"").toLowerCase().includes(q))
-      ) : items;
+// ---- Storage ----
+function loadStock() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e) { return []; }
+}
+function saveStock(items) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
 
-      const body = document.getElementById("stockBody");
-      body.innerHTML = "";
+// ---- Helpers ----
+function escHtml(str) {
+  return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
 
-      document.getElementById("emptyMsg").style.display = filtered.length ? "none" : "block";
-      document.getElementById("countLabel").textContent = filtered.length + " " + t("entries");
+function statusBadge(stock) {
+  if (stock > 2)  return `<span class="stock-badge stock-ok">${t("status_ok")}</span>`;
+  if (stock >= 1) return `<span class="stock-badge stock-low">${t("status_low")}</span>`;
+  return `<span class="stock-badge stock-out">${t("status_out")}</span>`;
+}
 
-      filtered.forEach((item, fi) => {
-        const realIdx = items.indexOf(item);
-        const st = stockStatus(parseInt(item.stock) || 0);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td data-label="${t("col_type")}"><input class="edit-input" value="${esc(item.type)}" onchange="editField(${realIdx},'type',this.value)" /></td>
-          <td data-label="${t("col_size")}"><input class="edit-input" value="${esc(item.size)}" onchange="editField(${realIdx},'size',this.value)" /></td>
-          <td data-label="${t("col_location")}"><input class="edit-input" value="${esc(item.location)}" onchange="editField(${realIdx},'location',this.value)" /></td>
-          <td data-label="${t("col_stock")}">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <button onclick="changeStock(${realIdx},-1)" style="background:var(--paper);border:1px solid var(--border);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">−</button>
-              <strong>${item.stock}</strong>
-              <button onclick="changeStock(${realIdx},1)"  style="background:var(--paper);border:1px solid var(--border);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">+</button>
-            </div>
-          </td>
-          <td data-label="${t("col_note")}"><input class="edit-input" value="${esc(item.note||"")}" placeholder="–" onchange="editField(${realIdx},'note',this.value)" /></td>
-          <td data-label="${t("col_status")}"><span class="stock-badge ${st.cls}">${st.label}</span></td>
-          <td><button class="btn btn-sm btn-danger" onclick="deleteItem(${realIdx})">${t("del")}</button></td>`;
-        body.appendChild(tr);
+// ---- Render ----
+function renderTable() {
+  const search = (document.getElementById("searchInput").value || "").toLowerCase().trim();
+  const items  = loadStock();
+  const filtered = items.filter(it => {
+    if (!search) return true;
+    const hay = [it.type, it.size, it.location, it.note, it.stock].join(" ").toLowerCase();
+    return hay.includes(search);
+  });
+
+  const tbody = document.getElementById("stockBody");
+  tbody.innerHTML = "";
+
+  document.getElementById("countLabel").textContent = `${filtered.length} ${t("entries")}`;
+
+  const colType     = t("col_type");
+  const colSize     = t("col_size");
+  const colLocation = t("col_location");
+  const colStock    = t("col_stock");
+  const colNote     = t("col_note");
+  const colStatus   = t("col_status");
+  const btnDel      = t("btn_del");
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--steel);padding:24px;">${t("empty")}</td></tr>`;
+    return;
+  }
+
+  // Map filtered items back to original indices
+  filtered.forEach(it => {
+    const origIdx = items.indexOf(it);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-label="${colType}"><input class="edit-input" type="text" value="${escHtml(it.type)}" data-field="type" data-idx="${origIdx}" /></td>
+      <td data-label="${colSize}"><input class="edit-input" type="text" value="${escHtml(it.size)}" data-field="size" data-idx="${origIdx}" /></td>
+      <td data-label="${colLocation}"><input class="edit-input" type="text" value="${escHtml(it.location)}" data-field="location" data-idx="${origIdx}" /></td>
+      <td data-label="${colStock}">
+        <div class="stock-ctrl">
+          <button class="stock-minus" data-idx="${origIdx}" aria-label="Minus">−</button>
+          <span class="stock-val">${it.stock}</span>
+          <button class="stock-plus" data-idx="${origIdx}" aria-label="Plus">+</button>
+        </div>
+      </td>
+      <td data-label="${colNote}"><input class="edit-input" type="text" value="${escHtml(it.note)}" data-field="note" data-idx="${origIdx}" /></td>
+      <td data-label="${colStatus}">${statusBadge(it.stock)}</td>
+      <td>
+        <button class="btn btn-sm" style="background:var(--red-bg);color:var(--red-dark);border:1px solid var(--red-border);" data-del="${origIdx}" aria-label="${btnDel}">${btnDel}</button>
+      </td>
+    `;
+
+    // Edit inputs
+    tr.querySelectorAll(".edit-input").forEach(inp => {
+      inp.addEventListener("change", () => {
+        const its = loadStock();
+        const idx = parseInt(inp.getAttribute("data-idx"));
+        const field = inp.getAttribute("data-field");
+        its[idx][field] = inp.value;
+        saveStock(its);
+        // Don't re-render to keep focus; just update status badge
+        const stockVal = its[idx].stock;
+        const statusTd = tr.querySelector(`td[data-label="${colStatus}"]`);
+        if (statusTd) statusTd.innerHTML = statusBadge(stockVal);
       });
-    }
-
-    function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
-
-    function editField(idx, field, val) {
-      const items = loadStock();
-      if (items[idx]) { items[idx][field] = val; saveStock(items); renderStock(); }
-    }
-
-    function changeStock(idx, delta) {
-      const items = loadStock();
-      if (items[idx]) {
-        items[idx].stock = Math.max(0, (parseInt(items[idx].stock) || 0) + delta);
-        saveStock(items);
-        renderStock();
-      }
-    }
-
-    function deleteItem(idx) {
-      const items = loadStock();
-      items.splice(idx, 1);
-      saveStock(items);
-      renderStock();
-    }
-
-    document.getElementById("addBtn").addEventListener("click", () => {
-      const type     = document.getElementById("inp-type").value.trim();
-      const size     = document.getElementById("inp-size").value.trim();
-      const location = document.getElementById("inp-location").value.trim();
-      const stock    = parseInt(document.getElementById("inp-stock").value) || 0;
-      const note     = document.getElementById("inp-note").value.trim();
-      if (!type) { document.getElementById("inp-type").focus(); return; }
-      const items = loadStock();
-      items.push({ type, size, location, stock, note });
-      saveStock(items);
-      ["inp-type","inp-size","inp-location","inp-stock","inp-note"].forEach(id => document.getElementById(id).value = "");
-      renderStock();
     });
 
-    document.getElementById("searchInput").addEventListener("input", renderStock);
-
-    // Allow Enter in note field to submit
-    document.getElementById("inp-note").addEventListener("keydown", e => {
-      if (e.key === "Enter") document.getElementById("addBtn").click();
+    // Stock +/-
+    tr.querySelector(".stock-minus").addEventListener("click", () => {
+      const its = loadStock();
+      const idx = parseInt(tr.querySelector(".stock-minus").getAttribute("data-idx"));
+      if (its[idx].stock > 0) its[idx].stock--;
+      saveStock(its);
+      tr.querySelector(".stock-val").textContent = its[idx].stock;
+      const statusTd = tr.querySelector(`td[data-label="${colStatus}"]`);
+      if (statusTd) statusTd.innerHTML = statusBadge(its[idx].stock);
+    });
+    tr.querySelector(".stock-plus").addEventListener("click", () => {
+      const its = loadStock();
+      const idx = parseInt(tr.querySelector(".stock-plus").getAttribute("data-idx"));
+      its[idx].stock++;
+      saveStock(its);
+      tr.querySelector(".stock-val").textContent = its[idx].stock;
+      const statusTd = tr.querySelector(`td[data-label="${colStatus}"]`);
+      if (statusTd) statusTd.innerHTML = statusBadge(its[idx].stock);
     });
 
-    function applyLanguage(lang) {
-      currentLang = T[lang] ? lang : "de";
-      document.documentElement.lang = currentLang;
-      document.title = t("title");
-      document.querySelectorAll("[data-i18n]").forEach(el => {
-        const k = el.getAttribute("data-i18n");
-        const v = T[currentLang][k];
-        if (v && typeof v === "string") el.textContent = v;
-      });
-      document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === currentLang));
-      localStorage.setItem("europaneel_lang", currentLang);
-      renderStock();
-    }
+    // Delete
+    tr.querySelector("[data-del]").addEventListener("click", () => {
+      const its = loadStock();
+      const idx = parseInt(tr.querySelector("[data-del]").getAttribute("data-del"));
+      its.splice(idx, 1);
+      saveStock(its);
+      renderTable();
+    });
 
-    const savedLang = localStorage.getItem("europaneel_lang") || "de";
-    applyLanguage(savedLang);
-    document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => applyLanguage(b.dataset.lang)));
-  </script>
+    tbody.appendChild(tr);
+  });
+}
+
+// ---- Add ----
+document.getElementById("addBtn").addEventListener("click", () => {
+  const type     = document.getElementById("inpType").value.trim();
+  const size     = document.getElementById("inpSize").value.trim();
+  const location = document.getElementById("inpLocation").value.trim();
+  const stock    = parseInt(document.getElementById("inpStock").value) || 0;
+  const note     = document.getElementById("inpNote").value.trim();
+
+  if (!type) { document.getElementById("inpType").focus(); return; }
+
+  const items = loadStock();
+  items.push({ type, size, location, stock, note });
+  saveStock(items);
+
+  document.getElementById("inpType").value     = "";
+  document.getElementById("inpSize").value     = "";
+  document.getElementById("inpLocation").value = "";
+  document.getElementById("inpStock").value    = "1";
+  document.getElementById("inpNote").value     = "";
+
+  renderTable();
+});
+
+// Allow Enter key in add form
+document.getElementById("addForm").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("addBtn").click();
+});
+
+// Search
+document.getElementById("searchInput").addEventListener("input", renderTable);
+
+// Lang
+document.querySelectorAll(".lang-btn").forEach(btn => {
+  btn.addEventListener("click", () => applyLanguage(btn.getAttribute("data-lang")));
+});
+
+// ---- Init ----
+applyLanguage(currentLang);
+</script>
 </body>
 </html>

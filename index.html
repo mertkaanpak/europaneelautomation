@@ -3,116 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Europaneel Automations</title>
+  <title>Europaneel — Intranet</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    html, body { height: 100%; overflow: hidden; }
-
-    @media (max-width: 768px) {
-      html, body { overflow: auto; }
-    }
-
-    .shell {
+    /* Dashboard grid */
+    .dash-grid {
       display: grid;
-      grid-template-columns: var(--sidebar-w) 1fr;
-      height: 100vh;
-      width: 100%;
-    }
-
-    /* ── Sidebar ── */
-    .sidebar {
-      background: #111418;
-      color: #d1d5db;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      padding: 28px 18px;
-      overflow-y: auto;
-      border-right: 1px solid rgba(255,255,255,0.07);
-    }
-    .brand { display: flex; flex-direction: column; gap: 10px; }
-    .brand img { max-width: 100%; height: auto; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.3)); }
-    .brand small {
-      font-family: "Barlow", sans-serif;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: #6b7280;
-      font-size: 10px;
-    }
-    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 11px 13px;
-      border-radius: 12px;
-      color: #9ca3af;
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: all 0.18s ease;
-    }
-    .nav-link:hover { background: rgba(255,255,255,0.07); color: #f3f4f6; }
-    .nav-link.active {
-      background: linear-gradient(135deg, rgba(227,6,19,0.9), rgba(176,5,16,0.9));
-      color: #fff;
-      box-shadow: 0 8px 20px rgba(227,6,19,0.25);
-    }
-    .nav-link .icon { font-size: 17px; width: 22px; display: inline-flex; justify-content: center; flex-shrink: 0; }
-    .sidebar-footer {
-      margin-top: auto;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      font-size: 12px;
-      color: #4b5563;
-    }
-
-    /* ── Main area ── */
-    .main { overflow-y: auto; padding: 28px 32px 40px; }
-
-    /* ── Hero bar ── */
-    .hero {
-      background: var(--white);
-      padding: 22px 26px;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      border-left: 5px solid var(--red);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 14px;
-      margin-bottom: 24px;
-      animation: fadeUp 0.4s ease-out both;
-    }
-    .hero h1 { margin: 0 0 4px; font-size: 26px; color: var(--ink); }
-    .hero p { margin: 0; color: var(--steel); max-width: 500px; font-size: 14px; }
-    .hero-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .date-pill {
-      background: var(--paper);
-      border: 1px solid var(--border);
-      padding: 7px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--graphite);
-      white-space: nowrap;
-    }
-
-    /* ── Cards grid ── */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
     }
     .module-card {
       background: var(--white);
-      border-radius: var(--radius-lg);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      padding: 22px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -120,108 +27,101 @@
       color: inherit;
       position: relative;
       overflow: hidden;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      animation: fadeUp 0.4s ease-out both;
+      transition: box-shadow var(--duration), transform var(--duration);
+      animation: fadeUp .4s var(--ease) both;
     }
     .module-card::before {
       content: "";
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--red), #f5303a);
+      height: 3px;
+      background: var(--red);
     }
-    .module-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .module-card:nth-child(1) { animation-delay: 0.04s; }
-    .module-card:nth-child(2) { animation-delay: 0.09s; }
-    .module-card:nth-child(3) { animation-delay: 0.14s; }
-    .module-card:nth-child(4) { animation-delay: 0.19s; }
-    .module-card:nth-child(5) { animation-delay: 0.24s; }
-    .module-card:nth-child(6) { animation-delay: 0.29s; }
-    .module-card .m-icon { font-size: 28px; }
-    .module-card h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--ink); }
-    .module-card p { margin: 0; font-size: 13px; color: var(--steel); line-height: 1.5; }
+    .module-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .module-card:nth-child(1) { animation-delay: .04s; }
+    .module-card:nth-child(2) { animation-delay: .08s; }
+    .module-card:nth-child(3) { animation-delay: .12s; }
+    .module-card:nth-child(4) { animation-delay: .16s; }
+    .module-card:nth-child(5) { animation-delay: .20s; }
+    .module-card:nth-child(6) { animation-delay: .24s; }
+    .m-icon { font-size: 26px; }
+    .module-card h3 { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .module-card p { font-size: 12.5px; color: var(--steel); line-height: 1.5; flex: 1; }
     .module-card .cta {
-      margin-top: auto;
       display: inline-flex;
       align-items: center;
       gap: 5px;
       color: var(--red-dark);
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12.5px;
+      margin-top: auto;
     }
-
-    /* ── Mobile overrides ── */
     @media (max-width: 768px) {
-      .shell { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
-      .sidebar { display: none; }
-      .main { padding: 16px 16px calc(var(--nav-h) + 24px); }
-      .hero { border-left: none; border-top: 5px solid var(--red); border-radius: var(--radius); padding: 18px; }
-      .hero h1 { font-size: 20px; }
-      .hero-meta { width: 100%; justify-content: space-between; }
-      .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-      .module-card { padding: 16px; }
+      .dash-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .module-card p { display: none; }
     }
-    @media (max-width: 400px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-    @media (hover: none) {
-      .module-card:hover { transform: none; }
-    }
+    @media (max-width: 420px) { .dash-grid { grid-template-columns: 1fr; } }
+    @media (hover: none) { .module-card:hover { transform: none; } }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <aside class="sidebar">
+<div class="shell">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
       <div class="brand">
-        <img src="logo.png" alt="Europaneel GmbH" />
-        <small data-i18n="brand_sub">Intranet Hub</small>
-      </div>
-      <nav class="sidebar-nav">
-        <a class="nav-link active" href="zellenrechner.html">
-          <span class="icon">🧊</span>
-          <span data-i18n="nav_zellen">Zellenrechner</span>
-        </a>
-        <a class="nav-link" href="aggregatauswahl.html">
-          <span class="icon">🔍</span>
-          <span data-i18n="nav_aggr">Aggregatauswahl</span>
-        </a>
-        <a class="nav-link" href="paneelrechner.html">
-          <span class="icon">📋</span>
-          <span data-i18n="nav_paneel">Paneelrechner</span>
-        </a>
-        <a class="nav-link" href="lagerbestand_tueren.html">
-          <span class="icon">📦</span>
-          <span data-i18n="nav_lager">Lagerbestand Türen</span>
-        </a>
-        <a class="nav-link" href="kalender.html">
-          <span class="icon">📅</span>
-          <span data-i18n="nav_kal">Kalender</span>
-        </a>
-        <a class="nav-link" href="aggregate.html">
-          <span class="icon">🗂️</span>
-          <span data-i18n="nav_aggregate">Aggregate</span>
-        </a>
-      </nav>
-      <div class="sidebar-footer">© 2025 Europaneel GmbH</div>
-    </aside>
-
-    <main class="main">
-      <div class="hero">
-        <div>
-          <h1 data-i18n="hero_title">Europaneel Automations</h1>
-          <p data-i18n="hero_desc">Ihr Intranet für schnelle Werkzeuge, Berechnungen und Übersichten.</p>
-        </div>
-        <div class="hero-meta">
-          <div class="date-pill" id="today">--</div>
-          <div class="lang-switch" role="group" aria-label="Sprache">
-            <button class="lang-btn" data-lang="de">DE</button>
-            <button class="lang-btn" data-lang="tr">TR</button>
-          </div>
+        <img src="logo.png" alt="Europaneel" />
+        <div class="brand-text">
+          <span class="brand-name">Europaneel</span>
+          <span class="brand-sub" data-i18n="brand_sub">Intranet Hub</span>
         </div>
       </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label" data-i18n="nav_tools">Werkzeuge</span>
+      <a class="nav-link active" href="index.html">
+        <span class="nav-icon">🏠</span><span data-i18n="nav_home">Dashboard</span>
+      </a>
+      <a class="nav-link" href="zellenrechner.html">
+        <span class="nav-icon">🧊</span><span data-i18n="nav_zellen">Zellenrechner</span>
+      </a>
+      <a class="nav-link" href="aggregatauswahl.html">
+        <span class="nav-icon">🔍</span><span data-i18n="nav_aggr">Aggregatauswahl</span>
+      </a>
+      <a class="nav-link" href="paneelrechner.html">
+        <span class="nav-icon">📋</span><span data-i18n="nav_paneel">Paneelrechner</span>
+      </a>
+      <span class="nav-section-label" data-i18n="nav_data">Daten</span>
+      <a class="nav-link" href="lagerbestand_tueren.html">
+        <span class="nav-icon">📦</span><span data-i18n="nav_lager">Lagerbestand Türen</span>
+      </a>
+      <a class="nav-link" href="kalender.html">
+        <span class="nav-icon">📅</span><span data-i18n="nav_kal">Kalender</span>
+      </a>
+      <a class="nav-link" href="aggregate.html">
+        <span class="nav-icon">🗂️</span><span data-i18n="nav_aggregate">Aggregate</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">© 2025 Europaneel GmbH</div>
+  </aside>
 
-      <div class="grid">
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" data-i18n="page_title">Dashboard</div>
+        <div class="topbar-sub" id="today">–</div>
+      </div>
+      <div class="topbar-right">
+        <div class="lang-switch" role="group" aria-label="Sprache">
+          <button class="lang-btn" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="tr">TR</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="dash-grid">
         <a class="module-card" href="zellenrechner.html">
           <div class="m-icon">🧊</div>
           <h3 data-i18n="c_zellen">Zellenrechner</h3>
@@ -231,7 +131,7 @@
         <a class="module-card" href="aggregatauswahl.html">
           <div class="m-icon">🔍</div>
           <h3 data-i18n="c_aggr">Aggregatauswahl</h3>
-          <p data-i18n="cd_aggr">Passende Aggregate und Komponenten schnell finden.</p>
+          <p data-i18n="cd_aggr">Passendes Aggregat anhand des Raumvolumens finden.</p>
           <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
         <a class="module-card" href="paneelrechner.html">
@@ -243,7 +143,7 @@
         <a class="module-card" href="lagerbestand_tueren.html">
           <div class="m-icon">📦</div>
           <h3 data-i18n="c_lager">Lagerbestand Türen</h3>
-          <p data-i18n="cd_lager">Bestand und Verfügbarkeit der Türen auf einen Blick.</p>
+          <p data-i18n="cd_lager">Bestand und Verfügbarkeit der Türen verwalten.</p>
           <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
         <a class="module-card" href="kalender.html">
@@ -259,94 +159,69 @@
           <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
       </div>
-    </main>
-  </div>
-
-  <!-- Mobile bottom nav -->
-  <nav class="bottom-nav" aria-label="Navigation">
-    <div class="bottom-nav-inner">
-      <a class="bottom-nav-item" href="zellenrechner.html">
-        <span class="nav-icon">🧊</span>
-        <span data-i18n="nav_zellen">Zellen</span>
-      </a>
-      <a class="bottom-nav-item" href="aggregatauswahl.html">
-        <span class="nav-icon">🔍</span>
-        <span data-i18n="nav_aggr_s">Agregat</span>
-      </a>
-      <a class="bottom-nav-item" href="paneelrechner.html">
-        <span class="nav-icon">📋</span>
-        <span data-i18n="nav_paneel_s">Paneele</span>
-      </a>
-      <a class="bottom-nav-item" href="lagerbestand_tueren.html">
-        <span class="nav-icon">📦</span>
-        <span data-i18n="nav_lager_s">Lager</span>
-      </a>
-      <a class="bottom-nav-item" href="kalender.html">
-        <span class="nav-icon">📅</span>
-        <span data-i18n="nav_kal_s">Kalender</span>
-      </a>
-      <a class="bottom-nav-item" href="aggregate.html">
-        <span class="nav-icon">🗂️</span>
-        <span data-i18n="nav_all_s">Liste</span>
-      </a>
     </div>
-  </nav>
+  </main>
+</div>
 
-  <script>
-    document.getElementById("today").textContent = new Date().toLocaleDateString("de-DE", {
-      weekday: "long", day: "2-digit", month: "long", year: "numeric"
-    });
+<!-- Mobile bottom nav -->
+<nav class="bottom-nav" aria-label="Navigation">
+  <div class="bottom-nav-inner">
+    <a class="bottom-nav-item active" href="index.html"><span class="nav-icon">🏠</span><span data-i18n="nav_home_s">Home</span></a>
+    <a class="bottom-nav-item" href="zellenrechner.html"><span class="nav-icon">🧊</span><span data-i18n="nav_zellen_s">Zellen</span></a>
+    <a class="bottom-nav-item" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span data-i18n="nav_aggr_s">Agregat</span></a>
+    <a class="bottom-nav-item" href="paneelrechner.html"><span class="nav-icon">📋</span><span data-i18n="nav_paneel_s">Paneele</span></a>
+    <a class="bottom-nav-item" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span data-i18n="nav_lager_s">Lager</span></a>
+    <a class="bottom-nav-item" href="kalender.html"><span class="nav-icon">📅</span><span data-i18n="nav_kal_s">Kalender</span></a>
+  </div>
+</nav>
 
-    const T = {
-      de: {
-        brand_sub: "Intranet Hub",
-        hero_title: "Europaneel Automations",
-        hero_desc: "Ihr Intranet für schnelle Werkzeuge, Berechnungen und Übersichten.",
-        nav_zellen: "Zellenrechner", nav_aggr: "Aggregatauswahl", nav_paneel: "Paneelrechner",
-        nav_lager: "Lagerbestand Türen", nav_kal: "Kalender", nav_aggregate: "Aggregate",
-        c_zellen: "Zellenrechner", cd_zellen: "Konfigurieren und kalkulieren Sie Kühlzellen schnell und präzise.",
-        c_aggr: "Aggregatauswahl", cd_aggr: "Passende Aggregate und Komponenten schnell finden.",
-        c_paneel: "Paneelrechner", cd_paneel: "Sandwichpaneele kalkulieren und Gesamtpreis ermitteln.",
-        c_lager: "Lagerbestand Türen", cd_lager: "Bestand und Verfügbarkeit der Türen auf einen Blick.",
-        c_kal: "Kalender", cd_kal: "Termine, Lieferungen und interne Abläufe planen.",
-        c_all: "Aggregate", cd_all: "Alle Geräte von Govi und Zanotti im direkten Vergleich.",
-        cta: "Öffnen →",
-        nav_zellen: "Zellen", nav_aggr_s: "Agregat", nav_paneel_s: "Paneele",
-        nav_lager_s: "Lager", nav_kal_s: "Kalender", nav_all_s: "Liste"
-      },
-      tr: {
-        brand_sub: "Intranet Merkezi",
-        hero_title: "Europaneel Automations",
-        hero_desc: "Hızlı araçlar, hesaplamalar ve genel bakışlar için intranet.",
-        nav_zellen: "Oda Hesap", nav_aggr: "Agrega Seçimi", nav_paneel: "Panel Hesap",
-        nav_lager: "Kapı Stok", nav_kal: "Takvim", nav_aggregate: "Agregalar",
-        c_zellen: "Soğuk Oda Hesaplama", cd_zellen: "Soğuk odaları hızlı yapılandırın ve hesaplayın.",
-        c_aggr: "Agrega Seçimi", cd_aggr: "Uygun agregalari hizlica bulun.",
-        c_paneel: "Panel Hesaplayıcı", cd_paneel: "Sandviç panel fiyatı ve toplam hesaplama.",
-        c_lager: "Kapı Stok", cd_lager: "Kapıların stok ve uygunluk durumu.",
-        c_kal: "Takvim", cd_kal: "Tarih, teslimat ve iş akışlarını planlayın.",
-        c_all: "Agregalar", cd_all: "Govi ve Zanotti cihazlarının karşılaştırması.",
-        cta: "Aç →",
-        nav_zellen: "Oda", nav_aggr_s: "Agrega", nav_paneel_s: "Panel",
-        nav_lager_s: "Stok", nav_kal_s: "Takvim", nav_all_s: "Liste"
-      }
-    };
-
-    function applyLang(lang) {
-      const d = T[lang] || T.de;
-      document.documentElement.lang = lang;
-      document.title = d.hero_title;
-      document.querySelectorAll("[data-i18n]").forEach(el => {
-        const k = el.getAttribute("data-i18n");
-        if (d[k]) el.textContent = d[k];
-      });
-      document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
-      localStorage.setItem("europaneel_lang", lang);
+<script>
+  document.getElementById("today").textContent = new Date().toLocaleDateString("de-DE", {
+    weekday:"long", day:"2-digit", month:"long", year:"numeric"
+  });
+  const T = {
+    de: {
+      brand_sub:"Intranet Hub", page_title:"Dashboard",
+      nav_tools:"Werkzeuge", nav_data:"Daten",
+      nav_home:"Dashboard", nav_zellen:"Zellenrechner", nav_aggr:"Aggregatauswahl",
+      nav_paneel:"Paneelrechner", nav_lager:"Lagerbestand Türen", nav_kal:"Kalender", nav_aggregate:"Aggregate",
+      c_zellen:"Zellenrechner", cd_zellen:"Konfigurieren und kalkulieren Sie Kühlzellen schnell und präzise.",
+      c_aggr:"Aggregatauswahl", cd_aggr:"Passendes Aggregat anhand des Raumvolumens finden.",
+      c_paneel:"Paneelrechner", cd_paneel:"Sandwichpaneele kalkulieren und Gesamtpreis ermitteln.",
+      c_lager:"Lagerbestand Türen", cd_lager:"Bestand und Verfügbarkeit der Türen verwalten.",
+      c_kal:"Kalender", cd_kal:"Termine, Lieferungen und interne Abläufe planen.",
+      c_all:"Aggregate", cd_all:"Alle Geräte von Govi und Zanotti im direkten Vergleich.",
+      cta:"Öffnen →",
+      nav_home_s:"Home", nav_zellen_s:"Zellen", nav_aggr_s:"Agregat",
+      nav_paneel_s:"Paneele", nav_lager_s:"Lager", nav_kal_s:"Kalender"
+    },
+    tr: {
+      brand_sub:"Intranet Merkezi", page_title:"Anasayfa",
+      nav_tools:"Araçlar", nav_data:"Veriler",
+      nav_home:"Anasayfa", nav_zellen:"Soğuk Oda", nav_aggr:"Agrega Seçimi",
+      nav_paneel:"Panel Hesap", nav_lager:"Kapı Stoğu", nav_kal:"Takvim", nav_aggregate:"Agregalar",
+      c_zellen:"Soğuk Oda Hesaplama", cd_zellen:"Soğuk odaları hızlı yapılandırın ve hesaplayın.",
+      c_aggr:"Agrega Seçimi", cd_aggr:"Hacme göre uygun agrega bulun.",
+      c_paneel:"Panel Hesaplayıcı", cd_paneel:"Sandviç panel fiyatı ve toplam hesaplama.",
+      c_lager:"Kapı Stoğu", cd_lager:"Kapıların stok ve uygunluk durumunu yönetin.",
+      c_kal:"Takvim", cd_kal:"Randevuları, teslimatları ve iş akışlarını planlayın.",
+      c_all:"Agregalar", cd_all:"Govi ve Zanotti cihazlarının karşılaştırması.",
+      cta:"Aç →",
+      nav_home_s:"Ana", nav_zellen_s:"Oda", nav_aggr_s:"Agrega",
+      nav_paneel_s:"Panel", nav_lager_s:"Stok", nav_kal_s:"Takvim"
     }
-
-    const lang = localStorage.getItem("europaneel_lang") || "de";
-    applyLang(lang);
-    document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => applyLang(b.dataset.lang)));
-  </script>
+  };
+  function applyLang(lang) {
+    const d = T[lang] || T.de;
+    document.documentElement.lang = lang;
+    document.title = "Europaneel — " + d.page_title;
+    document.querySelectorAll("[data-i18n]").forEach(el => { const v = d[el.dataset.i18n]; if (v) el.textContent = v; });
+    document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+    localStorage.setItem("europaneel_lang", lang);
+  }
+  const lang = localStorage.getItem("europaneel_lang") || "de";
+  applyLang(lang);
+  document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+</script>
 </body>
 </html>
