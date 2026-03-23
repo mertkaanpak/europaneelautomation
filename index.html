@@ -1,503 +1,352 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Europaneel Automations Intranet</title>
+  <title>Europaneel Automations</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
   <style>
-    :root {
-      --red: #e30613;
-      --red-dark: #b00510;
-      --graphite: #4a4f55;
-      --steel: #6b7178;
-      --paper: #f6f7f9;
-      --white: #ffffff;
-      --shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-      --radius: 16px;
-    }
+    html, body { height: 100%; overflow: hidden; }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: "Space Grotesk", "Barlow", sans-serif;
-      color: var(--graphite);
-      background:
-        radial-gradient(1200px 600px at -10% -10%, rgba(227, 6, 19, 0.08), transparent 55%),
-        radial-gradient(900px 500px at 110% 0%, rgba(74, 79, 85, 0.08), transparent 55%),
-        linear-gradient(120deg, #f9fafb 0%, #f1f4f7 50%, #f9fafb 100%);
-      display: flex;
-      overflow: hidden;
+    @media (max-width: 768px) {
+      html, body { overflow: auto; }
     }
 
     .shell {
       display: grid;
-      grid-template-columns: 270px 1fr;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      height: 100vh;
       width: 100%;
-      height: 100%;
     }
 
+    /* ── Sidebar ── */
     .sidebar {
       background: #111418;
       color: #d1d5db;
-      padding: 28px 20px;
       display: flex;
       flex-direction: column;
-      gap: 26px;
-      position: relative;
+      gap: 24px;
+      padding: 28px 18px;
       overflow-y: auto;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(255,255,255,0.07);
     }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      align-items: flex-start;
-    }
-
-    .brand img {
-      max-width: 100%;
-      height: auto;
-      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25));
-    }
-
+    .brand { display: flex; flex-direction: column; gap: 10px; }
+    .brand img { max-width: 100%; height: auto; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.3)); }
     .brand small {
       font-family: "Barlow", sans-serif;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: #9ca3af;
-      font-size: 11px;
+      color: #6b7280;
+      font-size: 10px;
     }
-
-    .nav {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .nav .nav-link {
-      all: unset;
-      cursor: pointer;
-      padding: 12px 14px;
-      border-radius: 12px;
+    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+    .nav-link {
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: transparent;
-      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      gap: 11px;
+      padding: 11px 13px;
+      border-radius: 12px;
+      color: #9ca3af;
+      font-size: 14px;
       font-weight: 500;
+      text-decoration: none;
+      transition: all 0.18s ease;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.07); color: #f3f4f6; }
+    .nav-link.active {
+      background: linear-gradient(135deg, rgba(227,6,19,0.9), rgba(176,5,16,0.9));
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(227,6,19,0.25);
+    }
+    .nav-link .icon { font-size: 17px; width: 22px; display: inline-flex; justify-content: center; flex-shrink: 0; }
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      font-size: 12px;
+      color: #4b5563;
     }
 
-    .nav .nav-link:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #f3f4f6;
-      transform: translateX(4px);
-    }
+    /* ── Main area ── */
+    .main { overflow-y: auto; padding: 28px 32px 40px; }
 
-    .nav .nav-link.active {
-      background: linear-gradient(135deg, rgba(227, 6, 19, 0.9), rgba(176, 5, 16, 0.9));
-      color: #ffffff;
-      box-shadow: 0 12px 20px rgba(227, 6, 19, 0.25);
-    }
-
-    .nav .icon {
-      font-size: 18px;
-      width: 26px;
-      display: inline-flex;
-      justify-content: center;
-    }
-
-    .main {
-      padding: 28px 32px;
-      overflow: auto;
-      position: relative;
-      animation: fadeIn 0.5s ease-out;
-    }
-
+    /* ── Hero bar ── */
     .hero {
       background: var(--white);
-      padding: 24px 28px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      padding: 22px 26px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      border-left: 5px solid var(--red);
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      border-left: 6px solid var(--red);
+      gap: 14px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.4s ease-out both;
     }
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .hero h1 {
-      margin: 0 0 6px;
-      font-size: 28px;
-      color: #1f2933;
-    }
-
-    .hero p {
-      margin: 0;
-      color: var(--steel);
-      max-width: 540px;
-    }
-
-    .hero .date {
-      background: #f1f3f5;
-      padding: 8px 14px;
-      border-radius: 999px;
+    .hero h1 { margin: 0 0 4px; font-size: 26px; color: var(--ink); }
+    .hero p { margin: 0; color: var(--steel); max-width: 500px; font-size: 14px; }
+    .hero-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .date-pill {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
       font-size: 13px;
       font-weight: 600;
-      letter-spacing: 0.08em;
       color: var(--graphite);
-    }
-    .lang-switch {
-      display: inline-flex;
-      gap: 6px;
-    }
-    .lang-btn {
-      border: 1px solid var(--border);
-      background: #fff;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .lang-btn.active {
-      background: linear-gradient(120deg, var(--red), #ff4b55);
-      color: #fff;
-      border-color: transparent;
+      white-space: nowrap;
     }
 
+    /* ── Cards grid ── */
     .grid {
-      margin-top: 26px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
     }
-
-    .card {
+    .module-card {
       background: var(--white);
-      padding: 20px;
-      border-radius: var(--radius);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
       box-shadow: var(--shadow);
-      border: 1px solid #eceff2;
+      padding: 22px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      min-height: 180px;
-      animation: riseIn 0.5s ease-out forwards;
-      opacity: 0;
+      gap: 10px;
       text-decoration: none;
       color: inherit;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: fadeUp 0.4s ease-out both;
     }
-
-    .card:nth-child(1) { animation-delay: 0.05s; }
-    .card:nth-child(2) { animation-delay: 0.12s; }
-    .card:nth-child(3) { animation-delay: 0.19s; }
-    .card:nth-child(4) { animation-delay: 0.26s; }
-      .card:nth-child(5) { animation-delay: 0.33s; }
-      .card:nth-child(6) { animation-delay: 0.4s; }
-
-    .card::after {
+    .module-card::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 6px;
-      background: linear-gradient(90deg, var(--red), #ff5a5f);
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--red), #f5303a);
     }
-
-    .card h3 {
-      margin: 0;
-      color: #1f2933;
-      font-size: 18px;
-    }
-
-    .card p {
-      margin: 0;
-      color: var(--steel);
-      line-height: 1.4;
-      font-size: 14px;
-    }
-
-    .card .cta {
+    .module-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .module-card:nth-child(1) { animation-delay: 0.04s; }
+    .module-card:nth-child(2) { animation-delay: 0.09s; }
+    .module-card:nth-child(3) { animation-delay: 0.14s; }
+    .module-card:nth-child(4) { animation-delay: 0.19s; }
+    .module-card:nth-child(5) { animation-delay: 0.24s; }
+    .module-card:nth-child(6) { animation-delay: 0.29s; }
+    .module-card .m-icon { font-size: 28px; }
+    .module-card h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--ink); }
+    .module-card p { margin: 0; font-size: 13px; color: var(--steel); line-height: 1.5; }
+    .module-card .cta {
       margin-top: auto;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
       color: var(--red-dark);
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px;
     }
 
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* ── Mobile overrides ── */
+    @media (max-width: 768px) {
+      .shell { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
+      .sidebar { display: none; }
+      .main { padding: 16px 16px calc(var(--nav-h) + 24px); }
+      .hero { border-left: none; border-top: 5px solid var(--red); border-radius: var(--radius); padding: 18px; }
+      .hero h1 { font-size: 20px; }
+      .hero-meta { width: 100%; justify-content: space-between; }
+      .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .module-card { padding: 16px; }
+      .module-card p { display: none; }
     }
-
-    @keyframes riseIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 900px) {
-      .shell { grid-template-columns: 1fr; }
-      .sidebar {
-        flex-direction: row;
-        flex-wrap: nowrap;
-        align-items: center;
-        gap: 12px;
-        padding: 14px 16px;
-        overflow-x: auto;
-        border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      }
-      .brand {
-        flex: 0 0 auto;
-        min-width: 160px;
-      }
-      .brand img { max-height: 48px; }
-      .nav {
-        flex-direction: row;
-        flex-wrap: nowrap;
-        gap: 8px;
-        overflow-x: auto;
-      }
-      .nav .nav-link {
-        flex: 0 0 auto;
-        padding: 10px 12px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.05);
-      }
-      .main { padding: 16px; }
-      .hero { padding: 18px; gap: 12px; }
-      .hero h1 { font-size: 22px; }
-      .hero-actions { width: 100%; justify-content: space-between; }
-      .grid { gap: 14px; }
-      .card { min-height: 160px; }
-    }
-
-    @media (max-width: 520px) {
-      .sidebar { padding: 12px; }
-      .brand small { display: none; }
-      .hero-actions { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .lang-switch { width: 100%; }
-      .lang-btn { flex: 1; text-align: center; }
-      .card { padding: 16px; }
-    }
-  
-    /* mobile-modern */
-    :root {
-      --border: #e3e7eb;
-      --radius-lg: 20px;
-      --shadow-soft: 0 8px 20px rgba(15, 23, 42, 0.08);
-    }
-    body {
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-    a, button { font-family: inherit; }
-    .nav .nav-link, .card, .lang-btn { min-height: 44px; }
-    @media (hover: none) {
-      .nav .nav-link:hover { transform: none; }
-      .card:hover { transform: none; }
-    }
-    @media (max-width: 900px) {
-      body { overflow: auto; }
-      .shell { height: auto; min-height: 100vh; }
-      .main { overflow: visible; }
-      .sidebar { position: sticky; top: 0; z-index: 5; backdrop-filter: blur(10px); }
-    }
-    @media (max-width: 720px) {
-      .hero { border-left: 0; border-top: 6px solid var(--red); }
-      .hero-actions { width: 100%; flex-wrap: wrap; }
+    @media (max-width: 400px) {
       .grid { grid-template-columns: 1fr; }
-      .card { min-height: auto; }
-    }  </style>
+    }
+    @media (hover: none) {
+      .module-card:hover { transform: none; }
+    }
+  </style>
 </head>
 <body>
   <div class="shell">
     <aside class="sidebar">
       <div class="brand">
         <img src="logo.png" alt="Europaneel GmbH" />
-        <small data-i18n="brand_subtitle">Intranet Hub</small>
+        <small data-i18n="brand_sub">Intranet Hub</small>
       </div>
-      <nav class="nav">
+      <nav class="sidebar-nav">
         <a class="nav-link active" href="zellenrechner.html">
-          <span class="icon">&#128290;</span>
+          <span class="icon">🧊</span>
           <span data-i18n="nav_zellen">Zellenrechner</span>
         </a>
         <a class="nav-link" href="aggregatauswahl.html">
-          <span class="icon">&#129513;</span>
+          <span class="icon">🔍</span>
           <span data-i18n="nav_aggr">Aggregatauswahl</span>
         </a>
         <a class="nav-link" href="paneelrechner.html">
-          <span class="icon">&#128208;</span>
+          <span class="icon">📋</span>
           <span data-i18n="nav_paneel">Paneelrechner</span>
         </a>
         <a class="nav-link" href="lagerbestand_tueren.html">
-          <span class="icon">&#128230;</span>
-          <span data-i18n="nav_lager">Lagerbestand Tueren</span>
+          <span class="icon">📦</span>
+          <span data-i18n="nav_lager">Lagerbestand Türen</span>
         </a>
         <a class="nav-link" href="kalender.html">
-          <span class="icon">&#128467;</span>
-          <span data-i18n="nav_kalender">Kalender</span>
+          <span class="icon">📅</span>
+          <span data-i18n="nav_kal">Kalender</span>
         </a>
         <a class="nav-link" href="aggregate.html">
-          <span class="icon">&#128203;</span>
+          <span class="icon">🗂️</span>
           <span data-i18n="nav_aggregate">Aggregate</span>
         </a>
       </nav>
+      <div class="sidebar-footer">© 2025 Europaneel GmbH</div>
     </aside>
 
     <main class="main">
-      <section class="hero">
+      <div class="hero">
         <div>
           <h1 data-i18n="hero_title">Europaneel Automations</h1>
-          <p data-i18n="hero_desc">Ihr Intranet fuer schnelle Werkzeuge, Berechnungen und Uebersichten. Waehlen Sie ein Modul aus der Navigation oder den Kacheln.</p>
+          <p data-i18n="hero_desc">Ihr Intranet für schnelle Werkzeuge, Berechnungen und Übersichten.</p>
         </div>
-        <div class="hero-actions">
-          <div class="date" id="today">--</div>
+        <div class="hero-meta">
+          <div class="date-pill" id="today">--</div>
           <div class="lang-switch" role="group" aria-label="Sprache">
             <button class="lang-btn" data-lang="de">DE</button>
             <button class="lang-btn" data-lang="tr">TR</button>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section class="grid">
-        <a class="card" href="zellenrechner.html">
-          <h3 data-i18n="card_zellen_title">Zellenrechner</h3>
-          <p data-i18n="card_zellen_desc">Berechnungen fuer Paneel- und Zellensysteme kompakt im Zugriff.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen -></span>
+      <div class="grid">
+        <a class="module-card" href="zellenrechner.html">
+          <div class="m-icon">🧊</div>
+          <h3 data-i18n="c_zellen">Zellenrechner</h3>
+          <p data-i18n="cd_zellen">Konfigurieren und kalkulieren Sie Kühlzellen schnell und präzise.</p>
+          <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
-        <a class="card" href="aggregatauswahl.html">
-          <h3 data-i18n="card_aggr_title">Aggregatauswahl</h3>
-          <p data-i18n="card_aggr_desc">Passende Aggregate und Komponenten schnell zusammenstellen.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen -></span>
+        <a class="module-card" href="aggregatauswahl.html">
+          <div class="m-icon">🔍</div>
+          <h3 data-i18n="c_aggr">Aggregatauswahl</h3>
+          <p data-i18n="cd_aggr">Passende Aggregate und Komponenten schnell finden.</p>
+          <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
-        <a class="card" href="paneelrechner.html">
-          <h3 data-i18n="card_paneel_title">Paneelrechner</h3>
-          <p data-i18n="card_paneel_desc">Abmessungen, Stuecklisten und Varianten zentral kalkulieren.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen -></span>
+        <a class="module-card" href="paneelrechner.html">
+          <div class="m-icon">📋</div>
+          <h3 data-i18n="c_paneel">Paneelrechner</h3>
+          <p data-i18n="cd_paneel">Sandwichpaneele kalkulieren und Gesamtpreis ermitteln.</p>
+          <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
-        <a class="card" href="lagerbestand_tueren.html">
-          <h3 data-i18n="card_lager_title">Lagerbestand Tueren</h3>
-          <p data-i18n="card_lager_desc">Bestand und Verfuegbarkeit der Tueren auf einen Blick.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen -></span>
+        <a class="module-card" href="lagerbestand_tueren.html">
+          <div class="m-icon">📦</div>
+          <h3 data-i18n="c_lager">Lagerbestand Türen</h3>
+          <p data-i18n="cd_lager">Bestand und Verfügbarkeit der Türen auf einen Blick.</p>
+          <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
-        <a class="card" href="kalender.html">
-          <h3 data-i18n="card_kal_title">Kalender</h3>
-          <p data-i18n="card_kal_desc">Termine, Lieferungen und interne Ablaufe gebuendelt.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen -></span>
+        <a class="module-card" href="kalender.html">
+          <div class="m-icon">📅</div>
+          <h3 data-i18n="c_kal">Kalender</h3>
+          <p data-i18n="cd_kal">Termine, Lieferungen und interne Abläufe planen.</p>
+          <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
-        <a class="card" href="aggregate.html">
-          <h3 data-i18n="card_all_title">Aggregate</h3>
-          <p data-i18n="card_all_desc">Alle Geraete aus Govi und Zanotti im direkten Vergleich.</p>
-          <span class="cta" data-i18n="cta_open">Oeffnen -></span>
+        <a class="module-card" href="aggregate.html">
+          <div class="m-icon">🗂️</div>
+          <h3 data-i18n="c_all">Aggregate</h3>
+          <p data-i18n="cd_all">Alle Geräte von Govi und Zanotti im direkten Vergleich.</p>
+          <span class="cta" data-i18n="cta">Öffnen →</span>
         </a>
-      </section>
+      </div>
     </main>
   </div>
 
-  <script>
-    const today = new Date();
-    const format = today.toLocaleDateString("de-DE", {
-      weekday: "long",
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    });
-    document.getElementById("today").textContent = format;
+  <!-- Mobile bottom nav -->
+  <nav class="bottom-nav" aria-label="Navigation">
+    <div class="bottom-nav-inner">
+      <a class="bottom-nav-item" href="zellenrechner.html">
+        <span class="nav-icon">🧊</span>
+        <span data-i18n="nav_zellen">Zellen</span>
+      </a>
+      <a class="bottom-nav-item" href="aggregatauswahl.html">
+        <span class="nav-icon">🔍</span>
+        <span data-i18n="nav_aggr_s">Agregat</span>
+      </a>
+      <a class="bottom-nav-item" href="paneelrechner.html">
+        <span class="nav-icon">📋</span>
+        <span data-i18n="nav_paneel_s">Paneele</span>
+      </a>
+      <a class="bottom-nav-item" href="lagerbestand_tueren.html">
+        <span class="nav-icon">📦</span>
+        <span data-i18n="nav_lager_s">Lager</span>
+      </a>
+      <a class="bottom-nav-item" href="kalender.html">
+        <span class="nav-icon">📅</span>
+        <span data-i18n="nav_kal_s">Kalender</span>
+      </a>
+      <a class="bottom-nav-item" href="aggregate.html">
+        <span class="nav-icon">🗂️</span>
+        <span data-i18n="nav_all_s">Liste</span>
+      </a>
+    </div>
+  </nav>
 
-    const translations = {
+  <script>
+    document.getElementById("today").textContent = new Date().toLocaleDateString("de-DE", {
+      weekday: "long", day: "2-digit", month: "long", year: "numeric"
+    });
+
+    const T = {
       de: {
-        title: "Europaneel Automations",
-        brand_subtitle: "Intranet Hub",
+        brand_sub: "Intranet Hub",
         hero_title: "Europaneel Automations",
-        hero_desc: "Ihr Intranet fuer schnelle Werkzeuge, Berechnungen und Uebersichten. Waehlen Sie ein Modul aus der Navigation oder den Kacheln.",
-        nav_zellen: "Zellenrechner",
-        nav_aggr: "Aggregatauswahl",
-        nav_paneel: "Paneelrechner",
-        nav_lager: "Lagerbestand Tueren",
-        nav_kalender: "Kalender",
-        nav_aggregate: "Aggregate",
-        card_zellen_title: "Zellenrechner",
-        card_zellen_desc: "Berechnungen fuer Paneel- und Zellensysteme kompakt im Zugriff.",
-        card_aggr_title: "Aggregatauswahl",
-        card_aggr_desc: "Passende Aggregate und Komponenten schnell zusammenstellen.",
-        card_paneel_title: "Paneelrechner",
-        card_paneel_desc: "Abmessungen, Stuecklisten und Varianten zentral kalkulieren.",
-        card_lager_title: "Lagerbestand Tueren",
-        card_lager_desc: "Bestand und Verfuegbarkeit der Tueren auf einen Blick.",
-        card_kal_title: "Kalender",
-        card_kal_desc: "Termine, Lieferungen und interne Ablaufe gebuendelt.",
-        card_all_title: "Aggregate",
-        card_all_desc: "Alle Geraete aus Govi und Zanotti im direkten Vergleich.",
-        cta_open: "Oeffnen ->"
+        hero_desc: "Ihr Intranet für schnelle Werkzeuge, Berechnungen und Übersichten.",
+        nav_zellen: "Zellenrechner", nav_aggr: "Aggregatauswahl", nav_paneel: "Paneelrechner",
+        nav_lager: "Lagerbestand Türen", nav_kal: "Kalender", nav_aggregate: "Aggregate",
+        c_zellen: "Zellenrechner", cd_zellen: "Konfigurieren und kalkulieren Sie Kühlzellen schnell und präzise.",
+        c_aggr: "Aggregatauswahl", cd_aggr: "Passende Aggregate und Komponenten schnell finden.",
+        c_paneel: "Paneelrechner", cd_paneel: "Sandwichpaneele kalkulieren und Gesamtpreis ermitteln.",
+        c_lager: "Lagerbestand Türen", cd_lager: "Bestand und Verfügbarkeit der Türen auf einen Blick.",
+        c_kal: "Kalender", cd_kal: "Termine, Lieferungen und interne Abläufe planen.",
+        c_all: "Aggregate", cd_all: "Alle Geräte von Govi und Zanotti im direkten Vergleich.",
+        cta: "Öffnen →",
+        nav_zellen: "Zellen", nav_aggr_s: "Agregat", nav_paneel_s: "Paneele",
+        nav_lager_s: "Lager", nav_kal_s: "Kalender", nav_all_s: "Liste"
       },
       tr: {
-        title: "Europaneel Automations",
-        brand_subtitle: "Intranet Merkezi",
+        brand_sub: "Intranet Merkezi",
         hero_title: "Europaneel Automations",
-        hero_desc: "Hizli araclar, hesaplamalar ve genel bakislar icin intranet. Modulu menuden veya kartlardan secin.",
-        nav_zellen: "Soguk Oda Hesaplama",
-        nav_aggr: "Agrega Secimi",
-        nav_paneel: "Panel Hesaplayici",
-        nav_lager: "Kapi Stogu",
-        nav_kalender: "Takvim",
-        nav_aggregate: "Agregalar",
-        card_zellen_title: "Soguk Oda Hesaplama",
-        card_zellen_desc: "Panel ve hucre sistemleri icin hizli hesaplama.",
-        card_aggr_title: "Agrega Secimi",
-        card_aggr_desc: "Uygun agregalari ve bilesenleri hizlica secin.",
-        card_paneel_title: "Panel Hesaplayici",
-        card_paneel_desc: "Olculer, listeler ve varyantlar icin hesaplama.",
-        card_lager_title: "Kapi Stogu",
-        card_lager_desc: "Kapilarin stok ve uygunluk durumu.",
-        card_kal_title: "Takvim",
-        card_kal_desc: "Tarih, teslimat ve is akislari tek yerde.",
-        card_all_title: "Agregalar",
-        card_all_desc: "Govi ve Zanotti cihazlarinin karsilastirmasi.",
-        cta_open: "Ac ->"
+        hero_desc: "Hızlı araçlar, hesaplamalar ve genel bakışlar için intranet.",
+        nav_zellen: "Oda Hesap", nav_aggr: "Agrega Seçimi", nav_paneel: "Panel Hesap",
+        nav_lager: "Kapı Stok", nav_kal: "Takvim", nav_aggregate: "Agregalar",
+        c_zellen: "Soğuk Oda Hesaplama", cd_zellen: "Soğuk odaları hızlı yapılandırın ve hesaplayın.",
+        c_aggr: "Agrega Seçimi", cd_aggr: "Uygun agregalari hizlica bulun.",
+        c_paneel: "Panel Hesaplayıcı", cd_paneel: "Sandviç panel fiyatı ve toplam hesaplama.",
+        c_lager: "Kapı Stok", cd_lager: "Kapıların stok ve uygunluk durumu.",
+        c_kal: "Takvim", cd_kal: "Tarih, teslimat ve iş akışlarını planlayın.",
+        c_all: "Agregalar", cd_all: "Govi ve Zanotti cihazlarının karşılaştırması.",
+        cta: "Aç →",
+        nav_zellen: "Oda", nav_aggr_s: "Agrega", nav_paneel_s: "Panel",
+        nav_lager_s: "Stok", nav_kal_s: "Takvim", nav_all_s: "Liste"
       }
     };
 
-    function applyLanguage(lang) {
-      const dict = translations[lang] || translations.de;
-      document.documentElement.lang = lang === "tr" ? "tr" : "de";
-      document.title = dict.title;
-      document.querySelectorAll("[data-i18n]").forEach((el) => {
-        const key = el.getAttribute("data-i18n");
-        if (dict[key]) el.textContent = dict[key];
+    function applyLang(lang) {
+      const d = T[lang] || T.de;
+      document.documentElement.lang = lang;
+      document.title = d.hero_title;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        if (d[k]) el.textContent = d[k];
       });
-      document.querySelectorAll(".lang-btn").forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.lang === lang);
-      });
+      document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
       localStorage.setItem("europaneel_lang", lang);
     }
 
-    const savedLang = localStorage.getItem("europaneel_lang") || "de";
-    applyLanguage(savedLang);
-    document.querySelectorAll(".lang-btn").forEach((btn) => {
-      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
-    });
-
+    const lang = localStorage.getItem("europaneel_lang") || "de";
+    applyLang(lang);
+    document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => applyLang(b.dataset.lang)));
   </script>
 </body>
 </html>
-

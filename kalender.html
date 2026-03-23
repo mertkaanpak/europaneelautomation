@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
@@ -6,218 +6,411 @@
   <title>Europaneel | Kalender</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
   <style>
-    :root {
-      --red: #e30613;
-      --red-dark: #b00510;
-      --graphite: #4a4f55;
-      --steel: #6b7178;
-      --paper: #f6f7f9;
-      --white: #ffffff;
-      --border: #e3e7eb;
-      --shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-      --radius: 16px;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Space Grotesk", "Barlow", sans-serif;
-      color: var(--graphite);
-      background:
-        radial-gradient(1100px 520px at -10% -10%, rgba(227, 6, 19, 0.08), transparent 55%),
-        radial-gradient(900px 480px at 110% 0%, rgba(74, 79, 85, 0.08), transparent 55%),
-        linear-gradient(120deg, #f9fafb 0%, #f1f4f7 50%, #f9fafb 100%);
-      min-height: 100vh;
-    }
-    .page { max-width: 980px; margin: 0 auto; padding: 28px 22px 60px; }
-    .header {
-      background: var(--white);
-      padding: 22px 24px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border-left: 6px solid var(--red);
+    .cal-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 18px; align-items: start; }
+
+    /* Calendar */
+    .cal-header {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
+      justify-content: space-between;
+      margin-bottom: 16px;
     }
-    .back-link {
-      display: inline-flex;
+    .cal-month-label { font-size: 18px; font-weight: 700; color: var(--ink); }
+    .cal-nav-btn {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      width: 38px;
+      height: 38px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    .cal-nav-btn:hover { background: var(--red-bg); border-color: var(--red-border); }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-day-name {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--steel);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 6px 0 10px;
+    }
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--graphite);
+      position: relative;
+      transition: var(--transition);
+      border: 1.5px solid transparent;
+      gap: 2px;
+    }
+    .cal-day:hover { background: var(--paper); border-color: var(--border); }
+    .cal-day.today { background: var(--red-bg); border-color: var(--red-border); color: var(--red-dark); font-weight: 700; }
+    .cal-day.other-month { color: var(--mist); }
+    .cal-day.has-events::after {
+      content: "";
+      width: 5px;
+      height: 5px;
+      background: var(--red);
+      border-radius: 50%;
+    }
+    .cal-day.selected { background: var(--red); color: #fff; border-color: transparent; }
+    .cal-day.selected::after { background: rgba(255,255,255,0.7); }
+
+    /* Sidebar */
+    .event-panel { display: flex; flex-direction: column; gap: 14px; }
+    .event-form { display: flex; flex-direction: column; gap: 10px; }
+    .event-form .date-label {
       font-size: 13px;
       font-weight: 600;
       color: var(--red-dark);
-      text-decoration: none;
-      background: #fff1f1;
-      border: 1px solid #f5c2c7;
-      padding: 6px 10px;
-      border-radius: 999px;
-    }
-    .lang-switch {
-      display: inline-flex;
-      gap: 6px;
-    }
-    .lang-btn {
-      border: 1px solid var(--border);
-      background: #fff;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .lang-btn.active {
-      background: linear-gradient(120deg, var(--red), #ff4b55);
-      color: #fff;
-      border-color: transparent;
-    }
-    .header img { height: 48px; width: auto; }
-    .header h1 { margin: 0; font-size: 24px; color: #1f2933; }
-    .header p { margin: 4px 0 0; color: var(--steel); font-size: 14px; }
-    .card {
-      background: var(--white);
-      padding: 26px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-    }
-    .placeholder {
-      border: 1px dashed #cbd5e1;
-      border-radius: 12px;
-      padding: 22px;
-      background: #fbfbfc;
-      color: var(--steel);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .chip {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
       padding: 8px 12px;
-      border-radius: 999px;
-      background: #fff1f1;
-      color: var(--red-dark);
-      font-weight: 600;
-      font-size: 12px;
-      border: 1px solid #f5c2c7;
+      border-radius: var(--radius-sm);
+      text-align: center;
     }
-    @media (max-width: 900px) {
-      .page { padding: 20px 16px 50px; }
-      .header { flex-direction: column; align-items: flex-start; }
+    .event-list { display: flex; flex-direction: column; gap: 8px; }
+    .event-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      animation: fadeUp 0.2s ease-out both;
     }
-    @media (max-width: 520px) {
-      .header { gap: 10px; }
-      .back-link { width: 100%; justify-content: center; }
-      .lang-switch { width: 100%; }
-      .lang-btn { flex: 1; text-align: center; }
-      .card { padding: 18px; }
+    .event-item-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
     }
-  
-    /* mobile-modern */
-    :root {
-      --border: #e3e7eb;
-      --radius-lg: 20px;
-      --shadow-soft: 0 8px 20px rgba(15, 23, 42, 0.08);
+    .event-item-body { flex: 1; min-width: 0; }
+    .event-item-title { font-weight: 600; font-size: 14px; color: var(--ink); word-break: break-word; }
+    .event-item-date { font-size: 12px; color: var(--steel); margin-top: 2px; }
+    .event-del {
+      background: none;
+      border: none;
+      color: var(--mist);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      min-height: 0;
+      line-height: 1;
+      flex-shrink: 0;
     }
-    body {
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-    a, button, input, select { font-family: inherit; }
-    button, .btn, .primary-btn, .toggle-btn, .back-link { min-height: 44px; }
-    input, select { font-size: 16px; }
-    @media (max-width: 720px) {
-      .page { padding: 18px 14px 70px; }
-      .header { border-left: 0; border-top: 6px solid var(--red); }
-      .header img { height: 40px; }
-      .header h1 { font-size: clamp(20px, 5vw, 24px); }
-      .card { padding: 18px; border-radius: 18px; }
-    }    @media (max-width: 720px) {
-      .placeholder { padding: 18px; font-size: 15px; }
-      .chip { min-height: 32px; }
-    }  </style>
-  </head>
-<body>
-  <div class="page">
-    <div class="header">
-      <img src="logo.png" alt="Europaneel GmbH" />
-      <div>
-        <h1 data-i18n="title">Kalender</h1>
-        <p data-i18n="subtitle">Interne Termine, Projekte und Lieferungen planen.</p>
-      </div>
-      <a class="back-link" href="index.html" data-i18n="back"><- Zurueck</a>
-      <div class="lang-switch" role="group" aria-label="Sprache">
-        <button class="lang-btn" data-lang="de">DE</button>
-        <button class="lang-btn" data-lang="tr">TR</button>
-      </div>
-    </div>
+    .event-del:hover { color: var(--red-dark); }
 
-    <div class="card">
-      <div class="placeholder">
-        <span data-i18n="placeholder">Inhalte folgen. Sag mir, ob wir eine Monatsansicht, Wochenansicht oder Integration brauchen.</span>
-        <div class="chip-row">
-          <div class="chip" data-i18n="chip_month">Monat</div>
-          <div class="chip" data-i18n="chip_week">Woche</div>
-          <div class="chip" data-i18n="chip_team">Team</div>
-          <div class="chip" data-i18n="chip_delivery">Lieferungen</div>
+    .no-events { color: var(--steel); font-size: 14px; text-align: center; padding: 20px; }
+
+    .color-row { display: flex; gap: 8px; }
+    .color-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+    .color-btn.selected { border-color: var(--ink); transform: scale(1.15); }
+
+    @media (max-width: 768px) {
+      .cal-wrap { grid-template-columns: 1fr; }
+      .cal-day { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wide">
+    <header class="page-header">
+      <img src="logo.png" alt="Europaneel GmbH" />
+      <div class="page-header-info">
+        <h1 data-i18n="title">Kalender</h1>
+        <p data-i18n="subtitle">Termine und Lieferungen planen.</p>
+      </div>
+      <div class="page-header-actions">
+        <a class="back-link" href="index.html" data-i18n="back">← Zurück</a>
+        <div class="lang-switch" role="group" aria-label="Sprache">
+          <button class="lang-btn" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="tr">TR</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="cal-wrap">
+      <!-- Left: calendar -->
+      <div class="card">
+        <div class="cal-header">
+          <button class="cal-nav-btn" id="prevBtn">‹</button>
+          <span class="cal-month-label" id="monthLabel"></span>
+          <button class="cal-nav-btn" id="nextBtn">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <!-- Right: events -->
+      <div class="card event-panel">
+        <div id="selectedDateLabel" style="font-size:14px;font-weight:600;color:var(--steel);" data-i18n="sel_hint">Tag auswählen, um Termin hinzuzufügen.</div>
+
+        <div class="event-form" id="eventForm" style="display:none;">
+          <div class="date-label" id="formDateLabel"></div>
+          <div class="input-group">
+            <label data-i18n="form_title">Titel</label>
+            <input type="text" id="eventTitle" placeholder="z.B. Lieferung Kunde X" maxlength="80" />
+          </div>
+          <div class="input-group">
+            <label data-i18n="form_time">Uhrzeit (optional)</label>
+            <input type="text" id="eventTime" placeholder="09:00" maxlength="10" />
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:8px;" data-i18n="form_color">Farbe</label>
+            <div class="color-row" id="colorRow"></div>
+          </div>
+          <button class="btn btn-primary" id="addEventBtn" data-i18n="form_add">Termin hinzufügen</button>
+        </div>
+
+        <div style="border-top:1px solid var(--border);margin-top:4px;padding-top:14px;">
+          <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;" data-i18n="upcoming">Nächste Termine</div>
+          <div class="event-list" id="eventList"></div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Mobile bottom nav -->
+  <nav class="bottom-nav" aria-label="Navigation">
+    <div class="bottom-nav-inner">
+      <a class="bottom-nav-item" href="zellenrechner.html"><span class="nav-icon">🧊</span><span>Zellen</span></a>
+      <a class="bottom-nav-item" href="aggregatauswahl.html"><span class="nav-icon">🔍</span><span>Agregat</span></a>
+      <a class="bottom-nav-item" href="paneelrechner.html"><span class="nav-icon">📋</span><span>Paneele</span></a>
+      <a class="bottom-nav-item" href="lagerbestand_tueren.html"><span class="nav-icon">📦</span><span>Lager</span></a>
+      <a class="bottom-nav-item active" href="kalender.html"><span class="nav-icon">📅</span><span>Kalender</span></a>
+      <a class="bottom-nav-item" href="aggregate.html"><span class="nav-icon">🗂️</span><span>Liste</span></a>
+    </div>
+  </nav>
+
   <script>
+    const COLORS = ["#e30613","#3b82f6","#10b981","#f59e0b","#8b5cf6","#ec4899","#6b7280"];
+    let selectedColor = COLORS[0];
+    let currentDate = new Date();
+    let selectedDay = null;
     let currentLang = "de";
-    const translations = {
+
+    const T = {
       de: {
-        title: "Kalender",
-        subtitle: "Interne Termine, Projekte und Lieferungen planen.",
-        back: "<- Zurueck",
-        placeholder: "Inhalte folgen. Sag mir, ob wir eine Monatsansicht, Wochenansicht oder Integration brauchen.",
-        chip_month: "Monat",
-        chip_week: "Woche",
-        chip_team: "Team",
-        chip_delivery: "Lieferungen"
+        title:"Kalender", subtitle:"Termine und Lieferungen planen.", back:"← Zurück",
+        sel_hint:"Tag auswählen, um Termin hinzuzufügen.",
+        form_title:"Titel", form_time:"Uhrzeit (optional)", form_color:"Farbe",
+        form_add:"Termin hinzufügen", upcoming:"Nächste Termine",
+        no_events:"Keine Termine vorhanden.",
+        days_short:["Mo","Di","Mi","Do","Fr","Sa","So"],
+        months:["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"]
       },
       tr: {
-        title: "Takvim",
-        subtitle: "Dahili tarihleri, projeleri ve teslimatlari planlayin.",
-        back: "<- Geri",
-        placeholder: "Icerik daha sonra. Aylik, haftalik veya entegrasyon gerekiyor mu?",
-        chip_month: "Ay",
-        chip_week: "Hafta",
-        chip_team: "Ekip",
-        chip_delivery: "Teslimatlar"
+        title:"Takvim", subtitle:"Randevuları ve teslimatları planlayın.", back:"← Geri",
+        sel_hint:"Randevu eklemek için bir gün seçin.",
+        form_title:"Başlık", form_time:"Saat (opsiyonel)", form_color:"Renk",
+        form_add:"Randevu ekle", upcoming:"Yaklaşan randevular",
+        no_events:"Randevu yok.",
+        days_short:["Pt","Sa","Ça","Pe","Cu","Ct","Pa"],
+        months:["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"]
       }
     };
+    function t(k) { return (T[currentLang]||{})[k] || T.de[k] || k; }
+
+    // Events storage
+    function loadEvents() { try { return JSON.parse(localStorage.getItem("ep_events") || "[]"); } catch{ return []; } }
+    function saveEvents(ev) { localStorage.setItem("ep_events", JSON.stringify(ev)); }
+
+    function dateKey(y,m,d) { return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
+
+    // Build calendar
+    function buildCalendar() {
+      const events = loadEvents();
+      const eventDays = new Set(events.map(e => e.date));
+      const y = currentDate.getFullYear();
+      const m = currentDate.getMonth();
+      const today = new Date();
+      const todayKey = dateKey(today.getFullYear(), today.getMonth(), today.getDate());
+
+      document.getElementById("monthLabel").textContent = t("months")[m] + " " + y;
+      const grid = document.getElementById("calGrid");
+      grid.innerHTML = "";
+
+      // Day names
+      t("days_short").forEach(d => {
+        const el = document.createElement("div");
+        el.className = "cal-day-name";
+        el.textContent = d;
+        grid.appendChild(el);
+      });
+
+      // First day of month (adjust to Mon=0)
+      const firstDay = new Date(y, m, 1).getDay();
+      const start = (firstDay === 0) ? 6 : firstDay - 1;
+      const daysInMonth = new Date(y, m+1, 0).getDate();
+      const daysInPrev  = new Date(y, m, 0).getDate();
+
+      // Prev month padding
+      for (let i = start - 1; i >= 0; i--) {
+        const day = document.createElement("div");
+        day.className = "cal-day other-month";
+        day.textContent = daysInPrev - i;
+        grid.appendChild(day);
+      }
+
+      // Current month
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = dateKey(y, m, d);
+        const day = document.createElement("div");
+        day.className = "cal-day";
+        if (key === todayKey) day.classList.add("today");
+        if (eventDays.has(key)) day.classList.add("has-events");
+        if (selectedDay === key) day.classList.add("selected");
+        day.textContent = d;
+        day.addEventListener("click", () => selectDay(key));
+        grid.appendChild(day);
+      }
+
+      // Next month padding
+      const total = start + daysInMonth;
+      const remaining = (7 - total % 7) % 7;
+      for (let d = 1; d <= remaining; d++) {
+        const day = document.createElement("div");
+        day.className = "cal-day other-month";
+        day.textContent = d;
+        grid.appendChild(day);
+      }
+    }
+
+    function selectDay(key) {
+      selectedDay = key;
+      buildCalendar();
+      document.getElementById("eventForm").style.display = "flex";
+      document.getElementById("eventForm").style.flexDirection = "column";
+      const [y,m,d] = key.split("-");
+      document.getElementById("formDateLabel").textContent = `${parseInt(d)}. ${t("months")[parseInt(m)-1]} ${y}`;
+      document.getElementById("selectedDateLabel").style.display = "none";
+      document.getElementById("eventTitle").focus();
+    }
+
+    function renderEventList() {
+      const events = loadEvents().sort((a,b) => a.date.localeCompare(b.date));
+      const list = document.getElementById("eventList");
+      list.innerHTML = "";
+      if (!events.length) {
+        list.innerHTML = `<div class="no-events">${t("no_events")}</div>`;
+        return;
+      }
+      events.forEach((ev, idx) => {
+        const [y,m,d] = ev.date.split("-");
+        const dateStr = `${parseInt(d)}. ${t("months")[parseInt(m)-1]} ${y}${ev.time ? " · " + ev.time : ""}`;
+        const item = document.createElement("div");
+        item.className = "event-item";
+        item.innerHTML = `
+          <div class="event-item-dot" style="background:${ev.color||"#e30613"}"></div>
+          <div class="event-item-body">
+            <div class="event-item-title">${ev.title}</div>
+            <div class="event-item-date">${dateStr}</div>
+          </div>
+          <button class="event-del" title="Löschen">✕</button>`;
+        item.querySelector(".event-del").addEventListener("click", () => {
+          const ev2 = loadEvents();
+          ev2.splice(idx, 1);
+          saveEvents(ev2);
+          renderEventList();
+          buildCalendar();
+        });
+        list.appendChild(item);
+      });
+    }
+
+    // Build color picker
+    function buildColorPicker() {
+      const row = document.getElementById("colorRow");
+      row.innerHTML = "";
+      COLORS.forEach(c => {
+        const btn = document.createElement("button");
+        btn.className = "color-btn" + (c === selectedColor ? " selected" : "");
+        btn.style.background = c;
+        btn.title = c;
+        btn.addEventListener("click", () => {
+          selectedColor = c;
+          buildColorPicker();
+        });
+        row.appendChild(btn);
+      });
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+      buildCalendar();
+    });
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+      buildCalendar();
+    });
+
+    document.getElementById("addEventBtn").addEventListener("click", () => {
+      const title = document.getElementById("eventTitle").value.trim();
+      if (!title || !selectedDay) return;
+      const events = loadEvents();
+      events.push({ date: selectedDay, title, time: document.getElementById("eventTime").value.trim(), color: selectedColor });
+      saveEvents(events);
+      document.getElementById("eventTitle").value = "";
+      document.getElementById("eventTime").value = "";
+      buildCalendar();
+      renderEventList();
+    });
+
+    document.getElementById("eventTitle").addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("addEventBtn").click();
+    });
 
     function applyLanguage(lang) {
-      currentLang = translations[lang] ? lang : "de";
-      document.documentElement.lang = currentLang === "tr" ? "tr" : "de";
-      document.title = translations[currentLang].title;
-      document.querySelectorAll("[data-i18n]").forEach((el) => {
-        const key = el.getAttribute("data-i18n");
-        if (translations[currentLang][key]) el.textContent = translations[currentLang][key];
+      currentLang = T[lang] ? lang : "de";
+      document.documentElement.lang = currentLang;
+      document.title = t("title");
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        const v = T[currentLang][k];
+        if (v && typeof v === "string") el.textContent = v;
       });
-      document.querySelectorAll(".lang-btn").forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.lang === currentLang);
-      });
+      document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === currentLang));
       localStorage.setItem("europaneel_lang", currentLang);
+      buildCalendar();
+      renderEventList();
     }
+
+    buildColorPicker();
+    renderEventList();
 
     const savedLang = localStorage.getItem("europaneel_lang") || "de";
     applyLanguage(savedLang);
-    document.querySelectorAll(".lang-btn").forEach((btn) => {
-      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
-    });
+    document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => applyLanguage(b.dataset.lang)));
   </script>
 </body>
 </html>
-
