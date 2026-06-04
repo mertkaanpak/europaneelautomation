@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="stylesheet" href="style.css" />
+  <script src="aggregate-data.js"></script>
   <style>
     .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
     .filter-bar select { max-width: 170px; }
@@ -97,7 +98,9 @@
                 <th data-i18n="th_model">Modell</th>
                 <th data-i18n="th_volume">Volumen (m³)</th>
                 <th data-i18n="th_list">Herstellerpreis</th>
-                <th data-i18n="th_vk">VK</th>
+                <th data-i18n="th_ek">EK</th>
+                <th data-i18n="th_device_vk">Geräte-VK</th>
+                <th data-i18n="th_vk">VK gesamt</th>
                 <th data-i18n="th_voltage">Volt/Hz</th>
               </tr>
             </thead>
@@ -142,7 +145,9 @@ const translations = {
     th_model:"Modell",
     th_volume:"Volumen (m³)",
     th_list:"Herstellerpreis",
-    th_vk:"VK",
+    th_ek:"EK",
+    th_device_vk:"Geräte-VK",
+    th_vk:"VK gesamt",
     th_voltage:"Volt/Hz"
   },
   tr: {
@@ -164,7 +169,9 @@ const translations = {
     th_model:"Model",
     th_volume:"Hacim (m³)",
     th_list:"Üretici fiyatı",
-    th_vk:"Satış fiyatı",
+    th_ek:"Alış",
+    th_device_vk:"Cihaz satış",
+    th_vk:"Toplam satış",
     th_voltage:"Volt/Hz"
   }
 };
@@ -189,34 +196,22 @@ function applyLanguage(lang) {
   renderTable();
 }
 
-// ---- Data ----
-const rows = [
-  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 10WN1",volume:10,listPrice:1980,salePrice:1565.7,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 13WN1",volume:13,listPrice:2350,salePrice:1830.25,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"PolariK 18WN2",volume:18,listPrice:3030,salePrice:2316.45,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 31WN2",volume:31,listPrice:3240,salePrice:2466.6,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 39WN3",volume:39,listPrice:4000,salePrice:3010,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 47WN3",volume:47,listPrice:4150,salePrice:3117.25,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Normalkühlung",model:"Polarik 56WN3",volume:56,listPrice:4300,salePrice:3224.5,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 8WL1",volume:8,listPrice:2220,salePrice:1737.3,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 12WL2",volume:12,listPrice:3100,salePrice:2366.5,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 23WL2",volume:23,listPrice:3740,salePrice:2824.1,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 26WL3",volume:26,listPrice:4500,salePrice:3367.5,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"Tiefkühlung",model:"Polarik 35WL3",volume:35,listPrice:4650,salePrice:3474.75,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 10TN1",volume:10,listPrice:3130,salePrice:2387.95,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 20TN2",volume:20,listPrice:3490,salePrice:2645.35,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"Normalkühlung",model:"Polarik 25TN2",volume:25,listPrice:4700,salePrice:3510.5,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"Tiefkühlung",model:"Polarik 6TL1",volume:6,listPrice:2960,salePrice:2266.4,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"Tiefkühlung",model:"Polarik 15TL2",volume:15,listPrice:5185,salePrice:3857.28,voltage:"400V/50Hz"},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS110YA11A",volume:7,listPrice:2604,salePrice:1707.39,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS1110YA11A",volume:13.5,listPrice:2996,salePrice:1964.42,voltage:"230V/50Hz"},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS3112YA11A",volume:19.8,listPrice:3765,salePrice:2468.64,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"Normalkühlung",model:"MPS3220YA11A",volume:36.1,listPrice:5214,salePrice:3418.72,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3112YA11A",volume:6.2,listPrice:3250,salePrice:2130.96,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3115YA11A",volume:7.7,listPrice:3753,salePrice:2460.77,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3224YA11A",volume:16.8,listPrice:4137,salePrice:2712.55,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"Tiefkühlung",model:"BPS3230YA11A",volume:20.8,listPrice:5240,salePrice:3435.77,voltage:""}
-];
+// ---- Data (zentrale Quelle: aggregate-data.js) ----
+const D = window.EuropaneelData;
+const COOL_LABEL = { normal:"Normalkühlung", tief:"Tiefkühlung" };
+const rows = D.AGGREGATES.map(a => ({
+  manufacturer: a.manufacturer,
+  mount:        a.mount,
+  cooling:      COOL_LABEL[a.cooling],
+  model:        a.model,
+  volume:       a.volume,
+  listPrice:    a.listPrice,
+  ek:           a.ek,
+  netVK:        a.netVK,
+  deliveryFee:  a.deliveryFee,
+  salePrice:    a.salePrice,
+  voltage:      a.voltage
+}));
 
 function fmtEur(val) {
   return val.toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2}) + " €";
@@ -234,6 +229,8 @@ function renderTable() {
   const thModel   = t("th_model");
   const thVolume  = t("th_volume");
   const thList    = t("th_list");
+  const thEk      = t("th_ek");
+  const thDevVk   = t("th_device_vk");
   const thVk      = t("th_vk");
   const thVoltage = t("th_voltage");
 
@@ -252,7 +249,7 @@ function renderTable() {
   tbody.innerHTML = "";
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--steel);padding:24px;">—</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--steel);padding:24px;">—</td></tr>`;
     return;
   }
 
@@ -260,6 +257,8 @@ function renderTable() {
     const cls = r.manufacturer === "Govi" ? "govi-row" : "zanotti-row";
     const tr = document.createElement("tr");
     tr.className = cls;
+    const feeNote = r.deliveryFee > 0
+      ? `<br><small style="color:var(--steel);font-weight:400;">inkl. ${fmtEur(r.deliveryFee)} Lief.</small>` : "";
     tr.innerHTML = `
       <td data-label="${thMaker}">${r.manufacturer}</td>
       <td data-label="${thMount}">${r.mount}</td>
@@ -267,7 +266,9 @@ function renderTable() {
       <td data-label="${thModel}">${r.model}</td>
       <td data-label="${thVolume}">${r.volume}</td>
       <td data-label="${thList}">${fmtEur(r.listPrice)}</td>
-      <td data-label="${thVk}" style="color:var(--red-dark);font-weight:700;">${fmtEur(r.salePrice)}</td>
+      <td data-label="${thEk}">${fmtEur(r.ek)}</td>
+      <td data-label="${thDevVk}">${fmtEur(r.netVK)}</td>
+      <td data-label="${thVk}" style="color:var(--red-dark);font-weight:700;">${fmtEur(r.salePrice)}${feeNote}</td>
       <td data-label="${thVoltage}">${r.voltage || "—"}</td>
     `;
     tbody.appendChild(tr);

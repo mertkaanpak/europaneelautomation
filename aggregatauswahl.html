@@ -7,6 +7,28 @@
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .design-note {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 8px 12px; margin: 16px 0 4px;
+      font-size: 12.5px; color: var(--steel); font-weight: 600;
+    }
+    .agg-img-wrap {
+      height: 120px; background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius); display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px; overflow: hidden; padding: 6px;
+    }
+    .agg-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .result-row.is-total { border-top: 1px dashed var(--border); margin-top: 4px; padding-top: 6px; }
+    .result-row.is-fee span:last-child { color: var(--steel); }
+    .oversize-note {
+      background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+      border-radius: var(--radius); padding: 7px 10px; font-size: 11.5px;
+      margin-top: 10px; line-height: 1.4;
+    }
+  </style>
+  <script src="aggregate-data.js"></script>
 </head>
 <body>
 <div class="shell">
@@ -97,8 +119,10 @@
 
         <button class="btn btn-primary btn-full" id="calcBtn" style="margin-top:16px;" data-i18n="btn_find">Aggregat finden</button>
 
+        <div class="design-note" id="designNote" style="display:none;"><span>📐</span><span id="designNoteText"></span></div>
+
         <!-- Results -->
-        <div class="result-grid" id="resultGrid" style="margin-top:24px;">
+        <div class="result-grid" id="resultGrid" style="margin-top:16px;">
           <div class="result-card" id="card_govi_wall">
             <div class="tag" data-i18n="tag_govi_wall">Govi – Wand</div>
             <div class="result-title" data-i18n="result_title">Empfohlenes Aggregat</div>
@@ -186,8 +210,15 @@ const translations = {
     label_pick_volume:"Geräte-Volumen",
     label_calc_volume:"Raumvolumen",
     label_list_price:"Herstellerpreis",
+    label_ek:"Einkauf (EK)",
+    label_device_vk:"Geräte-VK",
+    label_delivery:"Govi Lieferpauschale",
+    label_total_vk:"Verkaufspreis (Netto)",
     label_vk:"VK",
-    label_voltage:"Volt/Hz"
+    label_voltage:"Volt/Hz",
+    design_normal:"Auslegung: Umgebung +32 °C · Raumtemperatur 0 °C",
+    design_tief:"Auslegung: Umgebung +32 °C · Raumtemperatur −20 °C",
+    note_oversized:"Raumvolumen größer als das größte Einzelgerät — ggf. 2 Geräte nötig / auf Anfrage."
   },
   tr: {
     brand_sub:"Intranet Hub",
@@ -227,8 +258,15 @@ const translations = {
     label_pick_volume:"Cihaz hacmi",
     label_calc_volume:"Oda hacmi",
     label_list_price:"Üretici fiyatı",
+    label_ek:"Alış (EK)",
+    label_device_vk:"Cihaz satış",
+    label_delivery:"Govi teslimat ücreti",
+    label_total_vk:"Satış fiyatı (Net)",
     label_vk:"Satış fiyatı",
-    label_voltage:"Volt/Hz"
+    label_voltage:"Volt/Hz",
+    design_normal:"Tasarım: Ortam +32 °C · Oda sıcaklığı 0 °C",
+    design_tief:"Tasarım: Ortam +32 °C · Oda sıcaklığı −20 °C",
+    note_oversized:"Oda hacmi en büyük tek cihazdan büyük — muhtemelen 2 cihaz gerekir / talep üzerine."
   }
 };
 
@@ -252,77 +290,49 @@ function applyLanguage(lang) {
   if (lastVolume !== null) renderResults(lastVolume);
 }
 
-// ---- Data ----
-const goviData = [
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 10WN1",volume:10,listPrice:1980,salePrice:1565.7,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 13WN1",volume:13,listPrice:2350,salePrice:1830.25,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"PolariK 18WN2",volume:18,listPrice:3030,salePrice:2316.45,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 31WN2",volume:31,listPrice:3240,salePrice:2466.6,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 39WN3",volume:39,listPrice:4000,salePrice:3010,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 47WN3",volume:47,listPrice:4150,salePrice:3117.25,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 56WN3",volume:56,listPrice:4300,salePrice:3224.5,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 8WL1",volume:8,listPrice:2220,salePrice:1737.3,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 12WL2",volume:12,listPrice:3100,salePrice:2366.5,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 23WL2",volume:23,listPrice:3740,salePrice:2824.1,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 26WL3",volume:26,listPrice:4500,salePrice:3367.5,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 35WL3",volume:35,listPrice:4650,salePrice:3474.75,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 10TN1",volume:10,listPrice:3130,salePrice:2387.95,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 20TN2",volume:20,listPrice:3490,salePrice:2645.35,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 25TN2",volume:25,listPrice:4700,salePrice:3510.5,voltage:"400V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"tief",model:"Polarik 6TL1",volume:6,listPrice:2960,salePrice:2266.4,voltage:"230V/50Hz"},
-  {manufacturer:"Govi",mount:"Decke",cooling:"tief",model:"Polarik 15TL2",volume:15,listPrice:5185,salePrice:3857.28,voltage:"400V/50Hz"}
-];
-
-const zData = [
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS110YA11A",volume:7,listPrice:2604,salePrice:1707.39,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS1110YA11A",volume:13.5,listPrice:2996,salePrice:1964.42,voltage:"230V/50Hz"},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS3112YA11A",volume:19.8,listPrice:3765,salePrice:2468.64,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS3220YA11A",volume:36.1,listPrice:5214,salePrice:3418.72,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3112YA11A",volume:6.2,listPrice:3250,salePrice:2130.96,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3115YA11A",volume:7.7,listPrice:3753,salePrice:2460.77,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3224YA11A",volume:16.8,listPrice:4137,salePrice:2712.55,voltage:""},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3230YA11A",volume:20.8,listPrice:5240,salePrice:3435.77,voltage:""}
-];
-
 // ---- State ----
 let selectedCooling = "normal";
 let lastVolume = null;
 
+const D = window.EuropaneelData;   // zentrale Datenquelle (aggregate-data.js)
+
 // ---- Helpers ----
-function fmtEur(val) {
-  return val.toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2}) + " €";
-}
+function fmtEur(val) { return D.fmtEUR(val); }
 
-function findFrom(dataset, cooling, mount, vol) {
-  const filtered = dataset
-    .filter(d => d.cooling === cooling && d.mount === mount)
-    .sort((a, b) => a.volume - b.volume);
-  if (!filtered.length) return null;
-  return filtered.find(d => d.volume >= vol) || filtered[filtered.length - 1];
-}
-
-function renderCardBody(bodyEl, item, targetVolume, noDataKey) {
+function renderCardBody(bodyEl, item, targetVolume) {
   if (!item) {
-    bodyEl.innerHTML = `<div class="muted">${t(noDataKey)}</div>`;
+    bodyEl.innerHTML = `<div class="muted">${t("status_no_data")}</div>`;
     return;
   }
+  const img = item.image
+    ? `<div class="agg-img-wrap"><img src="${item.image}" alt="${item.model}" loading="lazy"></div>` : "";
+  const feeRow = item.deliveryFee > 0
+    ? `<div class="result-row is-fee"><span class="muted">${t("label_delivery")}</span><span>${fmtEur(item.deliveryFee)}</span></div>` : "";
+  const oversize = item.oversized
+    ? `<div class="oversize-note">⚠ ${t("note_oversized")}</div>` : "";
   bodyEl.innerHTML = `
+    ${img}
     <h3 style="margin:0 0 10px;font-size:15px;color:var(--ink);">${item.model}</h3>
     <div class="result-row"><span class="muted">${t("label_pick_volume")}</span><span>${item.volume} m³</span></div>
     <div class="result-row"><span class="muted">${t("label_calc_volume")}</span><span>${targetVolume.toFixed(2)} m³</span></div>
     <div class="result-row"><span class="muted">${t("label_list_price")}</span><span>${fmtEur(item.listPrice)}</span></div>
-    <div class="result-row"><span class="muted">${t("label_vk")}</span><span style="color:var(--red-dark);font-weight:700;">${fmtEur(item.salePrice)}</span></div>
+    <div class="result-row"><span class="muted">${t("label_ek")}</span><span>${fmtEur(item.ek)}</span></div>
+    <div class="result-row"><span class="muted">${t("label_device_vk")}</span><span>${fmtEur(item.netVK)}</span></div>
+    ${feeRow}
+    <div class="result-row is-total"><span class="muted">${t("label_total_vk")}</span><span style="color:var(--red-dark);font-weight:700;">${fmtEur(item.salePrice)}</span></div>
     <div class="result-row"><span class="muted">${t("label_voltage")}</span><span>${item.voltage || "—"}</span></div>
+    ${oversize}
   `;
 }
 
 function renderResults(vol) {
   const cooling = selectedCooling;
-  renderCardBody(document.getElementById("body_govi_wall"),    findFrom(goviData, cooling, "Wand",  vol), vol, "status_no_data");
-  renderCardBody(document.getElementById("body_govi_ceiling"), findFrom(goviData, cooling, "Decke", vol), vol, "status_no_data");
-  renderCardBody(document.getElementById("body_zanotti_wall"), findFrom(zData,    cooling, "Wand",  vol), vol, "status_no_data");
-  // Zanotti has no Decke data
-  document.getElementById("body_zanotti_ceiling").innerHTML = `<div class="muted">${t("status_no_ceiling")}</div>`;
+  renderCardBody(document.getElementById("body_govi_wall"),       D.pickAggregate(vol, cooling, "Wand",  "Govi"),    vol);
+  renderCardBody(document.getElementById("body_govi_ceiling"),    D.pickAggregate(vol, cooling, "Decke", "Govi"),    vol);
+  renderCardBody(document.getElementById("body_zanotti_wall"),    D.pickAggregate(vol, cooling, "Wand",  "Zanotti"), vol);
+  renderCardBody(document.getElementById("body_zanotti_ceiling"), D.pickAggregate(vol, cooling, "Decke", "Zanotti"), vol);
+  document.getElementById("designNoteText").textContent = t(cooling === "tief" ? "design_tief" : "design_normal");
+  document.getElementById("designNote").style.display = "flex";
 }
 
 function getVolume() {

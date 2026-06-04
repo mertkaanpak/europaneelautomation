@@ -7,6 +7,8 @@
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="stylesheet" href="style.css" />
+  <script src="aggregate-data.js"></script>
+  <script src="zelle3d.js"></script>
   <style>
     .step-content { display: none; }
     .step-content.active { display: block; animation: fadeUp .3s var(--ease) both; }
@@ -25,7 +27,14 @@
       transition: all .2s var(--ease); box-shadow: var(--shadow-sm);
     }
     .selection-card:hover { border-color: var(--red); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(227,6,19,0.14); }
-    .selection-card .s-icon { font-size: 36px; display: block; margin-bottom: 10px; }
+    .selection-card .s-icon {
+      font-size: 30px; display: inline-flex; align-items: center; justify-content: center;
+      width: 64px; height: 64px; border-radius: 18px; margin-bottom: 14px;
+      background: linear-gradient(135deg, var(--red-bg), #ffe1e1);
+      box-shadow: inset 0 0 0 1px rgba(227,6,19,0.10);
+      transition: transform var(--duration) var(--ease);
+    }
+    .selection-card:hover .s-icon { transform: scale(1.07) rotate(-3deg); }
     .selection-card .s-title { font-weight: 700; font-size: 14px; color: var(--ink); display: block; margin-bottom: 4px; }
     .selection-card .s-desc { color: var(--steel); font-size: 12px; }
 
@@ -172,6 +181,21 @@
       transition: all .18s;
     }
     .btn-offer:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+    .btn-offer--primary {
+      background: linear-gradient(180deg, #ec1b27 0%, #e30613 55%, #d20612 100%);
+      border-color: transparent; color: #fff; box-shadow: var(--shadow-red);
+    }
+    .btn-offer--primary:hover { background: linear-gradient(180deg, #e30613, #c20511); color: #fff; border-color: transparent; }
+
+    .zelle3d-view {
+      margin-top: 12px; background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 10px; overflow-x: auto; text-align: center;
+    }
+    .zelle3d-view svg { max-width: 100%; height: auto; }
+    .zelle3d-room-title {
+      font-weight: 700; font-size: 12px; color: var(--ink); text-align: left;
+      margin: 6px 2px 2px; display: flex; align-items: center; gap: 6px;
+    }
   </style>
 </head>
 <body>
@@ -357,6 +381,10 @@
                 <span><span data-i18n="summary_agg">Aggregat</span> <small id="val-aggregat-name" style="opacity:.55;font-size:11px;">-</small></span>
                 <strong id="val-aggregat-eur">0,00 EUR</strong>
               </div>
+              <div class="summary-row" id="row-aggregat-fee" style="display:none;">
+                <span data-i18n="summary_delivery">Govi Lieferpauschale</span>
+                <strong id="val-aggregat-fee-eur">0,00 EUR</strong>
+              </div>
               <div class="summary-row">
                 <span data-i18n="summary_service">Lieferung &amp; Montage</span>
                 <strong id="val-service-eur">0,00 EUR</strong>
@@ -365,7 +393,11 @@
                 <div class="price-label" data-i18n="summary_total">Gesamtpreis (Netto)</div>
                 <div class="price-big" id="preis-ausgabe">0,00 EUR</div>
               </div>
-              <button class="btn-offer" onclick="openOfferModal('single')">
+              <button class="btn-offer" id="btn-3d-single" onclick="toggle3D('single')">
+                <span>🧊</span><span data-i18n="btn_3d">3D-Zeichnung anzeigen</span>
+              </button>
+              <div id="zelle3d-view-single" class="zelle3d-view" style="display:none;"></div>
+              <button class="btn-offer btn-offer--primary" onclick="openOfferModal('single')">
                 <span>📄</span><span data-i18n="btn_offer">Angebot als PDF erstellen</span>
               </button>
             </div>
@@ -634,6 +666,10 @@
                     <span><span data-i18n="summary_agg">Aggregat</span> <small id="k1-agg-name" style="opacity:.55;font-size:11px;">-</small></span>
                     <strong id="k1-agg-eur">0,00 EUR</strong>
                   </div>
+                  <div class="summary-row" id="k1-agg-fee-row" style="display:none;">
+                    <span data-i18n="summary_delivery">Govi Lieferpauschale</span>
+                    <strong id="k1-agg-fee-eur">0,00 EUR</strong>
+                  </div>
                   <div class="summary-row kombi-room-subtotal">
                     <span><strong data-i18n="kombi_room_total">Raum Gesamt</strong></span>
                     <strong id="k1-total-eur" style="font-size:15px;color:var(--ink);">0,00 EUR</strong>
@@ -669,6 +705,10 @@
                     <span><span data-i18n="summary_agg">Aggregat</span> <small id="k2-agg-name" style="opacity:.55;font-size:11px;">-</small></span>
                     <strong id="k2-agg-eur">0,00 EUR</strong>
                   </div>
+                  <div class="summary-row" id="k2-agg-fee-row" style="display:none;">
+                    <span data-i18n="summary_delivery">Govi Lieferpauschale</span>
+                    <strong id="k2-agg-fee-eur">0,00 EUR</strong>
+                  </div>
                   <div class="summary-row kombi-room-subtotal">
                     <span><strong data-i18n="kombi_room_total">Raum Gesamt</strong></span>
                     <strong id="k2-total-eur" style="font-size:15px;color:var(--ink);">0,00 EUR</strong>
@@ -689,7 +729,11 @@
                 <div class="price-label" data-i18n="summary_total">Gesamtpreis (Netto)</div>
                 <div class="price-big" id="k-gesamt">0,00 EUR</div>
               </div>
-              <button class="btn-offer" onclick="openOfferModal('kombi')">
+              <button class="btn-offer" id="btn-3d-kombi" onclick="toggle3D('kombi')">
+                <span>🧊</span><span data-i18n="btn_3d">3D-Zeichnung anzeigen</span>
+              </button>
+              <div id="zelle3d-view-kombi" class="zelle3d-view" style="display:none;"></div>
+              <button class="btn-offer btn-offer--primary" onclick="openOfferModal('kombi')">
                 <span>📄</span><span data-i18n="btn_offer">Angebot als PDF erstellen</span>
               </button>
             </div>
@@ -713,6 +757,10 @@
       <input type="text" id="offer-customer" placeholder="Max Mustermann GmbH" style="font-size:15px;"
              onkeydown="if(event.key==='Enter')generateOffer()">
     </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:10px;cursor:pointer;color:var(--graphite);">
+      <input type="checkbox" id="offer-include-3d" checked style="width:auto;margin:0;">
+      <span data-i18n="offer_include_3d">3D-Zeichnung beilegen</span>
+    </label>
     <div class="modal-actions">
       <button class="btn btn-primary" style="flex:1;" onclick="generateOffer()" data-i18n="offer_btn_create">PDF erstellen</button>
       <button class="btn btn-ghost" onclick="closeOfferModal()" data-i18n="offer_btn_cancel">Abbrechen</button>
@@ -774,7 +822,7 @@ const translations = {
     btn_calc:"Preis aktualisieren", summary_title:"Details zur Berechnung",
     summary_shell:"Hülle (Wand+Decke)", summary_floor_panel:"Boden Paneel",
     summary_floor_siebdruck:"Boden Siebdruck", summary_door:"Tür Element",
-    summary_agg:"Aggregat", summary_service:"Lieferung & Montage", summary_total:"Gesamtpreis (Netto)",
+    summary_agg:"Aggregat", summary_delivery:"Govi Lieferpauschale", summary_service:"Lieferung & Montage", summary_total:"Gesamtpreis (Netto)",
     badge_volume:"Volumen:", badge_with_floor:"Kühlzelle MIT Boden", badge_no_floor:"Kühlzelle OHNE Boden",
     kombi_room1:"Raum 1", kombi_room2:"Raum 2", kombi_boden:"Boden",
     kombi_tw_label:"TRENNWAND", kombi_tw_section:"Trennwand & Kosten",
@@ -783,6 +831,9 @@ const translations = {
     kombi_room_total:"Raum Gesamt", kombi_tw_summary:"Trennwand",
     kombi_tw_notice:"⚠ Trennwand konnte nicht automatisch erkannt werden — bitte Fläche manuell eingeben.",
     btn_offer:"Angebot als PDF erstellen",
+    btn_3d:"3D-Zeichnung anzeigen", btn_3d_hide:"3D-Zeichnung ausblenden",
+    hdr_3d:"Skizze der Kühlzelle", msg_3d_need_dims:"Bitte zuerst Länge, Breite und Höhe eingeben.",
+    offer_include_3d:"3D-Zeichnung beilegen",
     offer_modal_title:"Angebot erstellen",
     offer_modal_sub:"Name des Kunden eingeben — das Angebot öffnet sich als druckfertiges PDF.",
     offer_customer_label:"Kundenname / Firma",
@@ -818,7 +869,7 @@ const translations = {
     btn_calc:"Fiyatı güncelle", summary_title:"Hesaplama detayları",
     summary_shell:"Kabuk (Duvar+Tavan)", summary_floor_panel:"Zemin panel",
     summary_floor_siebdruck:"Zemin siebdruckplatte", summary_door:"Kapı elemanı",
-    summary_agg:"Agrega", summary_service:"Teslimat ve montaj", summary_total:"Toplam fiyat (Net)",
+    summary_agg:"Agrega", summary_delivery:"Govi teslimat ücreti", summary_service:"Teslimat ve montaj", summary_total:"Toplam fiyat (Net)",
     badge_volume:"Hacim:", badge_with_floor:"Zeminli soğuk oda", badge_no_floor:"Zeminsiz soğuk oda",
     kombi_room1:"Oda 1", kombi_room2:"Oda 2", kombi_boden:"Zemin",
     kombi_tw_label:"BÖLME", kombi_tw_section:"Bölme Duvarı & Maliyetler",
@@ -827,6 +878,9 @@ const translations = {
     kombi_room_total:"Oda Toplamı", kombi_tw_summary:"Bölme Duvarı",
     kombi_tw_notice:"⚠ Bölme duvarı otomatik tespit edilemedi — lütfen alanı manuel girin.",
     btn_offer:"PDF teklif oluştur",
+    btn_3d:"3D çizimi göster", btn_3d_hide:"3D çizimi gizle",
+    hdr_3d:"Soğuk oda krokisi", msg_3d_need_dims:"Lütfen önce uzunluk, genişlik ve yükseklik girin.",
+    offer_include_3d:"3D çizimi ekle",
     offer_modal_title:"Teklif oluştur",
     offer_modal_sub:"Müşteri adını girin — teklif yazdırılabilir PDF olarak açılacak.",
     offer_customer_label:"Müşteri adı / Firma",
@@ -876,43 +930,16 @@ function startKombi() {
 }
 
 /* ────────────────────────────────────────
-   AGGREGATE DATA
+   AGGREGATE-AUSWAHL  (zentrale Quelle: aggregate-data.js)
+   Auslegung: Umgebung +32 °C, Raum 0 °C (Normal) / −20 °C (Tief).
 ──────────────────────────────────────── */
-const aggregateData = [
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 10WN1",volume:10,salePrice:1565.7},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 13WN1",volume:13,salePrice:1830.25},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"PolariK 18WN2",volume:18,salePrice:2316.45},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 31WN2",volume:31,salePrice:2466.6},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 39WN3",volume:39,salePrice:3010},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 47WN3",volume:47,salePrice:3117.25},
-  {manufacturer:"Govi",mount:"Wand",cooling:"normal",model:"Polarik 56WN3",volume:56,salePrice:3224.5},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 8WL1",volume:8,salePrice:1737.3},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 12WL2",volume:12,salePrice:2366.5},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 23WL2",volume:23,salePrice:2824.1},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 26WL3",volume:26,salePrice:3367.5},
-  {manufacturer:"Govi",mount:"Wand",cooling:"tief",model:"Polarik 35WL3",volume:35,salePrice:3474.75},
-  {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 10TN1",volume:10,salePrice:2387.95},
-  {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 20TN2",volume:20,salePrice:2645.35},
-  {manufacturer:"Govi",mount:"Decke",cooling:"normal",model:"Polarik 25TN2",volume:25,salePrice:3510.5},
-  {manufacturer:"Govi",mount:"Decke",cooling:"tief",model:"Polarik 6TL1",volume:6,salePrice:2266.4},
-  {manufacturer:"Govi",mount:"Decke",cooling:"tief",model:"Polarik 15TL2",volume:15,salePrice:3857.28},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS110YA11A",volume:7,salePrice:1707.39},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS1110YA11A",volume:13.5,salePrice:1964.42},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS3112YA11A",volume:19.8,salePrice:2468.64},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"normal",model:"MPS3220YA11A",volume:36.1,salePrice:3418.72},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3112YA11A",volume:6.2,salePrice:2130.96},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3115YA11A",volume:7.7,salePrice:2460.77},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3224YA11A",volume:16.8,salePrice:2712.55},
-  {manufacturer:"Zanotti",mount:"Wand",cooling:"tief",model:"BPS3230YA11A",volume:20.8,salePrice:3435.77}
-];
+const D = window.EuropaneelData;
 
 function pickAggregate(vol, cooling, mount, manufacturer) {
-  let list = aggregateData.filter(i => i.cooling === cooling && i.mount === mount);
-  if (manufacturer && manufacturer !== 'auto') list = list.filter(i => i.manufacturer === manufacturer);
-  if (!list.length) return null;
-  const s = list.slice().sort((a,b) => a.volume - b.volume);
-  const c = s.find(i => i.volume >= vol) || s[s.length - 1];
-  return s.filter(i => i.volume === c.volume).sort((a,b) => a.salePrice - b.salePrice)[0];
+  // 'auto' = Günstigstes über alle Hersteller; sonst gewählter Hersteller.
+  return (manufacturer && manufacturer !== 'auto')
+    ? D.pickAggregate(vol, cooling, mount, manufacturer)
+    : D.pickCheapest(vol, cooling, mount);
 }
 
 function fmt(v) { return isFinite(v) ? v.toLocaleString('de-DE',{style:'currency',currency:'EUR'}) : '0,00 EUR'; }
@@ -942,13 +969,21 @@ function berechnePreis() {
   const huelle = (wand+decke)*preisPaneel;
   const boden = hatBoden ? decke*preisPaneel : 0;
   const siebd = hatBoden ? decke*preisSiebdr : 0;
-  let aggPreis = 0;
+  let aggPreis = 0, aggDevice = 0, aggFee = 0, aggOversized = false;
   if (aggToggle&&L&&B&&H) {
     const agg = pickAggregate(L*B*H,kuehlart,montage,manufacturer);
-    if (agg) { aggPreis = agg.salePrice; document.getElementById('val-aggregat-name').textContent = agg.model+' ('+agg.manufacturer+' '+agg.mount+')'; }
-    else { document.getElementById('val-aggregat-name').textContent = '-'; }
+    if (agg) {
+      aggDevice = agg.netVK; aggFee = agg.deliveryFee; aggPreis = agg.salePrice; aggOversized = !!agg.oversized;
+      document.getElementById('val-aggregat-name').textContent = agg.model+' ('+agg.manufacturer+' '+agg.mount+')'+(aggOversized?' ⚠':'');
+    } else { document.getElementById('val-aggregat-name').textContent = '-'; }
     document.getElementById('row-aggregat').style.display = 'flex';
-  } else { document.getElementById('val-aggregat-name').textContent = '-'; document.getElementById('row-aggregat').style.display = 'none'; }
+    document.getElementById('row-aggregat-fee').style.display = aggFee>0 ? 'flex' : 'none';
+    document.getElementById('val-aggregat-fee-eur').textContent = fmt(aggFee);
+  } else {
+    document.getElementById('val-aggregat-name').textContent = '-';
+    document.getElementById('row-aggregat').style.display = 'none';
+    document.getElementById('row-aggregat-fee').style.display = 'none';
+  }
   const gesamt = huelle+boden+siebd+tuerPreis+aggPreis+servicePreis;
   document.getElementById('summary-area').classList.add('show');
   document.getElementById('val-huelle-qm').textContent = '('+(wand+decke).toFixed(2)+' m²)';
@@ -959,7 +994,7 @@ function berechnePreis() {
     document.getElementById('val-siebdruck-eur').textContent = fmt(siebd);
   }
   document.getElementById('val-tuer-eur').textContent = fmt(tuerPreis);
-  document.getElementById('val-aggregat-eur').textContent = fmt(aggPreis);
+  document.getElementById('val-aggregat-eur').textContent = fmt(aggDevice);
   document.getElementById('val-service-eur').textContent = fmt(servicePreis);
   document.getElementById('preis-ausgabe').textContent = fmt(gesamt);
   const doorSel = document.getElementById('inp-tuer');
@@ -969,7 +1004,9 @@ function berechnePreis() {
     kuehlart: aggToggle ? (kuehlart==='tief'?t('cooling_tief'):t('cooling_normal')) : '',
     aggOn: aggToggle,
     aggName: aggToggle ? document.getElementById('val-aggregat-name').textContent : '',
-    aggEur: aggPreis,
+    aggEur: aggDevice,
+    aggFeeEur: aggFee,
+    aggOversized: aggOversized,
     doorEur: tuerPreis,
     doorText: tuerPreis>0 ? doorSel.options[doorSel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '',
     huelleEur: huelle,
@@ -978,6 +1015,7 @@ function berechnePreis() {
     serviceEur: servicePreis,
     gesamt
   };
+  if (show3D.single) render3D('single');
 }
 
 /* ────────────────────────────────────────
@@ -1085,14 +1123,15 @@ function berechneKombi() {
   const r2_siebd  = kombiMitBoden2 ? L2*B2*ps2 : 0;
 
   // Aggregates
-  let agg1Cost=0, agg1Name='-', agg2Cost=0, agg2Name='-';
+  let agg1Cost=0, agg1Name='-', agg1Device=0, agg1Fee=0;
+  let agg2Cost=0, agg2Name='-', agg2Device=0, agg2Fee=0;
   if (agg1on&&L1&&B1&&H1) {
     const a=pickAggregate(L1*B1*H1,kombiCool1,mount1,manuf1);
-    if (a) { agg1Cost=a.salePrice; agg1Name=a.model+' ('+a.manufacturer+')'; }
+    if (a) { agg1Cost=a.salePrice; agg1Device=a.netVK; agg1Fee=a.deliveryFee; agg1Name=a.model+' ('+a.manufacturer+')'+(a.oversized?' ⚠':''); }
   }
   if (agg2on&&L2&&B2&&H2) {
     const a=pickAggregate(L2*B2*H2,kombiCool2,mount2,manuf2);
-    if (a) { agg2Cost=a.salePrice; agg2Name=a.model+' ('+a.manufacturer+')'; }
+    if (a) { agg2Cost=a.salePrice; agg2Device=a.netVK; agg2Fee=a.deliveryFee; agg2Name=a.model+' ('+a.manufacturer+')'+(a.oversized?' ⚠':''); }
   }
 
   const twCost    = twArea * twPrice;
@@ -1118,7 +1157,9 @@ function berechneKombi() {
   document.getElementById('k1-door-eur').textContent=fmt(door1);
   document.getElementById('k1-agg-row').style.display=agg1on?'flex':'none';
   document.getElementById('k1-agg-name').textContent=agg1Name;
-  document.getElementById('k1-agg-eur').textContent=fmt(agg1Cost);
+  document.getElementById('k1-agg-eur').textContent=fmt(agg1Device);
+  document.getElementById('k1-agg-fee-row').style.display=(agg1on&&agg1Fee>0)?'flex':'none';
+  document.getElementById('k1-agg-fee-eur').textContent=fmt(agg1Fee);
   document.getElementById('k1-total-eur').textContent=fmt(r1Total);
 
   // Room 2 summary
@@ -1132,7 +1173,9 @@ function berechneKombi() {
   document.getElementById('k2-door-eur').textContent=fmt(door2);
   document.getElementById('k2-agg-row').style.display=agg2on?'flex':'none';
   document.getElementById('k2-agg-name').textContent=agg2Name;
-  document.getElementById('k2-agg-eur').textContent=fmt(agg2Cost);
+  document.getElementById('k2-agg-eur').textContent=fmt(agg2Device);
+  document.getElementById('k2-agg-fee-row').style.display=(agg2on&&agg2Fee>0)?'flex':'none';
+  document.getElementById('k2-agg-fee-eur').textContent=fmt(agg2Fee);
   document.getElementById('k2-total-eur').textContent=fmt(r2Total);
 
   // Trennwand + total
@@ -1151,16 +1194,17 @@ function berechneKombi() {
     r1:{ L:L1,B:B1,H:H1, typ:kombiMitBoden1?t('card_with_floor'):t('card_no_floor'),
          kuehlart:t(kombiCool1==='tief'?'cooling_tief':'cooling_normal'),
          doorEur:door1, doorText:getDoorTxt('k1-tuer',door1),
-         aggOn:agg1on, aggName:agg1Name, aggEur:agg1Cost,
+         aggOn:agg1on, aggName:agg1Name, aggEur:agg1Device, aggFeeEur:agg1Fee,
          huelleEur:r1_huelle, bodenEur:r1_boden, siebdEur:r1_siebd, total:r1Total },
     r2:{ L:L2,B:B2,H:H2, typ:kombiMitBoden2?t('card_with_floor'):t('card_no_floor'),
          kuehlart:t(kombiCool2==='tief'?'cooling_tief':'cooling_normal'),
          doorEur:door2, doorText:getDoorTxt('k2-tuer',door2),
-         aggOn:agg2on, aggName:agg2Name, aggEur:agg2Cost,
+         aggOn:agg2on, aggName:agg2Name, aggEur:agg2Device, aggFeeEur:agg2Fee,
          huelleEur:r2_huelle, bodenEur:r2_boden, siebdEur:r2_siebd, total:r2Total },
     tw:{ area:twArea, cost:twCost, label:tw?tw.label:twArea.toFixed(2)+' m²' },
     serviceEur:service, gesamt
   };
+  if (show3D.kombi) render3D('kombi');
 }
 
 /* ────────────────────────────────────────
@@ -1194,8 +1238,10 @@ async function generateOffer() {
   const customer = document.getElementById('offer-customer').value.trim() || 'Kunde';
   const data = currentOfferMode === 'single' ? lastSingleResult : lastKombiResult;
   if (!data) return;
+  const inc3d = document.getElementById('offer-include-3d');
+  const svgDrawing = (inc3d && inc3d.checked) ? svg3D(currentOfferMode, currentOfferMode==='single'?640:560) : '';
   const logob64 = await getLogoBase64();
-  const html = buildOfferHTML(customer, data, logob64);
+  const html = buildOfferHTML(customer, data, logob64, svgDrawing);
   closeOfferModal();
   const w = window.open('', '_blank');
   w.document.write(html);
@@ -1207,7 +1253,7 @@ function fmtDate(d) {
   return d.toLocaleDateString('de-DE', { day:'2-digit', month:'long', year:'numeric' });
 }
 
-function buildOfferHTML(customer, data, logoSrc) {
+function buildOfferHTML(customer, data, logoSrc, svg3d) {
   const now = new Date();
   const validUntil = new Date(now); validUntil.setDate(validUntil.getDate() + 30);
   const offerNr = 'EP-' + now.getFullYear() +
@@ -1248,6 +1294,7 @@ function buildOfferHTML(customer, data, logoSrc) {
       ${priceRow('Kühlzelle — Sandwichpaneele', d.huelleEur + d.bodenEur + d.siebdEur)}
       ${d.doorEur > 0 ? priceRow(d.doorText || 'Tür', d.doorEur) : ''}
       ${d.aggOn && d.aggEur > 0 ? priceRow('Aggregat', d.aggEur, d.aggName) : ''}
+      ${d.aggOn && d.aggFeeEur > 0 ? priceRow('Govi Lieferpauschale', d.aggFeeEur) : ''}
       ${d.serviceEur > 0 ? priceRow('Lieferung & Montage', d.serviceEur) : ''}`;
   } else {
     const r1 = data.r1, r2 = data.r2, tw = data.tw;
@@ -1284,9 +1331,11 @@ function buildOfferHTML(customer, data, logoSrc) {
       ${priceRow('Raum 1 — Sandwichpaneele', r1.huelleEur + r1.bodenEur + r1.siebdEur)}
       ${r1.doorEur > 0 ? priceRow('Raum 1 — ' + (r1.doorText||'Tür'), r1.doorEur) : ''}
       ${r1.aggOn && r1.aggEur > 0 ? priceRow('Raum 1 — Aggregat', r1.aggEur, r1.aggName) : ''}
+      ${r1.aggOn && r1.aggFeeEur > 0 ? priceRow('Raum 1 — Govi Lieferpauschale', r1.aggFeeEur) : ''}
       ${priceRow('Raum 2 — Sandwichpaneele', r2.huelleEur + r2.bodenEur + r2.siebdEur)}
       ${r2.doorEur > 0 ? priceRow('Raum 2 — ' + (r2.doorText||'Tür'), r2.doorEur) : ''}
       ${r2.aggOn && r2.aggEur > 0 ? priceRow('Raum 2 — Aggregat', r2.aggEur, r2.aggName) : ''}
+      ${r2.aggOn && r2.aggFeeEur > 0 ? priceRow('Raum 2 — Govi Lieferpauschale', r2.aggFeeEur) : ''}
       ${tw.cost > 0 ? priceRow('Trennwand — Sandwichpaneele', tw.cost) : ''}
       ${data.serviceEur > 0 ? priceRow('Lieferung & Montage', data.serviceEur) : ''}`;
   }
@@ -1300,6 +1349,7 @@ function buildOfferHTML(customer, data, logoSrc) {
   @page { margin: 22mm 20mm 28mm; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Segoe UI',Arial,sans-serif; font-size:10.5pt; color:#111827; line-height:1.5; }
+  svg { max-width:100%; height:auto; }
 
   /* Header */
   .hdr { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:18px; border-bottom:3px solid #e30613; margin-bottom:28px; }
@@ -1382,6 +1432,9 @@ function buildOfferHTML(customer, data, logoSrc) {
 
 ${configSection}
 
+${svg3d ? `<div class="section-hdr">Skizze der Kühlzelle</div>
+<div style="text-align:center;margin:0 0 24px;border:1px solid #e5e7eb;border-radius:8px;padding:10px;background:#fff;">${svg3d}</div>` : ''}
+
 <div class="section-hdr-price">Preisübersicht</div>
 <table class="pr-table">
   ${priceRows}
@@ -1405,6 +1458,69 @@ ${configSection}
 
 </body>
 </html>`;
+}
+
+/* ────────────────────────────────────────
+   3D-ZEICHNUNG
+──────────────────────────────────────── */
+let show3D = { single:false, kombi:false };
+
+function doorDimsFromSelect(selId){
+  const s=document.getElementById(selId);
+  if(!s) return {w:0.9,h:2.0};
+  const dims = EuropaneelZelle3D.parseDoor(s.options[s.selectedIndex].text);
+  return dims || {w:0.9,h:2.0};   // Standardtür für die Skizze, wenn keine gewählt
+}
+
+function opts3DSingle(width){
+  const L=parseFloat(document.getElementById('inp-laenge').value)||0;
+  const B=parseFloat(document.getElementById('inp-breite').value)||0;
+  const H=parseFloat(document.getElementById('inp-hoehe').value)||0;
+  if(!(L>0&&B>0&&H>0)) return null;
+  let agg=null;
+  if(document.getElementById('inp-aggregat').value==='1' && lastSingleResult && lastSingleResult.aggName && lastSingleResult.aggName!=='-'){
+    agg={ mount:document.getElementById('inp-montage').value, model:lastSingleResult.aggName.replace(/\s*\(.*$/,'').trim() };
+  }
+  return { L,B,H, door:doorDimsFromSelect('inp-tuer'), mitBoden:hatBoden, agg, width:width||540 };
+}
+
+function opts3DKombiCombined(width){
+  const v=id=>parseFloat(document.getElementById(id).value)||0;
+  const L1=v('k1-laenge'),B1=v('k1-breite'),H1=v('k1-hoehe');
+  const L2=v('k2-laenge'),B2=v('k2-breite'),H2=v('k2-hoehe');
+  if(!(L1&&B1&&H1&&L2&&B2&&H2)) return null;
+  const tol=0.06;
+  let lenA,lenB,depth;
+  if(Math.abs(B1-B2)<tol){ lenA=L1; lenB=L2; depth=(B1+B2)/2; }       // gemeinsame Breite -> Räume entlang der Länge
+  else if(Math.abs(L1-L2)<tol){ lenA=B1; lenB=B2; depth=(L1+L2)/2; }   // gemeinsame Länge -> Räume entlang der Breite
+  else { lenA=L1; lenB=L2; depth=Math.max(B1,B2); }                    // Fallback: keine gemeinsame Wand erkannt
+  return {
+    rooms:[ {len:lenA, door:doorDimsFromSelect('k1-tuer')},
+            {len:lenB, door:doorDimsFromSelect('k2-tuer')} ],
+    depth, H:Math.max(H1,H2),
+    mitBoden:(kombiMitBoden1||kombiMitBoden2),
+    width:width||560
+  };
+}
+
+function svg3D(mode, width){
+  if(mode==='single'){ const o=opts3DSingle(width); return o?EuropaneelZelle3D.buildSVG(o):''; }
+  const o=opts3DKombiCombined(width);
+  return o?EuropaneelZelle3D.buildKombiSVG(o):'';
+}
+
+function render3D(mode){
+  const v=document.getElementById('zelle3d-view-'+mode); if(!v) return;
+  const html = svg3D(mode, mode==='single'?540:500);
+  v.innerHTML = html || '<div style="color:var(--steel);padding:20px;">'+t('msg_3d_need_dims')+'</div>';
+}
+
+function toggle3D(mode){
+  show3D[mode] = !show3D[mode];
+  document.getElementById('zelle3d-view-'+mode).style.display = show3D[mode] ? 'block' : 'none';
+  const lbl = document.querySelector('#btn-3d-'+mode+' [data-i18n="btn_3d"]');
+  if(lbl) lbl.textContent = t(show3D[mode] ? 'btn_3d_hide' : 'btn_3d');
+  if(show3D[mode]) render3D(mode);
 }
 
 /* ────────────────────────────────────────
