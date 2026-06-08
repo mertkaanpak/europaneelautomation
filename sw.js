@@ -4,7 +4,7 @@
    Version (auch offline) und holt im Hintergrund die neueste; beim nächsten
    Öffnen ist sie aktuell. Bei größeren Updates CACHE-Version hochzählen.
    ════════════════════════════════════════════════════════════════════════ */
-const CACHE = "europaneel-v1";
+const CACHE = "europaneel-v2";
 const ASSETS = [
   "index.html", "zellenrechner.html", "aggregatauswahl.html", "aggregate.html",
   "paneelrechner.html", "lagerbestand_tueren.html", "kalender.html",
@@ -30,19 +30,20 @@ self.addEventListener("activate", e => {
   );
 });
 
+// Network-first: online IMMER die neueste Version (damit Updates sofort sichtbar sind),
+// offline aus dem Cache. So bleibt die App aktuell UND offline nutzbar.
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || !req.url.startsWith(self.location.origin)) return;
   e.respondWith(
-    caches.match(req).then(cached => {
-      const network = fetch(req).then(res => {
+    fetch(req)
+      .then(res => {
         if (res && res.status === 200) {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy));
         }
         return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
+      })
+      .catch(() => caches.match(req))   // kein Netz → zwischengespeicherte Version
   );
 });

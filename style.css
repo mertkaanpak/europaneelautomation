@@ -506,8 +506,8 @@ tbody tr:hover td { background: #fafbfd; }
   background: #0f1117;
   border-top: 1px solid rgba(255,255,255,0.08);
   z-index: 200;
-  height: var(--nav-h);
-  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .bottom-nav-inner { display: flex; height: 100%; }
 .bottom-nav-item {
@@ -519,10 +519,10 @@ tbody tr:hover td { background: #fafbfd; }
   justify-content: center;
   gap: 4px;
   color: #94a3b8;
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: none;
+  letter-spacing: 0;
   padding: 6px 4px;
   transition: color var(--duration);
 }
