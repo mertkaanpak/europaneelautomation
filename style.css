@@ -144,6 +144,7 @@ img { display: block; }
   flex-shrink: 0;
   opacity: 0.8;
 }
+.nav-link .nav-icon svg { width: 18px; height: 18px; display: block; }
 .nav-link:hover {
   background: rgba(255,255,255,0.06);
   color: #e2e8f0;
@@ -516,8 +517,8 @@ tbody tr:hover td { background: #fafbfd; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  color: #4b5563;
+  gap: 4px;
+  color: #94a3b8;
   font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
@@ -526,6 +527,7 @@ tbody tr:hover td { background: #fafbfd; }
   transition: color var(--duration);
 }
 .bottom-nav-item .nav-icon { font-size: 20px; line-height: 1; transition: transform var(--duration) var(--ease); }
+.bottom-nav-item .nav-icon svg { width: 23px; height: 23px; display: block; }
 .bottom-nav-item.active { color: var(--red); }
 .bottom-nav-item.active .nav-icon { transform: translateY(-1px) scale(1.12); }
 .bottom-nav-item.active::before {
