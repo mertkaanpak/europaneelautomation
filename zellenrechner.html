@@ -191,7 +191,7 @@
     .agg-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 6px; }
     .agg-pick {
       position: relative; border: 1.5px solid var(--border); border-radius: var(--radius);
-      padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
+      padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 5px;
       transition: all var(--duration) var(--ease); background: var(--white);
     }
     .agg-pick:hover { border-color: var(--red); }
@@ -201,6 +201,9 @@
     .agg-pick.sel .agg-pick-tag { color: var(--red-dark); }
     .agg-pick-model { font-size: 13.5px; font-weight: 700; color: var(--ink); }
     .agg-pick-meta { font-size: 12px; color: var(--steel); font-variant-numeric: tabular-nums; }
+    .agg-pick-img { height: 60px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 6px; }
+    .agg-pick-img img { max-height: 60px; max-width: 100%; object-fit: contain; }
+    .agg-pick--static { cursor: default; }
 
     .zelle3d-view {
       margin-top: 12px; background: #fff; border: 1px solid var(--border);
@@ -318,6 +321,17 @@
                 <input type="number" id="inp-preis-siebdruck" class="price-input" value="50.00" oninput="berechnePreis()">
               </div>
             </div>
+            <div class="input-group" style="margin-bottom:12px;">
+              <label data-i18n="label_daemmung">Dämmstärke der Paneele</label>
+              <select id="inp-daemmung" onchange="berechnePreis()">
+                <option value="60">60 mm</option>
+                <option value="80">80 mm</option>
+                <option value="100" selected>100 mm (Standard Normalkühlung)</option>
+                <option value="120">120 mm</option>
+                <option value="150">150 mm (Standard Tiefkühlung)</option>
+                <option value="200">200 mm</option>
+              </select>
+            </div>
             <div class="section-label" data-i18n="section_door">3. Tür &amp; Ausstattung</div>
             <div class="input-group" style="margin-bottom:12px;">
               <label data-i18n="label_door_size">Türgröße</label>
@@ -414,6 +428,9 @@
                 <span>🧊</span><span data-i18n="btn_3d">3D-Zeichnung anzeigen</span>
               </button>
               <div id="zelle3d-view-single" class="zelle3d-view" style="display:none;"></div>
+              <button class="btn-offer" id="btn-3d-save-single" style="display:none;" onclick="download3D('single')">
+                <span>💾</span><span data-i18n="btn_3d_save">Als Bild speichern</span>
+              </button>
               <button class="btn-offer btn-offer--primary" onclick="openOfferModal('single')">
                 <span>📄</span><span data-i18n="btn_offer">Angebot als PDF erstellen</span>
               </button>
@@ -652,6 +669,17 @@
                   <input type="number" id="k-service" placeholder="0.00" step="0.01" oninput="berechneKombi()">
                 </div>
               </div>
+              <div class="input-group" style="margin-top:8px;">
+                <label data-i18n="label_daemmung">Dämmstärke der Paneele</label>
+                <select id="k-daemmung" onchange="berechneKombi()">
+                  <option value="60">60 mm</option>
+                  <option value="80">80 mm</option>
+                  <option value="100" selected>100 mm (Standard Normalkühlung)</option>
+                  <option value="120">120 mm</option>
+                  <option value="150">150 mm (Standard Tiefkühlung)</option>
+                  <option value="200">200 mm</option>
+                </select>
+              </div>
             </div>
 
             <button class="btn btn-primary btn-full" onclick="berechneKombi()" data-i18n="btn_calc">Preis aktualisieren</button>
@@ -754,6 +782,9 @@
                 <span>🧊</span><span data-i18n="btn_3d">3D-Zeichnung anzeigen</span>
               </button>
               <div id="zelle3d-view-kombi" class="zelle3d-view" style="display:none;"></div>
+              <button class="btn-offer" id="btn-3d-save-kombi" style="display:none;" onclick="download3D('kombi')">
+                <span>💾</span><span data-i18n="btn_3d_save">Als Bild speichern</span>
+              </button>
               <button class="btn-offer btn-offer--primary" onclick="openOfferModal('kombi')">
                 <span>📄</span><span data-i18n="btn_offer">Angebot als PDF erstellen</span>
               </button>
@@ -827,7 +858,7 @@ const translations = {
     section_dims:"1. Außenmaße der Zelle", label_length:"Länge (m)", label_width:"Breite (m)", label_height:"Höhe (m)",
     section_dims_short:"Maße (m)", section_pricing_short:"Preis (EUR/m²)",
     section_door_short:"Tür", section_agg_short:"Aggregat",
-    section_pricing:"2. Kalkulations-Basis (EUR/m²)", label_panel_price:"Paneel Preis", label_siebdruck:"Siebdruckplatten",
+    section_pricing:"2. Kalkulations-Basis (EUR/m²)", label_panel_price:"Paneel Preis", label_siebdruck:"Siebdruckplatten", label_daemmung:"Dämmstärke der Paneele",
     section_door:"3. Tür & Ausstattung", label_door_size:"Türgröße",
     door_none:"Keine Tür [0 EUR]", door_75_175:"Drehtür 75×175 cm [550 EUR]", door_75_190:"Drehtür 75×190 cm [580 EUR]",
     door_80_190:"Drehtür 80×190 cm [600 EUR]", door_90_190:"Drehtür 90×190 cm [650 EUR]",
@@ -854,7 +885,7 @@ const translations = {
     kombi_room_total:"Raum Gesamt", kombi_tw_summary:"Trennwand",
     kombi_tw_notice:"⚠ Trennwand konnte nicht automatisch erkannt werden — bitte Fläche manuell eingeben.",
     btn_offer:"Angebot als PDF erstellen",
-    btn_3d:"3D-Zeichnung anzeigen", btn_3d_hide:"3D-Zeichnung ausblenden",
+    btn_3d:"3D-Zeichnung anzeigen", btn_3d_hide:"3D-Zeichnung ausblenden", btn_3d_save:"Als Bild speichern",
     hdr_3d:"Skizze der Kühlzelle", msg_3d_need_dims:"Bitte zuerst Länge, Breite und Höhe eingeben.",
     offer_include_3d:"3D-Zeichnung beilegen",
     offer_modal_title:"Angebot erstellen",
@@ -876,7 +907,7 @@ const translations = {
     section_dims:"1. Oda dış ölçüleri", label_length:"Uzunluk (m)", label_width:"Genişlik (m)", label_height:"Yükseklik (m)",
     section_dims_short:"Ölçüler (m)", section_pricing_short:"Fiyat (EUR/m²)",
     section_door_short:"Kapı", section_agg_short:"Agrega",
-    section_pricing:"2. Hesaplama temel değerleri (EUR/m²)", label_panel_price:"Panel fiyatı", label_siebdruck:"Siebdruckplatte",
+    section_pricing:"2. Hesaplama temel değerleri (EUR/m²)", label_panel_price:"Panel fiyatı", label_siebdruck:"Siebdruckplatte", label_daemmung:"Panel yalıtım kalınlığı",
     section_door:"3. Kapı ve donanım", label_door_size:"Kapı ölçüsü",
     door_none:"Kapı yok [0 EUR]", door_75_175:"Menteşeli 75×175 cm [550 EUR]", door_75_190:"Menteşeli 75×190 cm [580 EUR]",
     door_80_190:"Menteşeli 80×190 cm [600 EUR]", door_90_190:"Menteşeli 90×190 cm [650 EUR]",
@@ -903,7 +934,7 @@ const translations = {
     kombi_room_total:"Oda Toplamı", kombi_tw_summary:"Bölme Duvarı",
     kombi_tw_notice:"⚠ Bölme duvarı otomatik tespit edilemedi — lütfen alanı manuel girin.",
     btn_offer:"PDF teklif oluştur",
-    btn_3d:"3D çizimi göster", btn_3d_hide:"3D çizimi gizle",
+    btn_3d:"3D çizimi göster", btn_3d_hide:"3D çizimi gizle", btn_3d_save:"Resim olarak kaydet",
     hdr_3d:"Soğuk oda krokisi", msg_3d_need_dims:"Lütfen önce uzunluk, genişlik ve yükseklik girin.",
     offer_include_3d:"3D çizimi ekle",
     offer_modal_title:"Teklif oluştur",
@@ -971,22 +1002,29 @@ function pickAggregate(vol, cooling, mount, manufacturer) {
 let aggChoiceSingle = 'above';
 function pickAggSingle(key){ aggChoiceSingle = key; berechnePreis(); }
 
-function aggPickHTML(item, key, isRec, selected, pickFn) {
+function aggPickHTML(item, key, isRec, selected, pickFn, choosable) {
   if (!item) return '';
-  return `<label class="agg-pick${selected?' sel':''}">
-    <input type="radio" ${selected?'checked':''} onchange="${pickFn}('${key}')">
-    <span class="agg-pick-tag">${key==='below'?t('opt_smaller'):t('opt_larger')}${isRec?' · '+t('opt_recommended'):''}</span>
+  const img = item.image ? `<span class="agg-pick-img"><img src="${item.image}" alt="" loading="lazy"></span>` : '';
+  const radio = choosable ? `<input type="radio" ${selected?'checked':''} onchange="${pickFn}('${key}')">` : '';
+  const tag = choosable ? ((key==='below'?t('opt_smaller'):t('opt_larger'))+(isRec?' · '+t('opt_recommended'):'')) : t('summary_agg');
+  return `<label class="agg-pick${selected?' sel':''}${choosable?'':' agg-pick--static'}">
+    ${radio}${img}
+    <span class="agg-pick-tag">${tag}</span>
     <span class="agg-pick-model">${item.model}</span>
     <span class="agg-pick-meta">${item.volume} m³ · ${fmt(item.salePrice)}</span>
   </label>`;
 }
-/* Zeigt die Klein/Groß-Auswahl nur, wenn beide Optionen existieren. */
+/* Zeigt das/die gewählte(n) Aggregat(e) mit Foto; auswählbar nur, wenn beide Optionen existieren. */
 function renderAggChoice(labelId, containerId, pair, choice, pickFn){
   const lab=document.getElementById(labelId), c=document.getElementById(containerId);
-  const both = pair && pair.below && pair.above;
-  lab.style.display = both ? 'block' : 'none';
-  c.style.display = both ? 'grid' : 'none';
-  c.innerHTML = both ? (aggPickHTML(pair.below,'below',false,choice==='below',pickFn) + aggPickHTML(pair.above,'above',true,choice==='above',pickFn)) : '';
+  const opts=[];
+  if (pair && pair.below) opts.push(['below', pair.below, false]);
+  if (pair && pair.above) opts.push(['above', pair.above, true]);
+  if (!opts.length){ if(lab) lab.style.display='none'; c.style.display='none'; c.innerHTML=''; return; }
+  const choosable = opts.length > 1;
+  if(lab) lab.style.display = choosable ? 'block' : 'none';
+  c.style.display='grid';
+  c.innerHTML = opts.map(o => aggPickHTML(o[1], o[0], o[2], (choice===o[0] || !choosable), pickFn, choosable)).join('');
 }
 
 /* Auswahl klein/groß (Kombi, je Raum) */
@@ -1029,6 +1067,7 @@ function berechnePreis() {
   const manufacturer = document.getElementById('inp-manufacturer').value;
   const preisPaneel = parseFloat(document.getElementById('inp-preis-qm').value) || 0;
   const preisSiebdr = parseFloat(document.getElementById('inp-preis-siebdruck').value) || 0;
+  const daemmung = document.getElementById('inp-daemmung').value;
   document.getElementById('group-mount').style.display = aggToggle ? 'block' : 'none';
   document.getElementById('group-manufacturer').style.display = aggToggle ? 'block' : 'none';
   const wand = (L+B)*2*H, decke = L*B;
@@ -1073,6 +1112,7 @@ function berechnePreis() {
   const doorSel = document.getElementById('inp-tuer');
   lastSingleResult = {
     mode:'single', L, B, H,
+    daemmung: daemmung,
     typ: hatBoden ? t('badge_with_floor') : t('badge_no_floor'),
     kuehlart: aggToggle ? (kuehlart==='tief'?t('cooling_tief'):t('cooling_normal')) : '',
     aggOn: aggToggle,
@@ -1206,6 +1246,7 @@ function berechneKombi() {
 
   const twCost    = twArea * twPrice;
   const service   = parseFloat(document.getElementById('k-service').value)||0;
+  const kDaemmung = document.getElementById('k-daemmung').value;
   const r1Total   = r1_huelle+r1_boden+r1_siebd+door1+agg1Cost;
   const r2Total   = r2_huelle+r2_boden+r2_siebd+door2+agg2Cost;
   const gesamt    = r1Total+r2Total+twCost+service;
@@ -1261,6 +1302,7 @@ function berechneKombi() {
   }
   lastKombiResult = {
     mode:'kombi',
+    daemmung: kDaemmung,
     r1:{ L:L1,B:B1,H:H1, typ:kombiMitBoden1?t('card_with_floor'):t('card_no_floor'),
          kuehlart:t(kombiCool1==='tief'?'cooling_tief':'cooling_normal'),
          doorEur:door1, doorText:getDoorTxt('k1-tuer',door1),
@@ -1356,6 +1398,7 @@ function buildOfferHTML(customer, data, logoSrc, svg3d) {
       <table class="cfg-table">
         ${configRow('Außenmaße (L × B × H)', dims)}
         ${configRow('Bauart', d.typ)}
+        ${d.daemmung ? configRow('Dämmstärke', d.daemmung + ' mm') : ''}
         ${d.kuehlart ? configRow('Kühlart', d.kuehlart) : ''}
         ${d.doorText ? configRow('Tür', d.doorText) : ''}
         ${d.aggOn && d.aggName !== '-' ? configRow('Aggregat', d.aggName) : ''}
@@ -1399,6 +1442,7 @@ function buildOfferHTML(customer, data, logoSrc, svg3d) {
       </div>
       <table class="cfg-table">
         ${configRow('Trennwand', tw.label)}
+        ${data.daemmung ? configRow('Dämmstärke', data.daemmung + ' mm') : ''}
       </table>`;
     priceRows = `
       ${priceRow('Raum 1 — Sandwichpaneele', r1.huelleEur + r1.bodenEur + r1.siebdEur)}
@@ -1554,7 +1598,7 @@ function opts3DSingle(width){
   if(document.getElementById('inp-aggregat').value==='1' && lastSingleResult && lastSingleResult.aggName && lastSingleResult.aggName!=='-'){
     agg={ mount:document.getElementById('inp-montage').value, model:lastSingleResult.aggName.replace(/\s*\(.*$/,'').trim() };
   }
-  return { L,B,H, door:doorDimsFromSelect('inp-tuer'), mitBoden:hatBoden, agg, width:width||540 };
+  return { L,B,H, door:doorDimsFromSelect('inp-tuer'), mitBoden:hatBoden, agg, daemmung:document.getElementById('inp-daemmung').value, width:width||540 };
 }
 
 function opts3DKombiCombined(width){
@@ -1572,6 +1616,7 @@ function opts3DKombiCombined(width){
             {len:lenB, door:doorDimsFromSelect('k2-tuer')} ],
     depth, H:Math.max(H1,H2),
     mitBoden:(kombiMitBoden1||kombiMitBoden2),
+    daemmung:document.getElementById('k-daemmung').value,
     width:width||560
   };
 }
@@ -1591,9 +1636,32 @@ function render3D(mode){
 function toggle3D(mode){
   show3D[mode] = !show3D[mode];
   document.getElementById('zelle3d-view-'+mode).style.display = show3D[mode] ? 'block' : 'none';
+  const saveBtn = document.getElementById('btn-3d-save-'+mode);
+  if (saveBtn) saveBtn.style.display = show3D[mode] ? 'flex' : 'none';
   const lbl = document.querySelector('#btn-3d-'+mode+' [data-i18n="btn_3d"]');
   if(lbl) lbl.textContent = t(show3D[mode] ? 'btn_3d_hide' : 'btn_3d');
   if(show3D[mode]) render3D(mode);
+}
+
+/* Lädt die aktuelle 3D-Skizze als PNG herunter (Fallback: SVG). */
+function download3D(mode){
+  const view = document.getElementById('zelle3d-view-'+mode);
+  const svgEl = view && view.querySelector('svg');
+  if (!svgEl) return;
+  const svgStr = new XMLSerializer().serializeToString(svgEl);
+  const vb = svgEl.viewBox && svgEl.viewBox.baseVal;
+  const w = (vb && vb.width) || 900, h = (vb && vb.height) || 650, scale = 2;
+  const dlSVG = () => { const b=new Blob([svgStr],{type:'image/svg+xml'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='Kuehlzelle_3D.svg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000); };
+  const img = new Image();
+  img.onload = () => {
+    try {
+      const cv=document.createElement('canvas'); cv.width=w*scale; cv.height=h*scale;
+      const ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height); ctx.drawImage(img,0,0,cv.width,cv.height);
+      cv.toBlob(blob => { if(!blob){dlSVG();return;} const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download='Kuehlzelle_3D.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000); }, 'image/png');
+    } catch(e){ dlSVG(); }
+  };
+  img.onerror = dlSVG;
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
 }
 
 /* ────────────────────────────────────────

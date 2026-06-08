@@ -129,7 +129,7 @@
 
     /* ── Bildunterschrift: Paneel-Stückzahl ── */
     const nL = Math.max(1, Math.ceil(L - 1e-6)), nB = Math.max(1, Math.ceil(B - 1e-6));
-    const cap = `Wandpaneele je 1,00 m   ·   Länge ${nL} Paneele   ·   Breite ${nB} Paneele`;
+    const cap = `Wandpaneele je 1,00 m   ·   Länge ${nL} Paneele   ·   Breite ${nB} Paneele` + (opts.daemmung ? `   ·   Dämmung ${opts.daemmung} mm` : "");
     svg += `<text x="${(W/2).toFixed(1)}" y="${(Hpx-26).toFixed(1)}" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="700" fill="${C.capTxt}" text-anchor="middle">${esc(cap)}</text>`;
     if (agg) svg += `<text x="${(W/2).toFixed(1)}" y="${(Hpx-8).toFixed(1)}" font-family="Segoe UI,Arial,sans-serif" font-size="11.5" fill="${C.dim}" text-anchor="middle">Aggregat (${esc(agg.mount)}): ${esc(agg.model||"")}</text>`;
 
@@ -206,7 +206,7 @@
 
     // Bildunterschrift
     const cap=`Ein Raum mit Trennwand · ${nf(W)} × ${nf(D)} m`;
-    const sub=`Raum 1: ${nf(lenA)} m   ·   Raum 2: ${nf(lenB)} m   ·   Trennwand bei ${nf(split)} m   ·   2 Türen`;
+    const sub=`Raum 1: ${nf(lenA)} m   ·   Raum 2: ${nf(lenB)} m   ·   Trennwand bei ${nf(split)} m   ·   2 Türen` + (opts.daemmung ? `   ·   Dämmung ${opts.daemmung} mm` : "");
     svg+=`<text x="${(SW/2).toFixed(1)}" y="${(SH-28).toFixed(1)}" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="700" fill="${C.capTxt}" text-anchor="middle">${esc(cap)}</text>`;
     svg+=`<text x="${(SW/2).toFixed(1)}" y="${(SH-10).toFixed(1)}" font-family="Segoe UI,Arial,sans-serif" font-size="11.5" fill="${C.dim}" text-anchor="middle">${esc(sub)}</text>`;
 

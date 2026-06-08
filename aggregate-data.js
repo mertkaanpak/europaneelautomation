@@ -177,10 +177,25 @@
       below = d;
     }
     const cheapestAt = v => list.filter(i => i.volume === v).sort((a, b) => a.salePrice - b.salePrice)[0];
-    return {
-      below: below ? cheapestAt(below.volume) : null,
-      above: above ? cheapestAt(above.volume) : null
-    };
+    below = below ? cheapestAt(below.volume) : null;
+    above = above ? cheapestAt(above.volume) : null;
+
+    // Raum größer als das größte Einzelgerät → Mehrfach-Lösung (n × größtes Gerät) als "above".
+    if (!above && below) {
+      const count = Math.max(2, Math.ceil(roomVolume / below.volume));
+      above = Object.assign({}, below, {
+        multi: true,
+        count: count,
+        model: count + "× " + below.model,
+        volume: r2(below.volume * count),
+        listPrice: below.listPrice * count,
+        ek: r2(below.ek * count),
+        netVK: r2(below.netVK * count),
+        deliveryFee: below.deliveryFee,               // Lieferpauschale einmalig
+        salePrice: r2(below.netVK * count) + below.deliveryFee
+      });
+    }
+    return { below, above };
   }
 
   function fmtEUR(v) {
