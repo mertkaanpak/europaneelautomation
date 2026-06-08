@@ -187,6 +187,21 @@
     }
     .btn-offer--primary:hover { background: linear-gradient(180deg, #e30613, #c20511); color: #fff; border-color: transparent; }
 
+    .agg-choice-label { font-size: 12px; font-weight: 600; color: var(--steel); margin: 10px 0 6px; }
+    .agg-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 6px; }
+    .agg-pick {
+      position: relative; border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
+      transition: all var(--duration) var(--ease); background: var(--white);
+    }
+    .agg-pick:hover { border-color: var(--red); }
+    .agg-pick.sel { border-color: var(--red); background: var(--red-bg); box-shadow: inset 0 0 0 1px var(--red); }
+    .agg-pick input { position: absolute; opacity: 0; pointer-events: none; }
+    .agg-pick-tag { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--steel); }
+    .agg-pick.sel .agg-pick-tag { color: var(--red-dark); }
+    .agg-pick-model { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+    .agg-pick-meta { font-size: 12px; color: var(--steel); font-variant-numeric: tabular-nums; }
+
     .zelle3d-view {
       margin-top: 12px; background: #fff; border: 1px solid var(--border);
       border-radius: var(--radius-lg); padding: 10px; overflow-x: auto; text-align: center;
@@ -353,6 +368,8 @@
                 </select>
               </div>
             </div>
+            <div id="agg-choice-label" class="agg-choice-label" style="display:none;" data-i18n="agg_choice_hint">Modell wählen — kleiner oder größer:</div>
+            <div id="agg-choice-single" class="agg-choice" style="display:none;"></div>
             <div class="section-label" data-i18n="section_service">5. Lieferung &amp; Montage (optional)</div>
             <div class="input-group" style="margin-bottom:16px;">
               <label data-i18n="label_service">Lieferung &amp; Montage (EUR)</label>
@@ -501,6 +518,8 @@
                       </select>
                     </div>
                   </div>
+                  <div id="k1-agg-choice-label" class="agg-choice-label" style="display:none;" data-i18n="agg_choice_hint">Modell wählen — kleiner oder größer:</div>
+                  <div id="k1-agg-choice" class="agg-choice" style="display:none;"></div>
                 </div>
               </div>
 
@@ -603,6 +622,8 @@
                       </select>
                     </div>
                   </div>
+                  <div id="k2-agg-choice-label" class="agg-choice-label" style="display:none;" data-i18n="agg_choice_hint">Modell wählen — kleiner oder größer:</div>
+                  <div id="k2-agg-choice" class="agg-choice" style="display:none;"></div>
                 </div>
               </div>
             </div><!-- end kombi-rooms-grid -->
@@ -815,6 +836,8 @@ const translations = {
     door_slide:"Schiebetür (Auf Anfrage)",
     section_agg:"4. Aggregat (optional)", label_agg_add:"Aggregat hinzufügen",
     agg_none:"Kein Aggregat", agg_auto:"Automatisch wählen",
+    opt_smaller:"Eine Nummer kleiner", opt_larger:"Passende Auslegung", opt_recommended:"empfohlen",
+    agg_choice_hint:"Modell wählen — kleiner oder größer:",
     label_cooling:"Kühlart", cooling_normal:"Normalkühlung", cooling_tief:"Tiefkühlung",
     label_mount:"Montage", mount_wall:"Wandgerät", mount_ceiling:"Deckengerät",
     label_manufacturer:"Hersteller", manuf_auto:"Günstigstes",
@@ -862,6 +885,8 @@ const translations = {
     door_slide:"Sürgü kapı (Talep üzerine)",
     section_agg:"4. Agrega (opsiyonel)", label_agg_add:"Agrega ekle",
     agg_none:"Agrega yok", agg_auto:"Otomatik seç",
+    opt_smaller:"Bir küçük model", opt_larger:"Uygun model", opt_recommended:"önerilen",
+    agg_choice_hint:"Model seç — küçük veya büyük:",
     label_cooling:"Soğutma tipi", cooling_normal:"Normal soğutma", cooling_tief:"Derin soğutma",
     label_mount:"Montaj", mount_wall:"Duvar tipi", mount_ceiling:"Tavan tipi",
     label_manufacturer:"Üretici", manuf_auto:"En ucuz",
@@ -942,6 +967,47 @@ function pickAggregate(vol, cooling, mount, manufacturer) {
     : D.pickCheapest(vol, cooling, mount);
 }
 
+/* Auswahl klein/groß (Einzelzelle) */
+let aggChoiceSingle = 'above';
+function pickAggSingle(key){ aggChoiceSingle = key; berechnePreis(); }
+
+function aggPickHTML(item, key, isRec, selected, pickFn) {
+  if (!item) return '';
+  return `<label class="agg-pick${selected?' sel':''}">
+    <input type="radio" ${selected?'checked':''} onchange="${pickFn}('${key}')">
+    <span class="agg-pick-tag">${key==='below'?t('opt_smaller'):t('opt_larger')}${isRec?' · '+t('opt_recommended'):''}</span>
+    <span class="agg-pick-model">${item.model}</span>
+    <span class="agg-pick-meta">${item.volume} m³ · ${fmt(item.salePrice)}</span>
+  </label>`;
+}
+/* Zeigt die Klein/Groß-Auswahl nur, wenn beide Optionen existieren. */
+function renderAggChoice(labelId, containerId, pair, choice, pickFn){
+  const lab=document.getElementById(labelId), c=document.getElementById(containerId);
+  const both = pair && pair.below && pair.above;
+  lab.style.display = both ? 'block' : 'none';
+  c.style.display = both ? 'grid' : 'none';
+  c.innerHTML = both ? (aggPickHTML(pair.below,'below',false,choice==='below',pickFn) + aggPickHTML(pair.above,'above',true,choice==='above',pickFn)) : '';
+}
+
+/* Auswahl klein/groß (Kombi, je Raum) */
+let aggChoiceK1='above', aggChoiceK2='above';
+function pickAggK1(key){ aggChoiceK1=key; berechneKombi(); }
+function pickAggK2(key){ aggChoiceK2=key; berechneKombi(); }
+
+function resolveRoomAgg(on, V, cool, mount, manuf, choiceKey, labelId, contId, pickFn){
+  if (!(on && V>0)) { renderAggChoice(labelId, contId, null, choiceKey, pickFn); return {cost:0,device:0,fee:0,name:'-',alt:null,choice:choiceKey}; }
+  const pair = D.pickAggregatePair(V, cool, mount, manuf);
+  let chosen=null, alt=null, oversized=false, choice=choiceKey;
+  if (choice==='below' && pair.below) { chosen=pair.below; alt=pair.above; }
+  else if (pair.above) { chosen=pair.above; alt=pair.below; choice='above'; }
+  else if (pair.below) { chosen=pair.below; choice='below'; oversized=true; }
+  renderAggChoice(labelId, contId, pair, choice, pickFn);
+  if (!chosen) return {cost:0,device:0,fee:0,name:'-',alt:null,choice};
+  const altObj = alt ? { label:(choice==='below'?t('opt_larger'):t('opt_smaller')), model:alt.model+' ('+alt.manufacturer+')', volume:alt.volume, price:alt.salePrice } : null;
+  return { cost:chosen.salePrice, device:chosen.netVK, fee:chosen.deliveryFee,
+           name:chosen.model+' ('+chosen.manufacturer+')'+(oversized?' ⚠':''), alt:altObj, choice };
+}
+
 function fmt(v) { return isFinite(v) ? v.toLocaleString('de-DE',{style:'currency',currency:'EUR'}) : '0,00 EUR'; }
 
 /* ────────────────────────────────────────
@@ -969,20 +1035,27 @@ function berechnePreis() {
   const huelle = (wand+decke)*preisPaneel;
   const boden = hatBoden ? decke*preisPaneel : 0;
   const siebd = hatBoden ? decke*preisSiebdr : 0;
-  let aggPreis = 0, aggDevice = 0, aggFee = 0, aggOversized = false;
+  let aggPreis = 0, aggDevice = 0, aggFee = 0, aggOversized = false, aggAlt = null;
   if (aggToggle&&L&&B&&H) {
-    const agg = pickAggregate(L*B*H,kuehlart,montage,manufacturer);
-    if (agg) {
-      aggDevice = agg.netVK; aggFee = agg.deliveryFee; aggPreis = agg.salePrice; aggOversized = !!agg.oversized;
-      document.getElementById('val-aggregat-name').textContent = agg.model+' ('+agg.manufacturer+' '+agg.mount+')'+(aggOversized?' ⚠':'');
-    } else { document.getElementById('val-aggregat-name').textContent = '-'; }
-    document.getElementById('row-aggregat').style.display = 'flex';
-    document.getElementById('row-aggregat-fee').style.display = aggFee>0 ? 'flex' : 'none';
+    const pair = D.pickAggregatePair(L*B*H, kuehlart, montage, manufacturer);
+    let chosen=null, alt=null;
+    if (aggChoiceSingle==='below' && pair.below) { chosen=pair.below; alt=pair.above; }
+    else if (pair.above) { chosen=pair.above; alt=pair.below; aggChoiceSingle='above'; }
+    else if (pair.below) { chosen=pair.below; aggChoiceSingle='below'; aggOversized=true; }
+    renderAggChoice('agg-choice-label','agg-choice-single', pair, aggChoiceSingle, 'pickAggSingle');
+    if (chosen) {
+      aggDevice=chosen.netVK; aggFee=chosen.deliveryFee; aggPreis=chosen.salePrice;
+      document.getElementById('val-aggregat-name').textContent = chosen.model+' ('+chosen.manufacturer+' '+chosen.mount+')'+(aggOversized?' ⚠':'');
+      if (alt) aggAlt = { label:(aggChoiceSingle==='below'?t('opt_larger'):t('opt_smaller')), model:alt.model+' ('+alt.manufacturer+')', volume:alt.volume, price:alt.salePrice };
+    } else { document.getElementById('val-aggregat-name').textContent='-'; }
+    document.getElementById('row-aggregat').style.display='flex';
+    document.getElementById('row-aggregat-fee').style.display = aggFee>0?'flex':'none';
     document.getElementById('val-aggregat-fee-eur').textContent = fmt(aggFee);
   } else {
-    document.getElementById('val-aggregat-name').textContent = '-';
-    document.getElementById('row-aggregat').style.display = 'none';
-    document.getElementById('row-aggregat-fee').style.display = 'none';
+    document.getElementById('val-aggregat-name').textContent='-';
+    document.getElementById('row-aggregat').style.display='none';
+    document.getElementById('row-aggregat-fee').style.display='none';
+    renderAggChoice('agg-choice-label','agg-choice-single', null, aggChoiceSingle, 'pickAggSingle');
   }
   const gesamt = huelle+boden+siebd+tuerPreis+aggPreis+servicePreis;
   document.getElementById('summary-area').classList.add('show');
@@ -1007,6 +1080,7 @@ function berechnePreis() {
     aggEur: aggDevice,
     aggFeeEur: aggFee,
     aggOversized: aggOversized,
+    aggAlt: aggAlt,
     doorEur: tuerPreis,
     doorText: tuerPreis>0 ? doorSel.options[doorSel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '',
     huelleEur: huelle,
@@ -1122,17 +1196,13 @@ function berechneKombi() {
   const r2_boden  = r2_floor * p2;
   const r2_siebd  = kombiMitBoden2 ? L2*B2*ps2 : 0;
 
-  // Aggregates
-  let agg1Cost=0, agg1Name='-', agg1Device=0, agg1Fee=0;
-  let agg2Cost=0, agg2Name='-', agg2Device=0, agg2Fee=0;
-  if (agg1on&&L1&&B1&&H1) {
-    const a=pickAggregate(L1*B1*H1,kombiCool1,mount1,manuf1);
-    if (a) { agg1Cost=a.salePrice; agg1Device=a.netVK; agg1Fee=a.deliveryFee; agg1Name=a.model+' ('+a.manufacturer+')'+(a.oversized?' ⚠':''); }
-  }
-  if (agg2on&&L2&&B2&&H2) {
-    const a=pickAggregate(L2*B2*H2,kombiCool2,mount2,manuf2);
-    if (a) { agg2Cost=a.salePrice; agg2Device=a.netVK; agg2Fee=a.deliveryFee; agg2Name=a.model+' ('+a.manufacturer+')'+(a.oversized?' ⚠':''); }
-  }
+  // Aggregates (je Raum mit Klein/Groß-Auswahl)
+  const r1agg = resolveRoomAgg(agg1on, L1*B1*H1, kombiCool1, mount1, manuf1, aggChoiceK1, 'k1-agg-choice-label','k1-agg-choice','pickAggK1');
+  aggChoiceK1 = r1agg.choice;
+  const r2agg = resolveRoomAgg(agg2on, L2*B2*H2, kombiCool2, mount2, manuf2, aggChoiceK2, 'k2-agg-choice-label','k2-agg-choice','pickAggK2');
+  aggChoiceK2 = r2agg.choice;
+  let agg1Cost=r1agg.cost, agg1Device=r1agg.device, agg1Fee=r1agg.fee, agg1Name=r1agg.name;
+  let agg2Cost=r2agg.cost, agg2Device=r2agg.device, agg2Fee=r2agg.fee, agg2Name=r2agg.name;
 
   const twCost    = twArea * twPrice;
   const service   = parseFloat(document.getElementById('k-service').value)||0;
@@ -1194,12 +1264,12 @@ function berechneKombi() {
     r1:{ L:L1,B:B1,H:H1, typ:kombiMitBoden1?t('card_with_floor'):t('card_no_floor'),
          kuehlart:t(kombiCool1==='tief'?'cooling_tief':'cooling_normal'),
          doorEur:door1, doorText:getDoorTxt('k1-tuer',door1),
-         aggOn:agg1on, aggName:agg1Name, aggEur:agg1Device, aggFeeEur:agg1Fee,
+         aggOn:agg1on, aggName:agg1Name, aggEur:agg1Device, aggFeeEur:agg1Fee, aggAlt:r1agg.alt,
          huelleEur:r1_huelle, bodenEur:r1_boden, siebdEur:r1_siebd, total:r1Total },
     r2:{ L:L2,B:B2,H:H2, typ:kombiMitBoden2?t('card_with_floor'):t('card_no_floor'),
          kuehlart:t(kombiCool2==='tief'?'cooling_tief':'cooling_normal'),
          doorEur:door2, doorText:getDoorTxt('k2-tuer',door2),
-         aggOn:agg2on, aggName:agg2Name, aggEur:agg2Device, aggFeeEur:agg2Fee,
+         aggOn:agg2on, aggName:agg2Name, aggEur:agg2Device, aggFeeEur:agg2Fee, aggAlt:r2agg.alt,
          huelleEur:r2_huelle, bodenEur:r2_boden, siebdEur:r2_siebd, total:r2Total },
     tw:{ area:twArea, cost:twCost, label:tw?tw.label:twArea.toFixed(2)+' m²' },
     serviceEur:service, gesamt
@@ -1289,6 +1359,7 @@ function buildOfferHTML(customer, data, logoSrc, svg3d) {
         ${d.kuehlart ? configRow('Kühlart', d.kuehlart) : ''}
         ${d.doorText ? configRow('Tür', d.doorText) : ''}
         ${d.aggOn && d.aggName !== '-' ? configRow('Aggregat', d.aggName) : ''}
+        ${d.aggOn && d.aggAlt ? configRow('Aggregat-Alternative', d.aggAlt.label + ': ' + d.aggAlt.model + ' — ' + d.aggAlt.volume + ' m³ · ' + fmtEur(d.aggAlt.price)) : ''}
       </table>`;
     priceRows = `
       ${priceRow('Kühlzelle — Sandwichpaneele', d.huelleEur + d.bodenEur + d.siebdEur)}
@@ -1311,6 +1382,7 @@ function buildOfferHTML(customer, data, logoSrc, svg3d) {
             ${configRow('Kühlart', r1.kuehlart)}
             ${r1.doorText ? configRow('Tür', r1.doorText) : ''}
             ${r1.aggOn && r1.aggName !== '-' ? configRow('Aggregat', r1.aggName) : ''}
+            ${r1.aggOn && r1.aggAlt ? configRow('Alternative', r1.aggAlt.model + ' · ' + r1.aggAlt.volume + ' m³ · ' + fmtEur(r1.aggAlt.price)) : ''}
           </table>
         </div>
         <div>
@@ -1321,6 +1393,7 @@ function buildOfferHTML(customer, data, logoSrc, svg3d) {
             ${configRow('Kühlart', r2.kuehlart)}
             ${r2.doorText ? configRow('Tür', r2.doorText) : ''}
             ${r2.aggOn && r2.aggName !== '-' ? configRow('Aggregat', r2.aggName) : ''}
+            ${r2.aggOn && r2.aggAlt ? configRow('Alternative', r2.aggAlt.model + ' · ' + r2.aggAlt.volume + ' m³ · ' + fmtEur(r2.aggAlt.price)) : ''}
           </table>
         </div>
       </div>

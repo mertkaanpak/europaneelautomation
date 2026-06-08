@@ -27,6 +27,15 @@
       border-radius: var(--radius); padding: 7px 10px; font-size: 11.5px;
       margin-top: 10px; line-height: 1.4;
     }
+    .agg-pair { display: flex; flex-direction: column; gap: 10px; }
+    .agg-opt { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 12px; background: var(--white); }
+    .agg-opt--rec { border-color: var(--red-border); background: #fff8f8; }
+    .agg-opt-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .agg-opt-tag { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--steel); }
+    .agg-opt--rec .agg-opt-tag { color: var(--red-dark); }
+    .agg-opt-rec { font-size: 9.5px; font-weight: 700; color: #fff; background: var(--red); padding: 2px 8px; border-radius: 999px; }
+    .agg-opt-model { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .agg-note { font-size: 11px; color: var(--steel); margin-top: 8px; line-height: 1.4; }
   </style>
   <script src="aggregate-data.js"></script>
 </head>
@@ -218,7 +227,11 @@ const translations = {
     label_voltage:"Volt/Hz",
     design_normal:"Auslegung: Umgebung +32 °C · Raumtemperatur 0 °C",
     design_tief:"Auslegung: Umgebung +32 °C · Raumtemperatur −20 °C",
-    note_oversized:"Raumvolumen größer als das größte Einzelgerät — ggf. 2 Geräte nötig / auf Anfrage."
+    note_oversized:"Raumvolumen größer als das größte Einzelgerät — ggf. 2 Geräte nötig / auf Anfrage.",
+    opt_smaller:"Eine Nummer kleiner",
+    opt_larger:"Passende Auslegung",
+    opt_recommended:"empfohlen",
+    note_no_smaller:"Kein kleineres Gerät verfügbar (Raum kleiner als das kleinste Modell)."
   },
   tr: {
     brand_sub:"Intranet Hub",
@@ -266,7 +279,11 @@ const translations = {
     label_voltage:"Volt/Hz",
     design_normal:"Tasarım: Ortam +32 °C · Oda sıcaklığı 0 °C",
     design_tief:"Tasarım: Ortam +32 °C · Oda sıcaklığı −20 °C",
-    note_oversized:"Oda hacmi en büyük tek cihazdan büyük — muhtemelen 2 cihaz gerekir / talep üzerine."
+    note_oversized:"Oda hacmi en büyük tek cihazdan büyük — muhtemelen 2 cihaz gerekir / talep üzerine.",
+    opt_smaller:"Bir küçük model",
+    opt_larger:"Uygun model",
+    opt_recommended:"önerilen",
+    note_no_smaller:"Daha küçük cihaz yok (oda en küçük modelden küçük)."
   }
 };
 
@@ -299,38 +316,52 @@ const D = window.EuropaneelData;   // zentrale Datenquelle (aggregate-data.js)
 // ---- Helpers ----
 function fmtEur(val) { return D.fmtEUR(val); }
 
-function renderCardBody(bodyEl, item, targetVolume) {
-  if (!item) {
+function aggOptionHTML(item, targetVolume, isRec) {
+  if (!item) return "";
+  const diff = item.volume - targetVolume;
+  const diffTxt = (diff >= 0 ? "+" : "−") + Math.abs(diff).toFixed(1).replace(".", ",") + " m³";
+  const diffColor = diff < 0 ? "#b45309" : "var(--steel)";
+  const feeRow = item.deliveryFee > 0
+    ? `<div class="result-row is-fee"><span class="muted">${t("label_delivery")}</span><span>${fmtEur(item.deliveryFee)}</span></div>` : "";
+  return `
+    <div class="agg-opt${isRec ? " agg-opt--rec" : ""}">
+      <div class="agg-opt-head">
+        <span class="agg-opt-tag">${isRec ? t("opt_larger") : t("opt_smaller")}</span>
+        ${isRec ? `<span class="agg-opt-rec">${t("opt_recommended")}</span>` : ""}
+      </div>
+      <div class="agg-opt-model">${item.model}</div>
+      <div class="result-row"><span class="muted">${t("label_pick_volume")}</span><span>${item.volume} m³ <small style="color:${diffColor};">(${diffTxt})</small></span></div>
+      <div class="result-row"><span class="muted">${t("label_list_price")}</span><span>${fmtEur(item.listPrice)}</span></div>
+      <div class="result-row"><span class="muted">${t("label_ek")}</span><span>${fmtEur(item.ek)}</span></div>
+      ${feeRow}
+      <div class="result-row is-total"><span class="muted">${t("label_total_vk")}</span><span style="color:var(--red-dark);font-weight:700;">${fmtEur(item.salePrice)}</span></div>
+      <div class="result-row"><span class="muted">${t("label_voltage")}</span><span>${item.voltage || "—"}</span></div>
+    </div>`;
+}
+
+function renderCardBody(bodyEl, pair, targetVolume) {
+  if (!pair || (!pair.below && !pair.above)) {
     bodyEl.innerHTML = `<div class="muted">${t("status_no_data")}</div>`;
     return;
   }
-  const img = item.image
-    ? `<div class="agg-img-wrap"><img src="${item.image}" alt="${item.model}" loading="lazy"></div>` : "";
-  const feeRow = item.deliveryFee > 0
-    ? `<div class="result-row is-fee"><span class="muted">${t("label_delivery")}</span><span>${fmtEur(item.deliveryFee)}</span></div>` : "";
-  const oversize = item.oversized
-    ? `<div class="oversize-note">⚠ ${t("note_oversized")}</div>` : "";
-  bodyEl.innerHTML = `
-    ${img}
-    <h3 style="margin:0 0 10px;font-size:15px;color:var(--ink);">${item.model}</h3>
-    <div class="result-row"><span class="muted">${t("label_pick_volume")}</span><span>${item.volume} m³</span></div>
-    <div class="result-row"><span class="muted">${t("label_calc_volume")}</span><span>${targetVolume.toFixed(2)} m³</span></div>
-    <div class="result-row"><span class="muted">${t("label_list_price")}</span><span>${fmtEur(item.listPrice)}</span></div>
-    <div class="result-row"><span class="muted">${t("label_ek")}</span><span>${fmtEur(item.ek)}</span></div>
-    <div class="result-row"><span class="muted">${t("label_device_vk")}</span><span>${fmtEur(item.netVK)}</span></div>
-    ${feeRow}
-    <div class="result-row is-total"><span class="muted">${t("label_total_vk")}</span><span style="color:var(--red-dark);font-weight:700;">${fmtEur(item.salePrice)}</span></div>
-    <div class="result-row"><span class="muted">${t("label_voltage")}</span><span>${item.voltage || "—"}</span></div>
-    ${oversize}
-  `;
+  const ref = pair.above || pair.below;
+  const img = ref.image
+    ? `<div class="agg-img-wrap"><img src="${ref.image}" alt="${ref.model}" loading="lazy"></div>` : "";
+  let note = "";
+  if (!pair.below) note = `<div class="agg-note">${t("note_no_smaller")}</div>`;
+  if (!pair.above) note = `<div class="oversize-note">⚠ ${t("note_oversized")}</div>`;
+  bodyEl.innerHTML =
+    img +
+    `<div class="agg-pair">${aggOptionHTML(pair.below, targetVolume, false)}${aggOptionHTML(pair.above, targetVolume, true)}</div>` +
+    note;
 }
 
 function renderResults(vol) {
   const cooling = selectedCooling;
-  renderCardBody(document.getElementById("body_govi_wall"),       D.pickAggregate(vol, cooling, "Wand",  "Govi"),    vol);
-  renderCardBody(document.getElementById("body_govi_ceiling"),    D.pickAggregate(vol, cooling, "Decke", "Govi"),    vol);
-  renderCardBody(document.getElementById("body_zanotti_wall"),    D.pickAggregate(vol, cooling, "Wand",  "Zanotti"), vol);
-  renderCardBody(document.getElementById("body_zanotti_ceiling"), D.pickAggregate(vol, cooling, "Decke", "Zanotti"), vol);
+  renderCardBody(document.getElementById("body_govi_wall"),       D.pickAggregatePair(vol, cooling, "Wand",  "Govi"),    vol);
+  renderCardBody(document.getElementById("body_govi_ceiling"),    D.pickAggregatePair(vol, cooling, "Decke", "Govi"),    vol);
+  renderCardBody(document.getElementById("body_zanotti_wall"),    D.pickAggregatePair(vol, cooling, "Wand",  "Zanotti"), vol);
+  renderCardBody(document.getElementById("body_zanotti_ceiling"), D.pickAggregatePair(vol, cooling, "Decke", "Zanotti"), vol);
   document.getElementById("designNoteText").textContent = t(cooling === "tief" ? "design_tief" : "design_normal");
   document.getElementById("designNote").style.display = "flex";
 }

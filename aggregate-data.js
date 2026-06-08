@@ -162,6 +162,27 @@
     return pool.sort((a, b) => a.salePrice - b.salePrice)[0];
   }
 
+  /* Liefert je EIN Gerät UNTER und ÜBER dem Raumvolumen — zur Auswahl klein/groß.
+     above = kleinstes Gerät mit Volumen ≥ Raumvolumen (sichere Auslegung).
+     below = größtes Gerät mit Volumen < Raumvolumen (eine Nummer kleiner).
+     Eines davon kann null sein (Raum kleiner als kleinstes / größer als größtes Gerät). */
+  function pickAggregatePair(roomVolume, cooling, mount, manufacturer) {
+    let list = AGGREGATES.filter(i => i.cooling === cooling && i.mount === mount);
+    if (manufacturer && manufacturer !== "auto") list = list.filter(i => i.manufacturer === manufacturer);
+    if (!list.length) return { below: null, above: null };
+    list.sort((a, b) => a.volume - b.volume);
+    let above = null, below = null;
+    for (const d of list) {
+      if (d.volume >= roomVolume) { above = d; break; }
+      below = d;
+    }
+    const cheapestAt = v => list.filter(i => i.volume === v).sort((a, b) => a.salePrice - b.salePrice)[0];
+    return {
+      below: below ? cheapestAt(below.volume) : null,
+      above: above ? cheapestAt(above.volume) : null
+    };
+  }
+
   function fmtEUR(v) {
     return (isFinite(v) ? v : 0).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
   }
@@ -178,6 +199,7 @@
     PRICING,
     pickAggregate,
     pickCheapest,
+    pickAggregatePair,
     computePricing,
     imageFor,
     fmtEUR,
