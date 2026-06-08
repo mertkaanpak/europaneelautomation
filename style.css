@@ -53,6 +53,8 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
 }
 a { color: inherit; text-decoration: none; }
 img { display: block; }
@@ -509,6 +511,7 @@ tbody tr:hover td { background: #fafbfd; }
 .bottom-nav-inner { display: flex; height: 100%; }
 .bottom-nav-item {
   flex: 1;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -522,8 +525,14 @@ tbody tr:hover td { background: #fafbfd; }
   padding: 6px 4px;
   transition: color var(--duration);
 }
-.bottom-nav-item .nav-icon { font-size: 20px; line-height: 1; }
+.bottom-nav-item .nav-icon { font-size: 20px; line-height: 1; transition: transform var(--duration) var(--ease); }
 .bottom-nav-item.active { color: var(--red); }
+.bottom-nav-item.active .nav-icon { transform: translateY(-1px) scale(1.12); }
+.bottom-nav-item.active::before {
+  content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 30px; height: 3px; border-radius: 0 0 3px 3px; background: var(--red);
+}
+.bottom-nav-item:active { background: rgba(255,255,255,0.04); }
 
 /* ================================================================
    RESPONSIVE
@@ -561,6 +570,17 @@ tbody tr:hover td { background: #fafbfd; }
   .mode-row label { width: 100%; }
   .result-grid { grid-template-columns: 1fr; }
   .toggle-btn { flex: 1 1 auto; text-align: center; }
+
+  /* iOS: kein automatisches Zoomen beim Tippen in Eingabefelder */
+  input[type="text"], input[type="number"], input[type="date"], input[type="email"], select, textarea {
+    font-size: 16px; min-height: 46px;
+  }
+  /* fingerfreundliche Touch-Ziele */
+  .btn, .toggle-btn, .lang-btn { min-height: 46px; }
+
+  /* Safe-Area (Notch) bei installierter App */
+  .topbar { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+  .content { padding-bottom: calc(var(--nav-h) + 24px + env(safe-area-inset-bottom, 0px)); }
 }
 
 @media (hover: none) {
