@@ -8,7 +8,7 @@ const CACHE = "europaneel-v2";
 const ASSETS = [
   "index.html", "zellenrechner.html", "aggregatauswahl.html", "aggregate.html",
   "paneelrechner.html", "lagerbestand_tueren.html", "kalender.html",
-  "style.css", "aggregate-data.js", "zelle3d.js", "pwa.js", "manifest.json",
+  "style.css", "aggregate-data.js", "zelle3d.js", "pwa.js", "manifest.json", "lib/jspdf.umd.min.js",
   "logo.png", "icon-192.png", "icon-512.png",
   "img/govi-polarik-wand.png", "img/govi-polarik-decke.png",
   "img/zanotti-ps-wand.jpg", "img/zanotti-pc-decke.jpg"

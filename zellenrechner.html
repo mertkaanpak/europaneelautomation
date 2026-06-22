@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="style.css" />
   <script src="aggregate-data.js"></script>
   <script src="zelle3d.js"></script>
+  <script src="lib/jspdf.umd.min.js"></script>
   <style>
     .step-content { display: none; }
     .step-content.active { display: block; animation: fadeUp .3s var(--ease) both; }
@@ -202,6 +203,29 @@
     .agg-pick.sel .agg-pick-tag { color: var(--red-dark); }
     .agg-pick-model { font-size: 13.5px; font-weight: 700; color: var(--ink); }
     .agg-pick-meta { font-size: 12px; color: var(--steel); font-variant-numeric: tabular-nums; }
+
+    /* ── Angebotsansicht (Vollbild) ── */
+    .offer-view { position: fixed; inset: 0; z-index: 9998; background: #eef2f6; display: flex; flex-direction: column; }
+    .offer-view-bar {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      padding-top: calc(10px + env(safe-area-inset-top, 0px));
+      background: #fff; border-bottom: 1px solid var(--border); box-shadow: 0 2px 10px rgba(15,23,42,.05);
+      flex-shrink: 0;
+    }
+    .ov-title { font-weight: 700; color: var(--ink); flex: 1; text-align: center; font-size: 15px; }
+    .ov-actions { display: flex; gap: 8px; }
+    .ov-btn {
+      display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--border);
+      background: var(--white); color: var(--ink); border-radius: var(--radius); padding: 9px 13px;
+      font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; min-height: 44px;
+      transition: all var(--duration) var(--ease);
+    }
+    .ov-btn:hover { border-color: var(--red); color: var(--red); }
+    .ov-back { border: none; background: transparent; padding-left: 4px; }
+    .ov-share { background: linear-gradient(180deg,#ec1b27,#d20612); color: #fff; border-color: transparent; box-shadow: var(--shadow-red); }
+    .ov-share:hover { color: #fff; opacity: .95; }
+    .ov-share.busy { opacity: .6; pointer-events: none; }
+    .offer-view-frame { flex: 1; width: 100%; border: 0; background: #fff; }
     .agg-pick-img { height: 60px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 6px; }
     .agg-pick-img img { max-height: 60px; max-width: 100%; object-fit: contain; }
     .agg-pick--static { cursor: default; }
@@ -804,21 +828,38 @@
   <div class="modal-box">
     <div class="modal-icon">📄</div>
     <div class="modal-title" data-i18n="offer_modal_title">Angebot erstellen</div>
-    <div class="modal-sub" data-i18n="offer_modal_sub">Name des Kunden eingeben — das Angebot öffnet sich als druckfertiges PDF.</div>
+    <div class="modal-sub" data-i18n="offer_modal_sub">Kundenname eingeben — danach Vorschau mit Teilen-Button (WhatsApp/Mail).</div>
     <div class="input-group">
       <label data-i18n="offer_customer_label">Kundenname / Firma</label>
       <input type="text" id="offer-customer" placeholder="Max Mustermann GmbH" style="font-size:15px;"
              onkeydown="if(event.key==='Enter')generateOffer()">
     </div>
-    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:10px;cursor:pointer;color:var(--graphite);">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:12px;cursor:pointer;color:var(--graphite);">
       <input type="checkbox" id="offer-include-3d" checked style="width:auto;margin:0;">
       <span data-i18n="offer_include_3d">3D-Zeichnung beilegen</span>
     </label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;color:var(--graphite);">
+      <input type="checkbox" id="offer-show-prices" style="width:auto;margin:0;">
+      <span data-i18n="offer_show_prices">Einzelpreise anzeigen (sonst nur Gesamtpreis)</span>
+    </label>
     <div class="modal-actions">
-      <button class="btn btn-primary" style="flex:1;" onclick="generateOffer()" data-i18n="offer_btn_create">PDF erstellen</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="generateOffer()" data-i18n="offer_btn_create">Angebot erstellen</button>
       <button class="btn btn-ghost" onclick="closeOfferModal()" data-i18n="offer_btn_cancel">Abbrechen</button>
     </div>
   </div>
+</div>
+
+<!-- OFFER VIEW (Vorschau + Teilen) -->
+<div id="offer-view" class="offer-view" style="display:none;">
+  <div class="offer-view-bar">
+    <button class="ov-btn ov-back" onclick="closeOfferView()"><span style="font-size:18px;">←</span><span data-i18n="offer_back">Zurück</span></button>
+    <div class="ov-title" data-i18n="offer_view_title">Angebot</div>
+    <div class="ov-actions">
+      <button class="ov-btn" onclick="printOffer()" title="Drucken / als PDF speichern"><span>🖨️</span></button>
+      <button class="ov-btn ov-share" id="btn-share-offer" onclick="shareOffer()"><span>📤</span><span data-i18n="offer_share">Teilen</span></button>
+    </div>
+  </div>
+  <iframe id="offer-view-frame" class="offer-view-frame" title="Angebot-Vorschau"></iframe>
 </div>
 
 <nav class="bottom-nav" aria-label="Navigation">
@@ -890,10 +931,14 @@ const translations = {
     hdr_3d:"Skizze der Kühlzelle", msg_3d_need_dims:"Bitte zuerst Länge, Breite und Höhe eingeben.",
     offer_include_3d:"3D-Zeichnung beilegen",
     offer_modal_title:"Angebot erstellen",
-    offer_modal_sub:"Name des Kunden eingeben — das Angebot öffnet sich als druckfertiges PDF.",
+    offer_modal_sub:"Kundenname eingeben — danach Vorschau mit Teilen-Button (WhatsApp/Mail).",
     offer_customer_label:"Kundenname / Firma",
-    offer_btn_create:"PDF erstellen",
-    offer_btn_cancel:"Abbrechen"
+    offer_show_prices:"Einzelpreise anzeigen (sonst nur Gesamtpreis)",
+    offer_btn_create:"Angebot erstellen",
+    offer_btn_cancel:"Abbrechen",
+    offer_back:"Zurück",
+    offer_share:"Teilen",
+    offer_view_title:"Angebot"
   },
   tr: {
     brand_sub:"Intranet Merkezi", nav_tools:"Araçlar", nav_data:"Veriler",
@@ -939,10 +984,14 @@ const translations = {
     hdr_3d:"Soğuk oda krokisi", msg_3d_need_dims:"Lütfen önce uzunluk, genişlik ve yükseklik girin.",
     offer_include_3d:"3D çizimi ekle",
     offer_modal_title:"Teklif oluştur",
-    offer_modal_sub:"Müşteri adını girin — teklif yazdırılabilir PDF olarak açılacak.",
+    offer_modal_sub:"Müşteri adını girin — sonra önizleme + Paylaş butonu (WhatsApp/E-posta).",
     offer_customer_label:"Müşteri adı / Firma",
-    offer_btn_create:"PDF oluştur",
-    offer_btn_cancel:"İptal"
+    offer_show_prices:"Birim fiyatları göster (yoksa sadece toplam)",
+    offer_btn_create:"Teklif oluştur",
+    offer_btn_cancel:"İptal",
+    offer_back:"Geri",
+    offer_share:"Paylaş",
+    offer_view_title:"Teklif"
   }
 };
 
@@ -1347,26 +1396,216 @@ async function getLogoBase64() {
   } catch(e) { return null; }
 }
 
+let offerState = null;
+
 async function generateOffer() {
   const customer = document.getElementById('offer-customer').value.trim() || 'Kunde';
   const data = currentOfferMode === 'single' ? lastSingleResult : lastKombiResult;
   if (!data) return;
   const inc3d = document.getElementById('offer-include-3d');
+  const sp = document.getElementById('offer-show-prices');
+  const showPrices = sp ? sp.checked : false;
   const svgDrawing = (inc3d && inc3d.checked) ? svg3D(currentOfferMode, currentOfferMode==='single'?640:560) : '';
-  const logob64 = await getLogoBase64();
-  const html = buildOfferHTML(customer, data, logob64, svgDrawing);
+  const logoB64 = await getLogoBase64();
   closeOfferModal();
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => { w.focus(); w.print(); }, 600);
+  offerState = { customer, data, showPrices, svg: svgDrawing, logoB64 };
+  document.getElementById('offer-view-frame').srcdoc = buildOfferHTML(customer, data, logoB64, svgDrawing, showPrices);
+  document.getElementById('offer-view').style.display = 'flex';
+}
+function closeOfferView() { document.getElementById('offer-view').style.display = 'none'; }
+function printOffer() {
+  const f = document.getElementById('offer-view-frame');
+  if (f && f.contentWindow) { f.contentWindow.focus(); f.contentWindow.print(); }
+}
+function svgStringToPng(svgStr, scale) {
+  return new Promise(function(resolve, reject){
+    const m = svgStr.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    const w = m ? parseFloat(m[1]) : 900, h = m ? parseFloat(m[2]) : 600;
+    const img = new Image();
+    img.onload = function(){
+      const cv = document.createElement('canvas'); cv.width = w*scale; cv.height = h*scale;
+      const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      resolve({ dataUrl: cv.toDataURL('image/jpeg', 0.92), w: w, h: h });
+    };
+    img.onerror = reject;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+  });
+}
+async function shareOffer() {
+  if (!offerState) return;
+  const btn = document.getElementById('btn-share-offer'); if (btn) btn.classList.add('busy');
+  try {
+    let drawing = null;
+    if (offerState.svg) { try { drawing = await svgStringToPng(offerState.svg, 1.5); } catch(e){} }
+    const doc = buildOfferPDFDoc(offerState.customer, offerState.data, offerState.showPrices, drawing, offerState.logoB64);
+    const blob = doc.output('blob');
+    const fname = 'Angebot_' + (offerState.customer||'Kunde').replace(/[^\w äöüÄÖÜ-]/g,'').trim().replace(/\s+/g,'_') + '.pdf';
+    const file = new File([blob], fname, { type:'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files:[file] })) {
+      await navigator.share({ files:[file], title:'Angebot Europaneel' });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = fname;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1500);
+    }
+  } catch(e) {
+    if (e && e.name !== 'AbortError') alert('Teilen/PDF nicht möglich: ' + (e && e.message || e));
+  }
+  if (btn) btn.classList.remove('busy');
+}
+function pdfSection(doc, title, x, y, w) {
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(227,6,19);
+  doc.text(title.toUpperCase(), x, y);
+  doc.setDrawColor(252,165,165); doc.setLineWidth(0.4); doc.line(x, y+2, x+w, y+2);
+  return y + 8;
+}
+function buildOfferPDFDoc(customer, data, showPrices, drawing, logoB64) {
+  const jsPDFCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+  const doc = new jsPDFCtor({ unit:'mm', format:'a4' });
+  const PW=210, PH=297, M=18, CW=PW-2*M;
+  let y=16;
+  const now=new Date(); const valid=new Date(now); valid.setDate(valid.getDate()+30);
+  const pad=n=>String(n).padStart(2,'0');
+  const nr='EP-'+now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate())+'-'+(100+Math.floor(Math.random()*900));
+  const dt=d=>d.toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'});
+  const eur=v=>(isFinite(v)?v:0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' EUR';
+  const ensure=h=>{ if (y+h > PH-15) { doc.addPage(); y=16; } };
+
+  if (logoB64) { try { doc.addImage(logoB64, 'PNG', M, y, 38, 38*800/1400, undefined, 'FAST'); } catch(e){} }
+  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(17,24,39);
+  doc.text('Europaneel GmbH', PW-M, y+4, { align:'right' });
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(107,114,128);
+  doc.text('info@europaneel.de', PW-M, y+9, { align:'right' });
+  doc.text('www.europaneel.de', PW-M, y+13, { align:'right' });
+  y+=24;
+  doc.setDrawColor(227,6,19); doc.setLineWidth(0.8); doc.line(M, y, PW-M, y); y+=11;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(227,6,19);
+  doc.text('ANGEBOT', M, y); y+=6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(150,150,150);
+  doc.text('Angebots-Nr. '+nr+'   -   '+dt(now), M, y); y+=10;
+
+  doc.setFontSize(7.5); doc.setTextColor(150,150,150);
+  doc.text('ANGEBOT FÜR', M, y); doc.text('GÜLTIG BIS', M+115, y);
+  doc.setFont('helvetica','bold'); doc.setFontSize(11.5); doc.setTextColor(17,24,39);
+  doc.text(String(customer), M, y+5.5); doc.text(dt(valid), M+115, y+5.5);
+  y+=14;
+
+  y = pdfSection(doc, 'Konfiguration', M, y, CW);
+  doc.setFontSize(9.5);
+  offerConfig(data).forEach(function(r, i){
+    const vlines = doc.splitTextToSize(String(r[1]), CW-74);
+    const rh = Math.max(7, vlines.length*5);
+    ensure(rh);
+    if (i%2===0) { doc.setFillColor(249,250,251); doc.rect(M, y-4.4, CW, rh, 'F'); }
+    doc.setFont('helvetica','normal'); doc.setTextColor(107,114,128); doc.text(String(r[0]), M+2, y);
+    doc.setFont('helvetica','bold'); doc.setTextColor(31,41,55); doc.text(vlines, M+74, y);
+    y += rh;
+  });
+  y += 5;
+
+  if (drawing) {
+    let dw=CW, dh=dw*drawing.h/drawing.w;
+    if (dh>60) { dh=60; dw=dh*drawing.w/drawing.h; }
+    ensure(dh+12);
+    y = pdfSection(doc, 'Skizze der Kühlzelle', M, y, CW);
+    try { doc.addImage(drawing.dataUrl, 'JPEG', M+(CW-dw)/2, y, dw, dh, undefined, 'FAST'); } catch(e){}
+    y += dh+5;
+  }
+
+  ensure(16);
+  y = pdfSection(doc, showPrices ? 'Preisübersicht' : 'Leistungsumfang', M, y, CW);
+  doc.setFontSize(9.5);
+  offerPositions(data).forEach(function(p){
+    if (!showPrices && p.feeOnly) return;
+    const lbl = p.label + (p.sub ? '  ('+p.sub+')' : '');
+    const llines = doc.splitTextToSize(lbl, showPrices ? CW-34 : CW-4);
+    const rh = Math.max(7.5, llines.length*5);
+    ensure(rh);
+    doc.setFont('helvetica','normal'); doc.setTextColor(55,65,81); doc.text(llines, M+2, y);
+    if (showPrices) { doc.setFont('helvetica','bold'); doc.setTextColor(31,41,55); doc.text(eur(p.value), PW-M-2, y, { align:'right' }); }
+    doc.setDrawColor(243,244,246); doc.setLineWidth(0.2); doc.line(M, y+rh-2.5, PW-M, y+rh-2.5);
+    y += rh;
+  });
+
+  ensure(20); y+=3;
+  doc.setFillColor(255,241,242); doc.rect(M, y, CW, 13, 'F');
+  doc.setDrawColor(227,6,19); doc.setLineWidth(0.6); doc.line(M, y, PW-M, y);
+  doc.setFont('helvetica','bold'); doc.setFontSize(11.5); doc.setTextColor(17,24,39);
+  doc.text('Gesamtpreis (Netto)', M+3, y+8.5);
+  doc.setTextColor(227,6,19); doc.setFontSize(14);
+  doc.text(eur(data.gesamt), PW-M-3, y+8.5, { align:'right' });
+  y += 20;
+
+  ensure(12);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(150,150,150);
+  const note = doc.splitTextToSize('Alle Preise verstehen sich netto, zuzüglich der gesetzlichen Mehrwertsteuer. Dieses Angebot ist gültig bis '+dt(valid)+'. Irrtümer und technische Änderungen vorbehalten. Lieferbedingungen lt. unseren AGB.', CW);
+  doc.text(note, M, y);
+
+  return doc;
 }
 
 function fmtDate(d) {
   return d.toLocaleDateString('de-DE', { day:'2-digit', month:'long', year:'numeric' });
 }
+function fmtM3(v){ return v ? v.toFixed(2).replace('.',',') + ' m' : '—'; }
 
-function buildOfferHTML(customer, data, logoSrc, svg3d) {
+/* Konfigurationszeilen [Label, Wert] — von HTML-Vorschau UND PDF genutzt. */
+function offerConfig(data){
+  const rows=[];
+  if (data.mode==='single'){
+    const d=data;
+    rows.push(['Außenmaße (L × B × H)', fmtM3(d.L)+' × '+fmtM3(d.B)+' × '+fmtM3(d.H)]);
+    rows.push(['Bauart', d.typ]);
+    if (d.daemmung) rows.push(['Dämmstärke', d.daemmung+' mm']);
+    if (d.kuehlart) rows.push(['Kühlart', d.kuehlart]);
+    if (d.doorText) rows.push(['Tür', d.doorText]);
+    if (d.aggOn && d.aggName!=='-') rows.push(['Aggregat', d.aggName]);
+  } else {
+    const r1=data.r1, r2=data.r2, tw=data.tw;
+    rows.push(['Raum 1 — Außenmaße', fmtM3(r1.L)+' × '+fmtM3(r1.B)+' × '+fmtM3(r1.H)]);
+    rows.push(['Raum 1 — Bauart / Kühlart', r1.typ+' · '+r1.kuehlart]);
+    if (r1.doorText) rows.push(['Raum 1 — Tür', r1.doorText]);
+    if (r1.aggOn && r1.aggName!=='-') rows.push(['Raum 1 — Aggregat', r1.aggName]);
+    rows.push(['Raum 2 — Außenmaße', fmtM3(r2.L)+' × '+fmtM3(r2.B)+' × '+fmtM3(r2.H)]);
+    rows.push(['Raum 2 — Bauart / Kühlart', r2.typ+' · '+r2.kuehlart]);
+    if (r2.doorText) rows.push(['Raum 2 — Tür', r2.doorText]);
+    if (r2.aggOn && r2.aggName!=='-') rows.push(['Raum 2 — Aggregat', r2.aggName]);
+    rows.push(['Trennwand', tw.label]);
+    if (data.daemmung) rows.push(['Dämmstärke', data.daemmung+' mm']);
+  }
+  return rows;
+}
+
+/* Positionen {label, value, sub?, feeOnly?} — von HTML-Vorschau UND PDF genutzt. */
+function offerPositions(data){
+  const p=[];
+  if (data.mode==='single'){
+    const d=data;
+    p.push({label:'Kühlzelle — Sandwichpaneele', value:d.huelleEur+d.bodenEur+d.siebdEur});
+    if (d.doorEur>0) p.push({label:d.doorText||'Tür', value:d.doorEur});
+    if (d.aggOn && d.aggEur>0) p.push({label:'Aggregat', value:d.aggEur, sub:d.aggName});
+    if (d.aggOn && d.aggFeeEur>0) p.push({label:'Govi Lieferpauschale', value:d.aggFeeEur, feeOnly:true});
+    if (d.serviceEur>0) p.push({label:'Lieferung & Montage', value:d.serviceEur});
+  } else {
+    const r1=data.r1, r2=data.r2, tw=data.tw;
+    p.push({label:'Raum 1 — Sandwichpaneele', value:r1.huelleEur+r1.bodenEur+r1.siebdEur});
+    if (r1.doorEur>0) p.push({label:'Raum 1 — '+(r1.doorText||'Tür'), value:r1.doorEur});
+    if (r1.aggOn && r1.aggEur>0) p.push({label:'Raum 1 — Aggregat', value:r1.aggEur, sub:r1.aggName});
+    if (r1.aggOn && r1.aggFeeEur>0) p.push({label:'Raum 1 — Govi Lieferpauschale', value:r1.aggFeeEur, feeOnly:true});
+    p.push({label:'Raum 2 — Sandwichpaneele', value:r2.huelleEur+r2.bodenEur+r2.siebdEur});
+    if (r2.doorEur>0) p.push({label:'Raum 2 — '+(r2.doorText||'Tür'), value:r2.doorEur});
+    if (r2.aggOn && r2.aggEur>0) p.push({label:'Raum 2 — Aggregat', value:r2.aggEur, sub:r2.aggName});
+    if (r2.aggOn && r2.aggFeeEur>0) p.push({label:'Raum 2 — Govi Lieferpauschale', value:r2.aggFeeEur, feeOnly:true});
+    if (tw.cost>0) p.push({label:'Trennwand — Sandwichpaneele', value:tw.cost});
+    if (data.serviceEur>0) p.push({label:'Lieferung & Montage', value:data.serviceEur});
+  }
+  return p;
+}
+
+function buildOfferHTML(customer, data, logoSrc, svg3d, showPrices) {
   const now = new Date();
   const validUntil = new Date(now); validUntil.setDate(validUntil.getDate() + 30);
   const offerNr = 'EP-' + now.getFullYear() +
@@ -1389,74 +1628,17 @@ function buildOfferHTML(customer, data, logoSrc, svg3d) {
     return `<tr><td class="pr-label">${label}${sub?`<br><small style="opacity:.6;font-size:9pt;">${sub}</small>`:''}</td><td class="pr-value">${fmtEur(value)}</td></tr>`;
   }
 
-  let configSection = '', priceRows = '';
+  const cfg = offerConfig(data);
+  const configSection =
+    `<div class="section-hdr">${data.mode==='single' ? 'Konfiguration der Kühlzelle' : 'Konfiguration — Kombi-Zelle'}</div>` +
+    `<table class="cfg-table">${cfg.map(r => configRow(r[0], r[1])).join('')}</table>`;
 
-  if (data.mode === 'single') {
-    const d = data;
-    const dims = `${fmtM(d.L)} × ${fmtM(d.B)} × ${fmtM(d.H)}`;
-    configSection = `
-      <div class="section-hdr">Konfiguration der Kühlzelle</div>
-      <table class="cfg-table">
-        ${configRow('Außenmaße (L × B × H)', dims)}
-        ${configRow('Bauart', d.typ)}
-        ${d.daemmung ? configRow('Dämmstärke', d.daemmung + ' mm') : ''}
-        ${d.kuehlart ? configRow('Kühlart', d.kuehlart) : ''}
-        ${d.doorText ? configRow('Tür', d.doorText) : ''}
-        ${d.aggOn && d.aggName !== '-' ? configRow('Aggregat', d.aggName) : ''}
-        ${d.aggOn && d.aggAlt ? configRow('Aggregat-Alternative', d.aggAlt.label + ': ' + d.aggAlt.model + ' — ' + d.aggAlt.volume + ' m³ · ' + fmtEur(d.aggAlt.price)) : ''}
-      </table>`;
-    priceRows = `
-      ${priceRow('Kühlzelle — Sandwichpaneele', d.huelleEur + d.bodenEur + d.siebdEur)}
-      ${d.doorEur > 0 ? priceRow(d.doorText || 'Tür', d.doorEur) : ''}
-      ${d.aggOn && d.aggEur > 0 ? priceRow('Aggregat', d.aggEur, d.aggName) : ''}
-      ${d.aggOn && d.aggFeeEur > 0 ? priceRow('Govi Lieferpauschale', d.aggFeeEur) : ''}
-      ${d.serviceEur > 0 ? priceRow('Lieferung & Montage', d.serviceEur) : ''}`;
-  } else {
-    const r1 = data.r1, r2 = data.r2, tw = data.tw;
-    const dims1 = `${fmtM(r1.L)} × ${fmtM(r1.B)} × ${fmtM(r1.H)}`;
-    const dims2 = `${fmtM(r2.L)} × ${fmtM(r2.B)} × ${fmtM(r2.H)}`;
-    configSection = `
-      <div class="section-hdr">Konfiguration — Kombi-Zelle</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-        <div>
-          <div style="font-weight:700;font-size:10pt;color:#3b82f6;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #93c5fd;">RAUM 1</div>
-          <table class="cfg-table" style="margin-bottom:0;">
-            ${configRow('Außenmaße', dims1)}
-            ${configRow('Bauart', r1.typ)}
-            ${configRow('Kühlart', r1.kuehlart)}
-            ${r1.doorText ? configRow('Tür', r1.doorText) : ''}
-            ${r1.aggOn && r1.aggName !== '-' ? configRow('Aggregat', r1.aggName) : ''}
-            ${r1.aggOn && r1.aggAlt ? configRow('Alternative', r1.aggAlt.model + ' · ' + r1.aggAlt.volume + ' m³ · ' + fmtEur(r1.aggAlt.price)) : ''}
-          </table>
-        </div>
-        <div>
-          <div style="font-weight:700;font-size:10pt;color:#10b981;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #6ee7b7;">RAUM 2</div>
-          <table class="cfg-table" style="margin-bottom:0;">
-            ${configRow('Außenmaße', dims2)}
-            ${configRow('Bauart', r2.typ)}
-            ${configRow('Kühlart', r2.kuehlart)}
-            ${r2.doorText ? configRow('Tür', r2.doorText) : ''}
-            ${r2.aggOn && r2.aggName !== '-' ? configRow('Aggregat', r2.aggName) : ''}
-            ${r2.aggOn && r2.aggAlt ? configRow('Alternative', r2.aggAlt.model + ' · ' + r2.aggAlt.volume + ' m³ · ' + fmtEur(r2.aggAlt.price)) : ''}
-          </table>
-        </div>
-      </div>
-      <table class="cfg-table">
-        ${configRow('Trennwand', tw.label)}
-        ${data.daemmung ? configRow('Dämmstärke', data.daemmung + ' mm') : ''}
-      </table>`;
-    priceRows = `
-      ${priceRow('Raum 1 — Sandwichpaneele', r1.huelleEur + r1.bodenEur + r1.siebdEur)}
-      ${r1.doorEur > 0 ? priceRow('Raum 1 — ' + (r1.doorText||'Tür'), r1.doorEur) : ''}
-      ${r1.aggOn && r1.aggEur > 0 ? priceRow('Raum 1 — Aggregat', r1.aggEur, r1.aggName) : ''}
-      ${r1.aggOn && r1.aggFeeEur > 0 ? priceRow('Raum 1 — Govi Lieferpauschale', r1.aggFeeEur) : ''}
-      ${priceRow('Raum 2 — Sandwichpaneele', r2.huelleEur + r2.bodenEur + r2.siebdEur)}
-      ${r2.doorEur > 0 ? priceRow('Raum 2 — ' + (r2.doorText||'Tür'), r2.doorEur) : ''}
-      ${r2.aggOn && r2.aggEur > 0 ? priceRow('Raum 2 — Aggregat', r2.aggEur, r2.aggName) : ''}
-      ${r2.aggOn && r2.aggFeeEur > 0 ? priceRow('Raum 2 — Govi Lieferpauschale', r2.aggFeeEur) : ''}
-      ${tw.cost > 0 ? priceRow('Trennwand — Sandwichpaneele', tw.cost) : ''}
-      ${data.serviceEur > 0 ? priceRow('Lieferung & Montage', data.serviceEur) : ''}`;
-  }
+  const positions = offerPositions(data);
+  const offerListHdr = showPrices ? 'Preisübersicht' : 'Leistungsumfang';
+  const offerRows = showPrices
+    ? positions.map(p => priceRow(p.label, p.value, p.sub)).join('')
+    : positions.filter(p => !p.feeOnly).map(p =>
+        `<tr><td class="pr-label">${p.label}${p.sub ? ` <small style="opacity:.55;">${p.sub}</small>` : ''}</td><td></td></tr>`).join('');
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -1553,9 +1735,9 @@ ${configSection}
 ${svg3d ? `<div class="section-hdr">Skizze der Kühlzelle</div>
 <div style="text-align:center;margin:0 0 24px;border:1px solid #e5e7eb;border-radius:8px;padding:10px;background:#fff;">${svg3d}</div>` : ''}
 
-<div class="section-hdr-price">Preisübersicht</div>
+<div class="section-hdr-price">${offerListHdr}</div>
 <table class="pr-table">
-  ${priceRows}
+  ${offerRows}
   <tr class="total-row">
     <td class="pr-label pr-label-total">Gesamtpreis (Netto)</td>
     <td class="pr-value">${fmtEur(data.gesamt)}</td>
