@@ -370,8 +370,24 @@
                 <option value="800" data-i18n="door_100_200">Drehtür 100×200 cm [800 EUR]</option>
                 <option value="900" data-i18n="door_120_200">Drehtür 120×200 cm [900 EUR]</option>
                 <option value="1000" data-i18n="door_120_220">Drehtür 120×220 cm [1.000 EUR]</option>
-                <option value="0" data-i18n="door_slide">Schiebetür (Auf Anfrage)</option>
+                <option value="schiebe" data-i18n="door_slide">Schiebetür (Maße & Preis)</option>
               </select>
+            </div>
+            <div id="schiebetuer-fields" style="display:none;">
+              <div class="input-row">
+                <div class="input-group">
+                  <label data-i18n="label_st_breite">Schiebetür Breite (cm)</label>
+                  <input type="number" id="inp-st-breite" placeholder="300" step="1" oninput="berechnePreis()">
+                </div>
+                <div class="input-group">
+                  <label data-i18n="label_st_hoehe">Schiebetür Höhe (cm)</label>
+                  <input type="number" id="inp-st-hoehe" placeholder="220" step="1" oninput="berechnePreis()">
+                </div>
+              </div>
+              <div class="input-group" style="margin-bottom:12px;">
+                <label style="color:#7f1d1d;" data-i18n="label_st_preis">Schiebetür Preis (EUR)</label>
+                <input type="number" id="inp-st-preis" class="price-input" placeholder="0.00" step="0.01" oninput="berechnePreis()">
+              </div>
             </div>
             <div class="section-label" data-i18n="section_agg">4. Aggregat (optional)</div>
             <div class="input-row">
@@ -531,8 +547,15 @@
                     <option value="800" data-i18n="door_100_200">Drehtür 100×200 cm [800 EUR]</option>
                     <option value="900" data-i18n="door_120_200">Drehtür 120×200 cm [900 EUR]</option>
                     <option value="1000" data-i18n="door_120_220">Drehtür 120×220 cm [1.000 EUR]</option>
-                    <option value="0" data-i18n="door_slide">Schiebetür (Auf Anfrage)</option>
+                    <option value="schiebe" data-i18n="door_slide">Schiebetür (Maße & Preis)</option>
                   </select>
+                </div>
+                <div id="k1-schiebe-fields" style="display:none;">
+                  <div class="input-row">
+                    <div class="input-group"><label data-i18n="label_st_breite">Schiebetür Breite (cm)</label><input type="number" id="k1-st-breite" placeholder="300" step="1" oninput="berechneKombi()"></div>
+                    <div class="input-group"><label data-i18n="label_st_hoehe">Schiebetür Höhe (cm)</label><input type="number" id="k1-st-hoehe" placeholder="220" step="1" oninput="berechneKombi()"></div>
+                  </div>
+                  <div class="input-group"><label style="color:#7f1d1d;" data-i18n="label_st_preis">Schiebetür Preis (EUR)</label><input type="number" id="k1-st-preis" class="price-input" placeholder="0.00" step="0.01" oninput="berechneKombi()"></div>
                 </div>
 
                 <div class="section-label" data-i18n="section_agg_short">Aggregat</div>
@@ -635,8 +658,15 @@
                     <option value="800" data-i18n="door_100_200">Drehtür 100×200 cm [800 EUR]</option>
                     <option value="900" data-i18n="door_120_200">Drehtür 120×200 cm [900 EUR]</option>
                     <option value="1000" data-i18n="door_120_220">Drehtür 120×220 cm [1.000 EUR]</option>
-                    <option value="0" data-i18n="door_slide">Schiebetür (Auf Anfrage)</option>
+                    <option value="schiebe" data-i18n="door_slide">Schiebetür (Maße & Preis)</option>
                   </select>
+                </div>
+                <div id="k2-schiebe-fields" style="display:none;">
+                  <div class="input-row">
+                    <div class="input-group"><label data-i18n="label_st_breite">Schiebetür Breite (cm)</label><input type="number" id="k2-st-breite" placeholder="300" step="1" oninput="berechneKombi()"></div>
+                    <div class="input-group"><label data-i18n="label_st_hoehe">Schiebetür Höhe (cm)</label><input type="number" id="k2-st-hoehe" placeholder="220" step="1" oninput="berechneKombi()"></div>
+                  </div>
+                  <div class="input-group"><label style="color:#7f1d1d;" data-i18n="label_st_preis">Schiebetür Preis (EUR)</label><input type="number" id="k2-st-preis" class="price-input" placeholder="0.00" step="0.01" oninput="berechneKombi()"></div>
                 </div>
 
                 <div class="section-label" data-i18n="section_agg_short">Aggregat</div>
@@ -906,7 +936,8 @@ const translations = {
     door_80_190:"Drehtür 80×190 cm [600 EUR]", door_90_190:"Drehtür 90×190 cm [650 EUR]",
     door_110_190:"Drehtür 110×190 cm [700 EUR]", door_100_200:"Drehtür 100×200 cm [800 EUR]",
     door_120_200:"Drehtür 120×200 cm [900 EUR]", door_120_220:"Drehtür 120×220 cm [1.000 EUR]",
-    door_slide:"Schiebetür (Auf Anfrage)",
+    door_slide:"Schiebetür (Maße & Preis eingeben)",
+    label_st_breite:"Schiebetür Breite (cm)", label_st_hoehe:"Schiebetür Höhe (cm)", label_st_preis:"Schiebetür Preis (EUR)",
     section_agg:"4. Aggregat (optional)", label_agg_add:"Aggregat hinzufügen",
     agg_none:"Kein Aggregat", agg_auto:"Automatisch wählen",
     opt_smaller:"Eine Nummer kleiner", opt_larger:"Passende Auslegung", opt_recommended:"empfohlen",
@@ -959,7 +990,8 @@ const translations = {
     door_80_190:"Menteşeli 80×190 cm [600 EUR]", door_90_190:"Menteşeli 90×190 cm [650 EUR]",
     door_110_190:"Menteşeli 110×190 cm [700 EUR]", door_100_200:"Menteşeli 100×200 cm [800 EUR]",
     door_120_200:"Menteşeli 120×200 cm [900 EUR]", door_120_220:"Menteşeli 120×220 cm [1.000 EUR]",
-    door_slide:"Sürgü kapı (Talep üzerine)",
+    door_slide:"Sürgü kapı (ölçü & fiyat gir)",
+    label_st_breite:"Sürgü kapı genişlik (cm)", label_st_hoehe:"Sürgü kapı yükseklik (cm)", label_st_preis:"Sürgü kapı fiyatı (EUR)",
     section_agg:"4. Agrega (opsiyonel)", label_agg_add:"Agrega ekle",
     agg_none:"Agrega yok", agg_auto:"Otomatik seç",
     opt_smaller:"Bir küçük model", opt_larger:"Uygun model", opt_recommended:"önerilen",
@@ -1109,7 +1141,19 @@ function berechnePreis() {
     document.getElementById('badge-volume-value').textContent = (L*B*H).toFixed(2)+' m³';
     document.getElementById('badge-volume-container').style.display = 'flex';
   } else { document.getElementById('badge-volume-container').style.display = 'none'; }
-  const tuerPreis = parseFloat(document.getElementById('inp-tuer').value) || 0;
+  const doorSel = document.getElementById('inp-tuer');
+  const isSchiebe = doorSel.value === 'schiebe';
+  document.getElementById('schiebetuer-fields').style.display = isSchiebe ? 'block' : 'none';
+  let tuerPreis, doorText;
+  if (isSchiebe) {
+    const stB = parseFloat(document.getElementById('inp-st-breite').value)||0;
+    const stH = parseFloat(document.getElementById('inp-st-hoehe').value)||0;
+    tuerPreis = parseFloat(document.getElementById('inp-st-preis').value)||0;
+    doorText = 'Schiebetür' + ((stB&&stH) ? ' '+stB+'×'+stH+' cm' : '');
+  } else {
+    tuerPreis = parseFloat(doorSel.value)||0;
+    doorText = tuerPreis>0 ? doorSel.options[doorSel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '';
+  }
   const servicePreis = parseFloat(document.getElementById('inp-service').value) || 0;
   const aggToggle = document.getElementById('inp-aggregat').value === '1';
   const kuehlart = document.getElementById('inp-kuehlart').value;
@@ -1159,7 +1203,6 @@ function berechnePreis() {
   document.getElementById('val-aggregat-eur').textContent = fmt(aggDevice);
   document.getElementById('val-service-eur').textContent = fmt(servicePreis);
   document.getElementById('preis-ausgabe').textContent = fmt(gesamt);
-  const doorSel = document.getElementById('inp-tuer');
   lastSingleResult = {
     mode:'single', L, B, H,
     daemmung: daemmung,
@@ -1172,7 +1215,7 @@ function berechnePreis() {
     aggOversized: aggOversized,
     aggAlt: aggAlt,
     doorEur: tuerPreis,
-    doorText: tuerPreis>0 ? doorSel.options[doorSel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '',
+    doorText: doorText,
     huelleEur: huelle,
     bodenEur: boden,
     siebdEur: siebd,
@@ -1230,7 +1273,7 @@ function berechneKombi() {
   const H1=parseFloat(document.getElementById('k1-hoehe').value)||0;
   const p1=parseFloat(document.getElementById('k1-preis').value)||0;
   const ps1=parseFloat(document.getElementById('k1-siebdruck').value)||0;
-  const door1=parseFloat(document.getElementById('k1-tuer').value)||0;
+  const door1info=kombiDoorInfo(1); const door1=door1info.price, doorText1=door1info.text;
   const agg1on=document.getElementById('k1-aggregat').value==='1';
   const mount1=document.getElementById('k1-montage').value;
   const manuf1=document.getElementById('k1-manufacturer').value;
@@ -1240,7 +1283,7 @@ function berechneKombi() {
   const H2=parseFloat(document.getElementById('k2-hoehe').value)||0;
   const p2=parseFloat(document.getElementById('k2-preis').value)||0;
   const ps2=parseFloat(document.getElementById('k2-siebdruck').value)||0;
-  const door2=parseFloat(document.getElementById('k2-tuer').value)||0;
+  const door2info=kombiDoorInfo(2); const door2=door2info.price, doorText2=door2info.text;
   const agg2on=document.getElementById('k2-aggregat').value==='1';
   const mount2=document.getElementById('k2-montage').value;
   const manuf2=document.getElementById('k2-manufacturer').value;
@@ -1355,12 +1398,12 @@ function berechneKombi() {
     daemmung: kDaemmung,
     r1:{ L:L1,B:B1,H:H1, typ:kombiMitBoden1?t('card_with_floor'):t('card_no_floor'),
          kuehlart:t(kombiCool1==='tief'?'cooling_tief':'cooling_normal'),
-         doorEur:door1, doorText:getDoorTxt('k1-tuer',door1),
+         doorEur:door1, doorText:doorText1,
          aggOn:agg1on, aggName:agg1Name, aggEur:agg1Device, aggFeeEur:agg1Fee, aggAlt:r1agg.alt,
          huelleEur:r1_huelle, bodenEur:r1_boden, siebdEur:r1_siebd, total:r1Total },
     r2:{ L:L2,B:B2,H:H2, typ:kombiMitBoden2?t('card_with_floor'):t('card_no_floor'),
          kuehlart:t(kombiCool2==='tief'?'cooling_tief':'cooling_normal'),
-         doorEur:door2, doorText:getDoorTxt('k2-tuer',door2),
+         doorEur:door2, doorText:doorText2,
          aggOn:agg2on, aggName:agg2Name, aggEur:agg2Device, aggFeeEur:agg2Fee, aggAlt:r2agg.alt,
          huelleEur:r2_huelle, bodenEur:r2_boden, siebdEur:r2_siebd, total:r2Total },
     tw:{ area:twArea, cost:twCost, label:tw?tw.label:twArea.toFixed(2)+' m²' },
@@ -1765,11 +1808,31 @@ ${svg3d ? `<div class="section-hdr">Skizze der Kühlzelle</div>
 ──────────────────────────────────────── */
 let show3D = { single:false, kombi:false };
 
-function doorDimsFromSelect(selId){
+function doorDimsFromSelect(selId, stPrefix){
   const s=document.getElementById(selId);
-  if(!s) return {w:0.9,h:2.0};
+  if(!s) return {w:0.9,h:2.0,type:'dreh'};
+  if(s.value==='schiebe' && stPrefix){
+    const b=parseFloat(document.getElementById(stPrefix+'-breite').value)||0;
+    const h=parseFloat(document.getElementById(stPrefix+'-hoehe').value)||0;
+    return { w: b>0?b/100:1.2, h: h>0?h/100:2.1, type:'schiebe' };
+  }
   const dims = EuropaneelZelle3D.parseDoor(s.options[s.selectedIndex].text);
-  return dims || {w:0.9,h:2.0};   // Standardtür für die Skizze, wenn keine gewählt
+  return dims ? { w:dims.w, h:dims.h, type:'dreh' } : { w:0.9, h:2.0, type:'dreh' };   // Standardtür für die Skizze
+}
+
+/* Kombi: Türpreis + Text je Raum (inkl. Schiebetür-Felder). */
+function kombiDoorInfo(n){
+  const sel=document.getElementById('k'+n+'-tuer');
+  const isS = sel.value==='schiebe';
+  document.getElementById('k'+n+'-schiebe-fields').style.display = isS ? 'block' : 'none';
+  if(isS){
+    const b=parseFloat(document.getElementById('k'+n+'-st-breite').value)||0;
+    const h=parseFloat(document.getElementById('k'+n+'-st-hoehe').value)||0;
+    const p=parseFloat(document.getElementById('k'+n+'-st-preis').value)||0;
+    return { price:p, text:'Schiebetür'+((b&&h)?' '+b+'×'+h+' cm':'') };
+  }
+  const price=parseFloat(sel.value)||0;
+  return { price, text: price>0 ? sel.options[sel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '' };
 }
 
 function opts3DSingle(width){
@@ -1781,7 +1844,7 @@ function opts3DSingle(width){
   if(document.getElementById('inp-aggregat').value==='1' && lastSingleResult && lastSingleResult.aggName && lastSingleResult.aggName!=='-'){
     agg={ mount:document.getElementById('inp-montage').value, model:lastSingleResult.aggName.replace(/\s*\(.*$/,'').trim() };
   }
-  return { L,B,H, door:doorDimsFromSelect('inp-tuer'), mitBoden:hatBoden, agg, daemmung:document.getElementById('inp-daemmung').value, width:width||540 };
+  return { L,B,H, door:doorDimsFromSelect('inp-tuer','inp-st'), mitBoden:hatBoden, agg, daemmung:document.getElementById('inp-daemmung').value, width:width||540 };
 }
 
 function opts3DKombiCombined(width){
@@ -1795,8 +1858,8 @@ function opts3DKombiCombined(width){
   else if(Math.abs(L1-L2)<tol){ lenA=B1; lenB=B2; depth=(L1+L2)/2; }   // gemeinsame Länge -> Räume entlang der Breite
   else { lenA=L1; lenB=L2; depth=Math.max(B1,B2); }                    // Fallback: keine gemeinsame Wand erkannt
   return {
-    rooms:[ {len:lenA, door:doorDimsFromSelect('k1-tuer')},
-            {len:lenB, door:doorDimsFromSelect('k2-tuer')} ],
+    rooms:[ {len:lenA, door:doorDimsFromSelect('k1-tuer','k1-st')},
+            {len:lenB, door:doorDimsFromSelect('k2-tuer','k2-st')} ],
     depth, H:Math.max(H1,H2),
     mitBoden:(kombiMitBoden1||kombiMitBoden2),
     daemmung:document.getElementById('k-daemmung').value,

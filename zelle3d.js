@@ -28,7 +28,7 @@
     const L = Math.max(0.1, +opts.L || 0);
     const B = Math.max(0.1, +opts.B || 0);
     const H = Math.max(0.1, +opts.H || 0);
-    const door = opts.door && opts.door.w ? { w: Math.min(opts.door.w, L * 0.9), h: Math.min(opts.door.h, H * 0.96) } : null;
+    const door = opts.door && opts.door.w ? { w: Math.min(opts.door.w, L * 0.9), h: Math.min(opts.door.h, H * 0.96), type: opts.door.type } : null;
     const agg = opts.agg && opts.agg.mount ? opts.agg : null;
 
     // Farben
@@ -114,10 +114,18 @@
       svg += `<polygon points="${poly(dPts)}" fill="${C.doorFill}" stroke="${C.doorStroke}" stroke-width="1.4" stroke-linejoin="round"/>`;
       const inset = 0.06;
       svg += `<polygon points="${poly([S(dx+inset,B,inset),S(dx+door.w-inset,B,inset),S(dx+door.w-inset,B,door.h-inset),S(dx+inset,B,door.h-inset)])}" fill="none" stroke="${C.doorStroke}" stroke-width="0.7" stroke-opacity="0.6"/>`;
-      // Scharniere links, Griff rechts (Schließseite)
-      [0.18,0.5,0.82].forEach(f=>{ const h=S(dx+0.06,B,door.h*f); svg += `<rect x="${(h[0]-2).toFixed(1)}" y="${(h[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`; });
-      const gh = S(dx+door.w-0.12, B, door.h*0.48);
-      svg += `<rect x="${(gh[0]-3).toFixed(1)}" y="${(gh[1]-7).toFixed(1)}" width="6" height="14" rx="1.5" fill="${C.handle}"/>`;
+      if (door.type === "schiebe") {
+        // Schiebetür: Laufschiene oben (ragt seitlich heraus) + Mittelfuge + waagerechter Griff
+        const railZ = Math.min(H - 0.02, door.h + 0.05);
+        svg += line(S(Math.max(0.04, dx-0.12),B,railZ), S(Math.min(L-0.04, dx+door.w+0.5),B,railZ), C.doorStroke, 2.6);
+        svg += line(S(dx+door.w*0.5,B,inset), S(dx+door.w*0.5,B,door.h-inset), C.doorStroke, 0.7, "3 3");
+        svg += line(S(dx+door.w*0.30,B,door.h*0.5), S(dx+door.w*0.44,B,door.h*0.5), C.handle, 3.4);
+      } else {
+        // Drehtür: Scharniere links, Griff rechts (Schließseite)
+        [0.18,0.5,0.82].forEach(f=>{ const h=S(dx+0.06,B,door.h*f); svg += `<rect x="${(h[0]-2).toFixed(1)}" y="${(h[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`; });
+        const gh = S(dx+door.w-0.12, B, door.h*0.48);
+        svg += `<rect x="${(gh[0]-3).toFixed(1)}" y="${(gh[1]-7).toFixed(1)}" width="6" height="14" rx="1.5" fill="${C.handle}"/>`;
+      }
     }
 
     /* ── Maßangaben ── */
@@ -185,18 +193,25 @@
     svg+=`<text x="${tp[0].toFixed(1)}" y="${(tp[1]-7).toFixed(1)}" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="700" fill="${C.partition}" text-anchor="middle">Trennwand</text>`;
 
     // Zwei Türen auf der Frontwand (je Raum)
-    function drawDoor(cx, w, h, sectLen){
+    function drawDoor(cx, w, h, sectLen, type){
       const dw=Math.min(w||0.9, sectLen*0.8), dh=Math.min(h||2.0, H*0.96);
       const dx=Math.max(0.06, cx-dw/2);
       svg+=`<polygon points="${poly([S(dx,D,0),S(dx+dw,D,0),S(dx+dw,D,dh),S(dx,D,dh)])}" fill="${C.doorFill}" stroke="${C.doorStroke}" stroke-width="1.4" stroke-linejoin="round"/>`;
       const ins=0.06;
       svg+=`<polygon points="${poly([S(dx+ins,D,ins),S(dx+dw-ins,D,ins),S(dx+dw-ins,D,dh-ins),S(dx+ins,D,dh-ins)])}" fill="none" stroke="${C.doorStroke}" stroke-width="0.7" stroke-opacity="0.6"/>`;
-      [0.18,0.5,0.82].forEach(f=>{const hh=S(dx+0.06,D,dh*f);svg+=`<rect x="${(hh[0]-2).toFixed(1)}" y="${(hh[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`;});
-      const gh=S(dx+dw-0.12,D,dh*0.48);
-      svg+=`<rect x="${(gh[0]-3).toFixed(1)}" y="${(gh[1]-7).toFixed(1)}" width="6" height="14" rx="1.5" fill="${C.handle}"/>`;
+      if(type==='schiebe'){
+        const railZ=Math.min(H-0.02, dh+0.05);
+        svg+=line(S(Math.max(0.04,dx-0.1),D,railZ), S(Math.min(W-0.04, dx+dw+0.45),D,railZ), C.doorStroke, 2.4);
+        svg+=line(S(dx+dw*0.5,D,ins), S(dx+dw*0.5,D,dh-ins), C.doorStroke, 0.7, "3 3");
+        svg+=line(S(dx+dw*0.3,D,dh*0.5), S(dx+dw*0.44,D,dh*0.5), C.handle, 3.2);
+      } else {
+        [0.18,0.5,0.82].forEach(f=>{const hh=S(dx+0.06,D,dh*f);svg+=`<rect x="${(hh[0]-2).toFixed(1)}" y="${(hh[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`;});
+        const gh=S(dx+dw-0.12,D,dh*0.48);
+        svg+=`<rect x="${(gh[0]-3).toFixed(1)}" y="${(gh[1]-7).toFixed(1)}" width="6" height="14" rx="1.5" fill="${C.handle}"/>`;
+      }
     }
-    drawDoor(lenA/2, rA.door&&rA.door.w, rA.door&&rA.door.h, lenA);
-    drawDoor(lenA+lenB/2, rB.door&&rB.door.w, rB.door&&rB.door.h, lenB);
+    drawDoor(lenA/2, rA.door&&rA.door.w, rA.door&&rA.door.h, lenA, rA.door&&rA.door.type);
+    drawDoor(lenA+lenB/2, rB.door&&rB.door.w, rB.door&&rB.door.h, lenB, rB.door&&rB.door.type);
 
     // Maße
     const lbl=(p,dx,dy,txt,anchor)=>`<text x="${(p[0]+dx).toFixed(1)}" y="${(p[1]+dy).toFixed(1)}" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="${C.dim}" text-anchor="${anchor}">${esc(txt)}</text>`;
