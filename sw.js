@@ -4,7 +4,7 @@
    Version (auch offline) und holt im Hintergrund die neueste; beim nächsten
    Öffnen ist sie aktuell. Bei größeren Updates CACHE-Version hochzählen.
    ════════════════════════════════════════════════════════════════════════ */
-const CACHE = "europaneel-v2";
+const CACHE = "europaneel-v3";
 const ASSETS = [
   "index.html", "zellenrechner.html", "aggregatauswahl.html", "aggregate.html",
   "paneelrechner.html", "lagerbestand_tueren.html", "kalender.html",

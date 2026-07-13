@@ -30,12 +30,14 @@
     }
     .selection-card:hover { border-color: var(--red); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(227,6,19,0.14); }
     .selection-card .s-icon {
-      font-size: 30px; display: inline-flex; align-items: center; justify-content: center;
+      display: inline-flex; align-items: center; justify-content: center;
       width: 64px; height: 64px; border-radius: 18px; margin-bottom: 14px;
-      background: linear-gradient(135deg, var(--red-bg), #ffe1e1);
-      box-shadow: inset 0 0 0 1px rgba(227,6,19,0.10);
+      color: var(--red);
+      background: linear-gradient(160deg, #fff6f6, #ffe5e6);
+      box-shadow: inset 0 0 0 1px rgba(227,6,19,0.10), 0 8px 16px -10px rgba(227,6,19,0.5);
       transition: transform var(--duration) var(--ease);
     }
+    .selection-card .s-icon svg { width: 32px; height: 32px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
     .selection-card:hover .s-icon { transform: scale(1.07) rotate(-3deg); }
     .selection-card .s-title { font-weight: 700; font-size: 14px; color: var(--ink); display: block; margin-bottom: 4px; }
     .selection-card .s-desc { color: var(--steel); font-size: 12px; }
@@ -183,6 +185,7 @@
       transition: all .18s;
     }
     .btn-offer:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+    .btn-ico { display: inline-flex; align-items: center; }
     .btn-offer--primary {
       background: linear-gradient(180deg, #ec1b27 0%, #e30613 55%, #d20612 100%);
       border-color: transparent; color: #fff; box-shadow: var(--shadow-red);
@@ -229,6 +232,7 @@
     .agg-pick-img { height: 60px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 6px; }
     .agg-pick-img img { max-height: 60px; max-width: 100%; object-fit: contain; }
     .agg-pick--static { cursor: default; }
+    .split-note { font-size: 11.5px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 8px 10px; line-height: 1.4; margin-bottom: 12px; }
 
     .zelle3d-view {
       margin-top: 12px; background: #fff; border: 1px solid var(--border);
@@ -292,17 +296,17 @@
           </div>
           <div class="selection-grid">
             <div class="selection-card" onclick="startConfig(false)">
-              <span class="s-icon">🏠</span>
+              <span class="s-icon"><svg viewBox="0 0 24 24"><path d="M12 2.5 21 7v10l-9 4.5L3 17V7z"/><path d="M3 7l9 4.5L21 7"/><path d="M12 11.5V21.5"/></svg></span>
               <span class="s-title" data-i18n="card_no_floor">Ohne Boden</span>
               <span class="s-desc" data-i18n="card_no_floor_desc">Standard U-Profil Montage</span>
             </div>
             <div class="selection-card" onclick="startConfig(true)">
-              <span class="s-icon">📦</span>
+              <span class="s-icon"><svg viewBox="0 0 24 24"><path d="M12 2.5 21 7v9l-9 4.5L3 16V7z"/><path d="M3 7l9 4.5L21 7"/><path d="M12 11.5v8"/><path d="M4.5 19.5h15"/></svg></span>
               <span class="s-title" data-i18n="card_with_floor">Mit Boden</span>
               <span class="s-desc" data-i18n="card_with_floor_desc">Inkl. isoliertem Boden &amp; Siebdruckplatte</span>
             </div>
             <div class="selection-card" onclick="startKombi()">
-              <span class="s-icon">🔲</span>
+              <span class="s-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="1.6"/><path d="M12 5.5v13"/></svg></span>
               <span class="s-title" data-i18n="card_kombi">Kombi-Zelle</span>
               <span class="s-desc" data-i18n="card_kombi_desc">Zwei Räume mit gemeinsamer Trennwand</span>
             </div>
@@ -395,7 +399,8 @@
                 <label data-i18n="label_agg_add">Aggregat hinzufügen</label>
                 <select id="inp-aggregat" onchange="berechnePreis()">
                   <option value="0" data-i18n="agg_none">Kein Aggregat</option>
-                  <option value="1" data-i18n="agg_auto">Automatisch wählen</option>
+                  <option value="1" data-i18n="agg_auto">Automatisch wählen (Monoblock)</option>
+                  <option value="split" data-i18n="agg_split">Split-Anlage (Pakora)</option>
                 </select>
               </div>
               <div class="input-group">
@@ -425,6 +430,13 @@
             </div>
             <div id="agg-choice-label" class="agg-choice-label" style="display:none;" data-i18n="agg_choice_hint">Modell wählen — kleiner oder größer:</div>
             <div id="agg-choice-single" class="agg-choice" style="display:none;"></div>
+            <div id="split-fields" style="display:none;">
+              <div class="input-group" style="margin-bottom:8px;">
+                <label style="color:#7f1d1d;" data-i18n="label_split_preis">Split-Anlage Preis (EUR)</label>
+                <input type="number" id="inp-split-preis" class="price-input" placeholder="0.00" step="0.01" oninput="berechnePreis()">
+              </div>
+              <div class="split-note" data-i18n="split_incl">Im Preis enthalten: Verflüssigungssatz, Verdampfer, Expansionsventile und Kühlstellenregler.</div>
+            </div>
             <div class="section-label" data-i18n="section_service">5. Lieferung &amp; Montage (optional)</div>
             <div class="input-group" style="margin-bottom:16px;">
               <label data-i18n="label_service">Lieferung &amp; Montage (EUR)</label>
@@ -466,7 +478,7 @@
                 <div class="price-big" id="preis-ausgabe">0,00 EUR</div>
               </div>
               <button class="btn-offer" id="btn-3d-single" onclick="toggle3D('single')">
-                <span>🧊</span><span data-i18n="btn_3d">3D-Zeichnung anzeigen</span>
+                <span class="btn-ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 21 7v10l-9 4.5L3 17V7z"/><path d="M3 7l9 4.5L21 7"/><path d="M12 11.5V21.5"/></svg></span><span data-i18n="btn_3d">3D-Zeichnung anzeigen</span>
               </button>
               <div id="zelle3d-view-single" class="zelle3d-view" style="display:none;"></div>
               <button class="btn-offer" id="btn-3d-save-single" style="display:none;" onclick="download3D('single')">
@@ -834,7 +846,7 @@
                 <div class="price-big" id="k-gesamt">0,00 EUR</div>
               </div>
               <button class="btn-offer" id="btn-3d-kombi" onclick="toggle3D('kombi')">
-                <span>🧊</span><span data-i18n="btn_3d">3D-Zeichnung anzeigen</span>
+                <span class="btn-ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 21 7v10l-9 4.5L3 17V7z"/><path d="M3 7l9 4.5L21 7"/><path d="M12 11.5V21.5"/></svg></span><span data-i18n="btn_3d">3D-Zeichnung anzeigen</span>
               </button>
               <div id="zelle3d-view-kombi" class="zelle3d-view" style="display:none;"></div>
               <button class="btn-offer" id="btn-3d-save-kombi" style="display:none;" onclick="download3D('kombi')">
@@ -939,7 +951,9 @@ const translations = {
     door_slide:"Schiebetür (Maße & Preis eingeben)",
     label_st_breite:"Schiebetür Breite (cm)", label_st_hoehe:"Schiebetür Höhe (cm)", label_st_preis:"Schiebetür Preis (EUR)",
     section_agg:"4. Aggregat (optional)", label_agg_add:"Aggregat hinzufügen",
-    agg_none:"Kein Aggregat", agg_auto:"Automatisch wählen",
+    agg_none:"Kein Aggregat", agg_auto:"Automatisch wählen (Monoblock)", agg_split:"Split-Anlage (Pakora)",
+    label_split_preis:"Split-Anlage Preis (EUR)",
+    split_incl:"Im Preis enthalten: Verflüssigungssatz, Verdampfer, Expansionsventile und Kühlstellenregler.",
     opt_smaller:"Eine Nummer kleiner", opt_larger:"Passende Auslegung", opt_recommended:"empfohlen",
     agg_choice_hint:"Modell wählen — kleiner oder größer:",
     label_cooling:"Kühlart", cooling_normal:"Normalkühlung", cooling_tief:"Tiefkühlung",
@@ -993,7 +1007,9 @@ const translations = {
     door_slide:"Sürgü kapı (ölçü & fiyat gir)",
     label_st_breite:"Sürgü kapı genişlik (cm)", label_st_hoehe:"Sürgü kapı yükseklik (cm)", label_st_preis:"Sürgü kapı fiyatı (EUR)",
     section_agg:"4. Agrega (opsiyonel)", label_agg_add:"Agrega ekle",
-    agg_none:"Agrega yok", agg_auto:"Otomatik seç",
+    agg_none:"Agrega yok", agg_auto:"Otomatik seç (Monoblok)", agg_split:"Split sistem (Pakora)",
+    label_split_preis:"Split sistem fiyatı (EUR)",
+    split_incl:"Fiyata dahil: yoğuşturucu, evaporatör, genleşme ventilleri ve soğuk oda kontrol cihazı.",
     opt_smaller:"Bir küçük model", opt_larger:"Uygun model", opt_recommended:"önerilen",
     agg_choice_hint:"Model seç — küçük veya büyük:",
     label_cooling:"Soğutma tipi", cooling_normal:"Normal soğutma", cooling_tief:"Derin soğutma",
@@ -1155,21 +1171,33 @@ function berechnePreis() {
     doorText = tuerPreis>0 ? doorSel.options[doorSel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '';
   }
   const servicePreis = parseFloat(document.getElementById('inp-service').value) || 0;
-  const aggToggle = document.getElementById('inp-aggregat').value === '1';
+  const aggMode = document.getElementById('inp-aggregat').value;   // '0' | '1' | 'split'
+  const aggMonoblock = aggMode === '1';
+  const aggSplit = aggMode === 'split';
+  const aggOn = aggMonoblock || aggSplit;
   const kuehlart = document.getElementById('inp-kuehlart').value;
   const montage = document.getElementById('inp-montage').value;
   const manufacturer = document.getElementById('inp-manufacturer').value;
   const preisPaneel = parseFloat(document.getElementById('inp-preis-qm').value) || 0;
   const preisSiebdr = parseFloat(document.getElementById('inp-preis-siebdruck').value) || 0;
   const daemmung = document.getElementById('inp-daemmung').value;
-  document.getElementById('group-mount').style.display = aggToggle ? 'block' : 'none';
-  document.getElementById('group-manufacturer').style.display = aggToggle ? 'block' : 'none';
+  document.getElementById('group-mount').style.display = aggMonoblock ? 'block' : 'none';
+  document.getElementById('group-manufacturer').style.display = aggMonoblock ? 'block' : 'none';
+  document.getElementById('split-fields').style.display = aggSplit ? 'block' : 'none';
   const wand = (L+B)*2*H, decke = L*B;
   const huelle = (wand+decke)*preisPaneel;
   const boden = hatBoden ? decke*preisPaneel : 0;
   const siebd = hatBoden ? decke*preisSiebdr : 0;
-  let aggPreis = 0, aggDevice = 0, aggFee = 0, aggOversized = false, aggAlt = null;
-  if (aggToggle&&L&&B&&H) {
+  let aggPreis = 0, aggDevice = 0, aggFee = 0, aggOversized = false, aggAlt = null, aggIsSplit = false, aggSub = '';
+  if (aggSplit) {
+    aggIsSplit = true;
+    aggPreis = aggDevice = parseFloat(document.getElementById('inp-split-preis').value)||0;
+    aggSub = 'inkl. Verflüssigungssatz, Verdampfer, Expansionsventile und Kühlstellenregler';
+    document.getElementById('val-aggregat-name').textContent = 'Split-Anlage (Pakora)';
+    document.getElementById('row-aggregat').style.display='flex';
+    document.getElementById('row-aggregat-fee').style.display='none';
+    renderAggChoice('agg-choice-label','agg-choice-single', null, aggChoiceSingle, 'pickAggSingle');
+  } else if (aggMonoblock&&L&&B&&H) {
     const pair = D.pickAggregatePair(L*B*H, kuehlart, montage, manufacturer);
     let chosen=null, alt=null;
     if (aggChoiceSingle==='below' && pair.below) { chosen=pair.below; alt=pair.above; }
@@ -1207,9 +1235,11 @@ function berechnePreis() {
     mode:'single', L, B, H,
     daemmung: daemmung,
     typ: hatBoden ? t('badge_with_floor') : t('badge_no_floor'),
-    kuehlart: aggToggle ? (kuehlart==='tief'?t('cooling_tief'):t('cooling_normal')) : '',
-    aggOn: aggToggle,
-    aggName: aggToggle ? document.getElementById('val-aggregat-name').textContent : '',
+    kuehlart: (aggOn && !aggIsSplit) ? (kuehlart==='tief'?t('cooling_tief'):t('cooling_normal')) : '',
+    aggOn: aggOn,
+    aggIsSplit: aggIsSplit,
+    aggSub: aggSub,
+    aggName: aggOn ? document.getElementById('val-aggregat-name').textContent : '',
     aggEur: aggDevice,
     aggFeeEur: aggFee,
     aggOversized: aggOversized,
@@ -1605,7 +1635,8 @@ function offerConfig(data){
     if (d.daemmung) rows.push(['Dämmstärke', d.daemmung+' mm']);
     if (d.kuehlart) rows.push(['Kühlart', d.kuehlart]);
     if (d.doorText) rows.push(['Tür', d.doorText]);
-    if (d.aggOn && d.aggName!=='-') rows.push(['Aggregat', d.aggName]);
+    if (d.aggOn && d.aggIsSplit) rows.push(['Kälteanlage', 'Split-Anlage (Pakora)']);
+    else if (d.aggOn && d.aggName!=='-') rows.push(['Aggregat', d.aggName]);
   } else {
     const r1=data.r1, r2=data.r2, tw=data.tw;
     rows.push(['Raum 1 — Außenmaße', fmtM3(r1.L)+' × '+fmtM3(r1.B)+' × '+fmtM3(r1.H)]);
@@ -1629,7 +1660,8 @@ function offerPositions(data){
     const d=data;
     p.push({label:'Kühlzelle — Sandwichpaneele', value:d.huelleEur+d.bodenEur+d.siebdEur});
     if (d.doorEur>0) p.push({label:d.doorText||'Tür', value:d.doorEur});
-    if (d.aggOn && d.aggEur>0) p.push({label:'Aggregat', value:d.aggEur, sub:d.aggName});
+    if (d.aggOn && d.aggIsSplit && d.aggEur>0) p.push({label:'Split-Anlage (Pakora)', value:d.aggEur, sub:d.aggSub});
+    else if (d.aggOn && d.aggEur>0) p.push({label:'Aggregat', value:d.aggEur, sub:d.aggName});
     if (d.aggOn && d.aggFeeEur>0) p.push({label:'Govi Lieferpauschale', value:d.aggFeeEur, feeOnly:true});
     if (d.serviceEur>0) p.push({label:'Lieferung & Montage', value:d.serviceEur});
   } else {

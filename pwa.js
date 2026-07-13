@@ -64,6 +64,12 @@
         if (lab) lab.textContent = LABELS[k];
       }
     });
+    // Fußzeile: aktuelles Jahr + Online-Status (auf allen Seiten einheitlich)
+    var foot = document.querySelector(".sidebar-footer");
+    if (foot) {
+      var yr = new Date().getFullYear();
+      foot.innerHTML = '<span class="foot-dot"></span><span>&copy; ' + yr + ' Europaneel GmbH</span>';
+    }
   }
   if (document.readyState !== "loading") enhanceNav();
   else document.addEventListener("DOMContentLoaded", enhanceNav);
