@@ -115,11 +115,25 @@
       const inset = 0.06;
       svg += `<polygon points="${poly([S(dx+inset,B,inset),S(dx+door.w-inset,B,inset),S(dx+door.w-inset,B,door.h-inset),S(dx+inset,B,door.h-inset)])}" fill="none" stroke="${C.doorStroke}" stroke-width="0.7" stroke-opacity="0.6"/>`;
       if (door.type === "schiebe") {
-        // Schiebetür: Laufschiene oben (ragt seitlich heraus) + Mittelfuge + waagerechter Griff
-        const railZ = Math.min(H - 0.02, door.h + 0.05);
-        svg += line(S(Math.max(0.04, dx-0.12),B,railZ), S(Math.min(L-0.04, dx+door.w+0.5),B,railZ), C.doorStroke, 2.6);
-        svg += line(S(dx+door.w*0.5,B,inset), S(dx+door.w*0.5,B,door.h-inset), C.doorStroke, 0.7, "3 3");
-        svg += line(S(dx+door.w*0.30,B,door.h*0.5), S(dx+door.w*0.44,B,door.h*0.5), C.handle, 3.4);
+        // Schiebetür: massive Laufschiene oben mit seitlichem Auslauf (Parkseite rechts),
+        // Türblatt hängt an zwei Rollen, senkrechter Griff an der Vorderkante. Kein Mittelstoß.
+        const park  = Math.max(0.30, Math.min(door.w * 0.75, L - (dx + door.w) - 0.06));
+        const railL = Math.max(0.05, dx - 0.07);
+        const railR = Math.min(L - 0.06, dx + door.w + park);
+        const railZt = Math.min(H - 0.015, door.h + 0.13);
+        const railZb = railZt - 0.075;
+        // Schiene (Metallbalken) über der Tür
+        svg += `<polygon points="${poly([S(railL,B,railZb),S(railR,B,railZb),S(railR,B,railZt),S(railL,B,railZt)])}" fill="${C.base}" stroke="${C.edge}" stroke-width="1.1" stroke-linejoin="round"/>`;
+        // zwei Rollen-Aufhängungen vom Türblatt zur Schiene
+        [0.26, 0.74].forEach(f => {
+          const xr = dx + door.w * f;
+          svg += line(S(xr,B,Math.min(door.h+0.005, railZb)), S(xr,B,railZb+0.004), C.edge, 2.4);
+          const rc = S(xr,B,railZb+0.01);
+          svg += `<circle cx="${rc[0].toFixed(1)}" cy="${rc[1].toFixed(1)}" r="2.6" fill="${C.doorStroke}"/>`;
+        });
+        // senkrechter Griff an der Vorderkante
+        const g1 = S(dx+door.w-0.13, B, door.h*0.38), g2 = S(dx+door.w-0.13, B, door.h*0.62);
+        svg += `<line x1="${g1[0].toFixed(1)}" y1="${g1[1].toFixed(1)}" x2="${g2[0].toFixed(1)}" y2="${g2[1].toFixed(1)}" stroke="${C.handle}" stroke-width="4" stroke-linecap="round"/>`;
       } else {
         // Drehtür: Scharniere links, Griff rechts (Schließseite)
         [0.18,0.5,0.82].forEach(f=>{ const h=S(dx+0.06,B,door.h*f); svg += `<rect x="${(h[0]-2).toFixed(1)}" y="${(h[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`; });
@@ -200,10 +214,14 @@
       const ins=0.06;
       svg+=`<polygon points="${poly([S(dx+ins,D,ins),S(dx+dw-ins,D,ins),S(dx+dw-ins,D,dh-ins),S(dx+ins,D,dh-ins)])}" fill="none" stroke="${C.doorStroke}" stroke-width="0.7" stroke-opacity="0.6"/>`;
       if(type==='schiebe'){
-        const railZ=Math.min(H-0.02, dh+0.05);
-        svg+=line(S(Math.max(0.04,dx-0.1),D,railZ), S(Math.min(W-0.04, dx+dw+0.45),D,railZ), C.doorStroke, 2.4);
-        svg+=line(S(dx+dw*0.5,D,ins), S(dx+dw*0.5,D,dh-ins), C.doorStroke, 0.7, "3 3");
-        svg+=line(S(dx+dw*0.3,D,dh*0.5), S(dx+dw*0.44,D,dh*0.5), C.handle, 3.2);
+        // Schiebetür: Laufschiene mit seitlichem Auslauf, zwei Rollen-Aufhängungen, senkrechter Griff. Kein Mittelstoß.
+        const park=Math.max(0.26,Math.min(dw*0.7, W-(dx+dw)-0.06));
+        const railL=Math.max(0.05,dx-0.07), railR=Math.min(W-0.06,dx+dw+park);
+        const railZt=Math.min(H-0.015,dh+0.13), railZb=railZt-0.07;
+        svg+=`<polygon points="${poly([S(railL,D,railZb),S(railR,D,railZb),S(railR,D,railZt),S(railL,D,railZt)])}" fill="${C.base}" stroke="${C.edge}" stroke-width="1.1" stroke-linejoin="round"/>`;
+        [0.26,0.74].forEach(f=>{ const xr=dx+dw*f; svg+=line(S(xr,D,Math.min(dh+0.005,railZb)),S(xr,D,railZb+0.004),C.edge,2.2); const rc=S(xr,D,railZb+0.01); svg+=`<circle cx="${rc[0].toFixed(1)}" cy="${rc[1].toFixed(1)}" r="2.4" fill="${C.doorStroke}"/>`; });
+        const g1=S(dx+dw-0.12,D,dh*0.38), g2=S(dx+dw-0.12,D,dh*0.62);
+        svg+=`<line x1="${g1[0].toFixed(1)}" y1="${g1[1].toFixed(1)}" x2="${g2[0].toFixed(1)}" y2="${g2[1].toFixed(1)}" stroke="${C.handle}" stroke-width="3.6" stroke-linecap="round"/>`;
       } else {
         [0.18,0.5,0.82].forEach(f=>{const hh=S(dx+0.06,D,dh*f);svg+=`<rect x="${(hh[0]-2).toFixed(1)}" y="${(hh[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`;});
         const gh=S(dx+dw-0.12,D,dh*0.48);
