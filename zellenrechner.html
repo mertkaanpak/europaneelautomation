@@ -377,6 +377,22 @@
                 <option value="schiebe" data-i18n="door_slide">Schiebetür (Maße & Preis)</option>
               </select>
             </div>
+            <div class="input-row" id="tuer-optionen">
+              <div class="input-group">
+                <label data-i18n="label_tuer_seite">Türseite (Montagewand)</label>
+                <select id="inp-tuer-seite" onchange="berechnePreis()">
+                  <option value="L" data-i18n="tuer_seite_L">Längsseite (L)</option>
+                  <option value="B" data-i18n="tuer_seite_B">Breitseite (B)</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label data-i18n="label_tuer_anschlag">Anschlag / Öffnung</label>
+                <select id="inp-tuer-anschlag" onchange="berechnePreis()">
+                  <option value="links" data-i18n="anschlag_links">Links</option>
+                  <option value="rechts" data-i18n="anschlag_rechts">Rechts</option>
+                </select>
+              </div>
+            </div>
             <div id="schiebetuer-fields" style="display:none;">
               <div class="input-row">
                 <div class="input-group">
@@ -562,6 +578,13 @@
                     <option value="schiebe" data-i18n="door_slide">Schiebetür (Maße & Preis)</option>
                   </select>
                 </div>
+                <div class="input-group" style="margin-top:8px;">
+                  <label data-i18n="label_tuer_anschlag">Anschlag / Öffnung</label>
+                  <select id="k1-anschlag" onchange="berechneKombi()">
+                    <option value="links" data-i18n="anschlag_links">Links</option>
+                    <option value="rechts" data-i18n="anschlag_rechts">Rechts</option>
+                  </select>
+                </div>
                 <div id="k1-schiebe-fields" style="display:none;">
                   <div class="input-row">
                     <div class="input-group"><label data-i18n="label_st_breite">Schiebetür Breite (cm)</label><input type="number" id="k1-st-breite" placeholder="300" step="1" oninput="berechneKombi()"></div>
@@ -671,6 +694,13 @@
                     <option value="900" data-i18n="door_120_200">Drehtür 120×200 cm [900 EUR]</option>
                     <option value="1000" data-i18n="door_120_220">Drehtür 120×220 cm [1.000 EUR]</option>
                     <option value="schiebe" data-i18n="door_slide">Schiebetür (Maße & Preis)</option>
+                  </select>
+                </div>
+                <div class="input-group" style="margin-top:8px;">
+                  <label data-i18n="label_tuer_anschlag">Anschlag / Öffnung</label>
+                  <select id="k2-anschlag" onchange="berechneKombi()">
+                    <option value="links" data-i18n="anschlag_links">Links</option>
+                    <option value="rechts" data-i18n="anschlag_rechts">Rechts</option>
                   </select>
                 </div>
                 <div id="k2-schiebe-fields" style="display:none;">
@@ -950,6 +980,8 @@ const translations = {
     door_120_200:"Drehtür 120×200 cm [900 EUR]", door_120_220:"Drehtür 120×220 cm [1.000 EUR]",
     door_slide:"Schiebetür (Maße & Preis eingeben)",
     label_st_breite:"Schiebetür Breite (cm)", label_st_hoehe:"Schiebetür Höhe (cm)", label_st_preis:"Schiebetür Preis (EUR)",
+    label_tuer_seite:"Türseite (Montagewand)", tuer_seite_L:"Längsseite (L)", tuer_seite_B:"Breitseite (B)",
+    label_tuer_anschlag:"Anschlag / Öffnung", anschlag_links:"Links", anschlag_rechts:"Rechts",
     section_agg:"4. Aggregat (optional)", label_agg_add:"Aggregat hinzufügen",
     agg_none:"Kein Aggregat", agg_auto:"Automatisch wählen (Monoblock)", agg_split:"Split-Anlage (Pakora)",
     label_split_preis:"Split-Anlage Preis (EUR)",
@@ -1006,6 +1038,8 @@ const translations = {
     door_120_200:"Menteşeli 120×200 cm [900 EUR]", door_120_220:"Menteşeli 120×220 cm [1.000 EUR]",
     door_slide:"Sürgü kapı (ölçü & fiyat gir)",
     label_st_breite:"Sürgü kapı genişlik (cm)", label_st_hoehe:"Sürgü kapı yükseklik (cm)", label_st_preis:"Sürgü kapı fiyatı (EUR)",
+    label_tuer_seite:"Kapı duvarı", tuer_seite_L:"Uzun kenar (L)", tuer_seite_B:"Kısa kenar (B)",
+    label_tuer_anschlag:"Menteşe / açılış", anschlag_links:"Sol", anschlag_rechts:"Sağ",
     section_agg:"4. Agrega (opsiyonel)", label_agg_add:"Agrega ekle",
     agg_none:"Agrega yok", agg_auto:"Otomatik seç (Monoblok)", agg_split:"Split sistem (Pakora)",
     label_split_preis:"Split sistem fiyatı (EUR)",
@@ -1159,7 +1193,9 @@ function berechnePreis() {
   } else { document.getElementById('badge-volume-container').style.display = 'none'; }
   const doorSel = document.getElementById('inp-tuer');
   const isSchiebe = doorSel.value === 'schiebe';
+  const hasDoor = doorSel.value !== '0';
   document.getElementById('schiebetuer-fields').style.display = isSchiebe ? 'block' : 'none';
+  document.getElementById('tuer-optionen').style.display = hasDoor ? 'grid' : 'none';
   let tuerPreis, doorText;
   if (isSchiebe) {
     const stB = parseFloat(document.getElementById('inp-st-breite').value)||0;
@@ -1169,6 +1205,13 @@ function berechnePreis() {
   } else {
     tuerPreis = parseFloat(doorSel.value)||0;
     doorText = tuerPreis>0 ? doorSel.options[doorSel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '';
+  }
+  if (hasDoor && doorText) {
+    const anschlagRechts = document.getElementById('inp-tuer-anschlag').value === 'rechts';
+    const seite = document.getElementById('inp-tuer-seite').value === 'B' ? 'Breitseite' : 'Längsseite';
+    const dirLabel = isSchiebe ? (anschlagRechts ? 'öffnet rechts' : 'öffnet links')
+                               : (anschlagRechts ? 'Anschlag rechts' : 'Anschlag links');
+    doorText += ' · ' + dirLabel + ' · ' + seite;
   }
   const servicePreis = parseFloat(document.getElementById('inp-service').value) || 0;
   const aggMode = document.getElementById('inp-aggregat').value;   // '0' | '1' | 'split'
@@ -1840,16 +1883,18 @@ ${svg3d ? `<div class="section-hdr">Skizze der Kühlzelle</div>
 ──────────────────────────────────────── */
 let show3D = { single:false, kombi:false };
 
-function doorDimsFromSelect(selId, stPrefix){
+function doorDimsFromSelect(selId, stPrefix, sideId, hingeId){
   const s=document.getElementById(selId);
-  if(!s) return {w:0.9,h:2.0,type:'dreh'};
+  const side = sideId && document.getElementById(sideId) ? document.getElementById(sideId).value : 'L';
+  const hinge = hingeId && document.getElementById(hingeId) ? document.getElementById(hingeId).value : 'links';
+  if(!s) return {w:0.9,h:2.0,type:'dreh',side,hinge};
   if(s.value==='schiebe' && stPrefix){
     const b=parseFloat(document.getElementById(stPrefix+'-breite').value)||0;
     const h=parseFloat(document.getElementById(stPrefix+'-hoehe').value)||0;
-    return { w: b>0?b/100:1.2, h: h>0?h/100:2.1, type:'schiebe' };
+    return { w: b>0?b/100:1.2, h: h>0?h/100:2.1, type:'schiebe', side, hinge };
   }
   const dims = EuropaneelZelle3D.parseDoor(s.options[s.selectedIndex].text);
-  return dims ? { w:dims.w, h:dims.h, type:'dreh' } : { w:0.9, h:2.0, type:'dreh' };   // Standardtür für die Skizze
+  return dims ? { w:dims.w, h:dims.h, type:'dreh', side, hinge } : { w:0.9, h:2.0, type:'dreh', side, hinge };   // Standardtür für die Skizze
 }
 
 /* Kombi: Türpreis + Text je Raum (inkl. Schiebetür-Felder). */
@@ -1857,14 +1902,17 @@ function kombiDoorInfo(n){
   const sel=document.getElementById('k'+n+'-tuer');
   const isS = sel.value==='schiebe';
   document.getElementById('k'+n+'-schiebe-fields').style.display = isS ? 'block' : 'none';
+  const anschlagRechts = document.getElementById('k'+n+'-anschlag').value === 'rechts';
+  const dirLabel = isS ? (anschlagRechts?'öffnet rechts':'öffnet links') : (anschlagRechts?'Anschlag rechts':'Anschlag links');
   if(isS){
     const b=parseFloat(document.getElementById('k'+n+'-st-breite').value)||0;
     const h=parseFloat(document.getElementById('k'+n+'-st-hoehe').value)||0;
     const p=parseFloat(document.getElementById('k'+n+'-st-preis').value)||0;
-    return { price:p, text:'Schiebetür'+((b&&h)?' '+b+'×'+h+' cm':'') };
+    return { price:p, text:'Schiebetür'+((b&&h)?' '+b+'×'+h+' cm':'')+' · '+dirLabel };
   }
   const price=parseFloat(sel.value)||0;
-  return { price, text: price>0 ? sel.options[sel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '' };
+  const base = price>0 ? sel.options[sel.selectedIndex].text.replace(/\s*\[.*?\]/g,'').trim() : '';
+  return { price, text: base ? base+' · '+dirLabel : '' };
 }
 
 function opts3DSingle(width){
@@ -1876,7 +1924,7 @@ function opts3DSingle(width){
   if(document.getElementById('inp-aggregat').value==='1' && lastSingleResult && lastSingleResult.aggName && lastSingleResult.aggName!=='-'){
     agg={ mount:document.getElementById('inp-montage').value, model:lastSingleResult.aggName.replace(/\s*\(.*$/,'').trim() };
   }
-  return { L,B,H, door:doorDimsFromSelect('inp-tuer','inp-st'), mitBoden:hatBoden, agg, daemmung:document.getElementById('inp-daemmung').value, width:width||540 };
+  return { L,B,H, door:doorDimsFromSelect('inp-tuer','inp-st','inp-tuer-seite','inp-tuer-anschlag'), mitBoden:hatBoden, agg, daemmung:document.getElementById('inp-daemmung').value, width:width||540 };
 }
 
 function opts3DKombiCombined(width){
@@ -1890,8 +1938,8 @@ function opts3DKombiCombined(width){
   else if(Math.abs(L1-L2)<tol){ lenA=B1; lenB=B2; depth=(L1+L2)/2; }   // gemeinsame Länge -> Räume entlang der Breite
   else { lenA=L1; lenB=L2; depth=Math.max(B1,B2); }                    // Fallback: keine gemeinsame Wand erkannt
   return {
-    rooms:[ {len:lenA, door:doorDimsFromSelect('k1-tuer','k1-st')},
-            {len:lenB, door:doorDimsFromSelect('k2-tuer','k2-st')} ],
+    rooms:[ {len:lenA, door:doorDimsFromSelect('k1-tuer','k1-st', null, 'k1-anschlag')},
+            {len:lenB, door:doorDimsFromSelect('k2-tuer','k2-st', null, 'k2-anschlag')} ],
     depth, H:Math.max(H1,H2),
     mitBoden:(kombiMitBoden1||kombiMitBoden2),
     daemmung:document.getElementById('k-daemmung').value,

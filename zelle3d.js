@@ -23,12 +23,74 @@
   // Rohprojektion (Meter -> 2D, Maßstab 1)
   function raw(x, y, z) { return [ (x - y) * COS, (x + y) * SIN - z ]; }
 
+  /* Türblatt auf einer beliebigen Wand zeichnen (Dreh- oder Schiebetür, Anschlag links/rechts).
+     pt(u,z) : bildet Wand-Koordinate u (entlang der Wand, m) + Höhe z auf einen Bildschirmpunkt ab
+     wallLen : Länge der Wand (m)   H : Raumhöhe (Schienen-/Höhenbegrenzung)
+     door    : { w, h, type:'dreh'|'schiebe', hinge:'links'|'rechts' }
+     place   : optional { center, min, max } — Türmitte + zulässiger Wandabschnitt (Standard ganze Wand)
+     Anschlag wird visuell korrekt gesetzt: „links" = Scharniere an der im Bild linken Türkante
+     (entspricht der linken Hand, wenn man von außen vor der Tür steht). */
+  function doorLeaf(pt, wallLen, H, door, C, place) {
+    const lo = place && place.min != null ? place.min : 0;
+    const hi = place && place.max != null ? place.max : wallLen;
+    const span = Math.max(0.3, hi - lo);
+    const w = Math.min(door.w || 0.9, span * 0.86);
+    const h = Math.min(door.h || 2.0, H * 0.96);
+    const ctr = place && place.center != null ? place.center : (lo + hi) / 2;
+    const u0 = Math.max(lo + 0.05, Math.min(ctr - w / 2, hi - w - 0.05));
+    const u1 = u0 + w;
+    const type = door.type === 'schiebe' ? 'schiebe' : 'dreh';
+    const anschlagRechts = door.hinge === 'rechts';
+    const ins = 0.06;
+    const polly = a => a.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+    const ln = (a, b, st, wd, dash) => `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="${st}" stroke-width="${wd}"${dash ? ` stroke-dasharray="${dash}"` : ""} stroke-linecap="round"/>`;
+    let s = "";
+    // Türblatt + Innenrahmen
+    s += `<polygon points="${polly([pt(u0,0),pt(u1,0),pt(u1,h),pt(u0,h)])}" fill="${C.doorFill}" stroke="${C.doorStroke}" stroke-width="1.4" stroke-linejoin="round"/>`;
+    s += `<polygon points="${polly([pt(u0+ins,ins),pt(u1-ins,ins),pt(u1-ins,h-ins),pt(u0+ins,h-ins)])}" fill="none" stroke="${C.doorStroke}" stroke-width="0.7" stroke-opacity="0.6"/>`;
+    // visuell linke/rechte Kante (kleinere/größere Bildschirm-x)
+    const uLeft = pt(u0, h * 0.5)[0] <= pt(u1, h * 0.5)[0] ? u0 : u1;
+    const uRight = uLeft === u0 ? u1 : u0;
+    // Drehtür: Anschlag = Scharnierseite. Schiebetür: Anschlag = Öffnungs-/Laufrichtung.
+    const uHinge = anschlagRechts ? uRight : uLeft;
+    const uHandle = uHinge === u0 ? u1 : u0;
+
+    if (type === 'schiebe') {
+      // Laufschiene mit seitlichem Auslauf zur Öffnungsseite, zwei Rollen, senkrechter Griff an der Vorderkante
+      const parkU = anschlagRechts ? uRight : uLeft;   // Öffnungsseite (Anschlag rechts = öffnet rechts)
+      const dir = parkU === u1 ? 1 : -1;
+      const room = dir > 0 ? (hi - u1 - 0.05) : (u0 - lo - 0.05);
+      const park = Math.max(0.24, Math.min(w * 0.7, Math.max(0.05, room)));
+      const rEnd = dir > 0 ? Math.min(hi - 0.05, u1 + park) : Math.max(lo + 0.05, u0 - park);
+      const rStart = dir > 0 ? Math.max(lo + 0.05, u0 - 0.07) : Math.min(hi - 0.05, u1 + 0.07);
+      const rLo = Math.min(rStart, rEnd), rHi = Math.max(rStart, rEnd);
+      const railZt = Math.min(H - 0.015, h + 0.13), railZb = railZt - 0.075;
+      s += `<polygon points="${polly([pt(rLo,railZb),pt(rHi,railZb),pt(rHi,railZt),pt(rLo,railZt)])}" fill="${C.base}" stroke="${C.edge}" stroke-width="1.1" stroke-linejoin="round"/>`;
+      [0.26, 0.74].forEach(f => {
+        const u = u0 + w * f;
+        s += ln(pt(u, Math.min(h + 0.005, railZb)), pt(u, railZb + 0.004), C.edge, 2.4);
+        const rc = pt(u, railZb + 0.01);
+        s += `<circle cx="${rc[0].toFixed(1)}" cy="${rc[1].toFixed(1)}" r="2.6" fill="${C.doorStroke}"/>`;
+      });
+      const gU = parkU === u1 ? u1 - 0.13 : u0 + 0.13;   // Griff an der Vorderkante (Öffnungsseite)
+      s += ln(pt(gU, h * 0.38), pt(gU, h * 0.62), C.handle, 4);
+    } else {
+      // Drehtür: Scharniere an der Anschlagkante, Griff gegenüber
+      const hU = uHinge === u0 ? u0 + 0.06 : u1 - 0.06;
+      [0.18, 0.5, 0.82].forEach(f => { const p = pt(hU, h * f); s += `<rect x="${(p[0]-2).toFixed(1)}" y="${(p[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`; });
+      const gU = uHandle === u1 ? u1 - 0.12 : u0 + 0.12;
+      const g = pt(gU, h * 0.48);
+      s += `<rect x="${(g[0]-3).toFixed(1)}" y="${(g[1]-7).toFixed(1)}" width="6" height="14" rx="1.5" fill="${C.handle}"/>`;
+    }
+    return s;
+  }
+
   function buildSVG(opts) {
     opts = opts || {};
     const L = Math.max(0.1, +opts.L || 0);
     const B = Math.max(0.1, +opts.B || 0);
     const H = Math.max(0.1, +opts.H || 0);
-    const door = opts.door && opts.door.w ? { w: Math.min(opts.door.w, L * 0.9), h: Math.min(opts.door.h, H * 0.96), type: opts.door.type } : null;
+    const door = opts.door && opts.door.w ? { w: +opts.door.w, h: +opts.door.h, type: opts.door.type, side: opts.door.side, hinge: opts.door.hinge } : null;
     const agg = opts.agg && opts.agg.mount ? opts.agg : null;
 
     // Farben
@@ -98,48 +160,23 @@
         svg += `<polygon points="${poly(fx)}" fill="${C.aggFill}" stroke="${C.aggStroke}" stroke-width="1.1" stroke-linejoin="round"/>`;
         svg += `<polygon points="${poly(ft)}" fill="${C.aggTop}"  stroke="${C.aggStroke}" stroke-width="1.1" stroke-linejoin="round"/>`;
         if (louver === 'x') for (let k=1;k<=4;k++){ const zz=z0+(z1-z0)*k/5; svg += line(S(x1,y0,zz),S(x1,y1,zz),C.aggStroke,0.7); }
+        else if (louver === 'yh') for (let k=1;k<=4;k++){ const zz=z0+(z1-z0)*k/5; svg += line(S(x0,y1,zz),S(x1,y1,zz),C.aggStroke,0.7); }
         else for (let k=1;k<=4;k++){ const xx=x0+(x1-x0)*k/5; svg += line(S(xx,y1,z0),S(xx,y1,z1),C.aggStroke,0.7); }
       };
       if (agg.mount === "Decke") {
         aggBox(L*0.5-0.55, L*0.5+0.55, B*0.5-0.42, B*0.5+0.42, H, H+0.34, 'y');   // Block auf dem Dach
+      } else if (door && door.side === 'B') {
+        aggBox(L*0.5-0.5, L*0.5+0.5, B, B+0.44, H-0.82, H-0.24, 'yh');            // Tür auf Breitseite -> Aggregat an die Längswand
       } else {
         aggBox(L, L+0.44, B*0.5-0.5, B*0.5+0.5, H-0.82, H-0.24, 'x');             // Wandblock, ragt rechts aus der Wand
       }
     }
 
-    /* ── Tür auf der linken Frontwand (y=B) ── */
+    /* ── Tür: wahlweise auf der Längswand (y=B) oder der Breitwand (x=L), Anschlag links/rechts ── */
     if (door) {
-      const dx = Math.max(0.08, (L - door.w) / 2);
-      const dPts = [ S(dx,B,0), S(dx+door.w,B,0), S(dx+door.w,B,door.h), S(dx,B,door.h) ];
-      svg += `<polygon points="${poly(dPts)}" fill="${C.doorFill}" stroke="${C.doorStroke}" stroke-width="1.4" stroke-linejoin="round"/>`;
-      const inset = 0.06;
-      svg += `<polygon points="${poly([S(dx+inset,B,inset),S(dx+door.w-inset,B,inset),S(dx+door.w-inset,B,door.h-inset),S(dx+inset,B,door.h-inset)])}" fill="none" stroke="${C.doorStroke}" stroke-width="0.7" stroke-opacity="0.6"/>`;
-      if (door.type === "schiebe") {
-        // Schiebetür: massive Laufschiene oben mit seitlichem Auslauf (Parkseite rechts),
-        // Türblatt hängt an zwei Rollen, senkrechter Griff an der Vorderkante. Kein Mittelstoß.
-        const park  = Math.max(0.30, Math.min(door.w * 0.75, L - (dx + door.w) - 0.06));
-        const railL = Math.max(0.05, dx - 0.07);
-        const railR = Math.min(L - 0.06, dx + door.w + park);
-        const railZt = Math.min(H - 0.015, door.h + 0.13);
-        const railZb = railZt - 0.075;
-        // Schiene (Metallbalken) über der Tür
-        svg += `<polygon points="${poly([S(railL,B,railZb),S(railR,B,railZb),S(railR,B,railZt),S(railL,B,railZt)])}" fill="${C.base}" stroke="${C.edge}" stroke-width="1.1" stroke-linejoin="round"/>`;
-        // zwei Rollen-Aufhängungen vom Türblatt zur Schiene
-        [0.26, 0.74].forEach(f => {
-          const xr = dx + door.w * f;
-          svg += line(S(xr,B,Math.min(door.h+0.005, railZb)), S(xr,B,railZb+0.004), C.edge, 2.4);
-          const rc = S(xr,B,railZb+0.01);
-          svg += `<circle cx="${rc[0].toFixed(1)}" cy="${rc[1].toFixed(1)}" r="2.6" fill="${C.doorStroke}"/>`;
-        });
-        // senkrechter Griff an der Vorderkante
-        const g1 = S(dx+door.w-0.13, B, door.h*0.38), g2 = S(dx+door.w-0.13, B, door.h*0.62);
-        svg += `<line x1="${g1[0].toFixed(1)}" y1="${g1[1].toFixed(1)}" x2="${g2[0].toFixed(1)}" y2="${g2[1].toFixed(1)}" stroke="${C.handle}" stroke-width="4" stroke-linecap="round"/>`;
-      } else {
-        // Drehtür: Scharniere links, Griff rechts (Schließseite)
-        [0.18,0.5,0.82].forEach(f=>{ const h=S(dx+0.06,B,door.h*f); svg += `<rect x="${(h[0]-2).toFixed(1)}" y="${(h[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`; });
-        const gh = S(dx+door.w-0.12, B, door.h*0.48);
-        svg += `<rect x="${(gh[0]-3).toFixed(1)}" y="${(gh[1]-7).toFixed(1)}" width="6" height="14" rx="1.5" fill="${C.handle}"/>`;
-      }
+      const onB = door.side === 'B';
+      const pt = onB ? (u,z) => S(L, u, z) : (u,z) => S(u, B, z);
+      svg += doorLeaf(pt, onB ? B : L, H, door, C);
     }
 
     /* ── Maßangaben ── */
@@ -206,30 +243,10 @@
     const tp=S(split,0,H);
     svg+=`<text x="${tp[0].toFixed(1)}" y="${(tp[1]-7).toFixed(1)}" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="700" fill="${C.partition}" text-anchor="middle">Trennwand</text>`;
 
-    // Zwei Türen auf der Frontwand (je Raum)
-    function drawDoor(cx, w, h, sectLen, type){
-      const dw=Math.min(w||0.9, sectLen*0.8), dh=Math.min(h||2.0, H*0.96);
-      const dx=Math.max(0.06, cx-dw/2);
-      svg+=`<polygon points="${poly([S(dx,D,0),S(dx+dw,D,0),S(dx+dw,D,dh),S(dx,D,dh)])}" fill="${C.doorFill}" stroke="${C.doorStroke}" stroke-width="1.4" stroke-linejoin="round"/>`;
-      const ins=0.06;
-      svg+=`<polygon points="${poly([S(dx+ins,D,ins),S(dx+dw-ins,D,ins),S(dx+dw-ins,D,dh-ins),S(dx+ins,D,dh-ins)])}" fill="none" stroke="${C.doorStroke}" stroke-width="0.7" stroke-opacity="0.6"/>`;
-      if(type==='schiebe'){
-        // Schiebetür: Laufschiene mit seitlichem Auslauf, zwei Rollen-Aufhängungen, senkrechter Griff. Kein Mittelstoß.
-        const park=Math.max(0.26,Math.min(dw*0.7, W-(dx+dw)-0.06));
-        const railL=Math.max(0.05,dx-0.07), railR=Math.min(W-0.06,dx+dw+park);
-        const railZt=Math.min(H-0.015,dh+0.13), railZb=railZt-0.07;
-        svg+=`<polygon points="${poly([S(railL,D,railZb),S(railR,D,railZb),S(railR,D,railZt),S(railL,D,railZt)])}" fill="${C.base}" stroke="${C.edge}" stroke-width="1.1" stroke-linejoin="round"/>`;
-        [0.26,0.74].forEach(f=>{ const xr=dx+dw*f; svg+=line(S(xr,D,Math.min(dh+0.005,railZb)),S(xr,D,railZb+0.004),C.edge,2.2); const rc=S(xr,D,railZb+0.01); svg+=`<circle cx="${rc[0].toFixed(1)}" cy="${rc[1].toFixed(1)}" r="2.4" fill="${C.doorStroke}"/>`; });
-        const g1=S(dx+dw-0.12,D,dh*0.38), g2=S(dx+dw-0.12,D,dh*0.62);
-        svg+=`<line x1="${g1[0].toFixed(1)}" y1="${g1[1].toFixed(1)}" x2="${g2[0].toFixed(1)}" y2="${g2[1].toFixed(1)}" stroke="${C.handle}" stroke-width="3.6" stroke-linecap="round"/>`;
-      } else {
-        [0.18,0.5,0.82].forEach(f=>{const hh=S(dx+0.06,D,dh*f);svg+=`<rect x="${(hh[0]-2).toFixed(1)}" y="${(hh[1]-4).toFixed(1)}" width="4" height="8" rx="1" fill="${C.hinge}"/>`;});
-        const gh=S(dx+dw-0.12,D,dh*0.48);
-        svg+=`<rect x="${(gh[0]-3).toFixed(1)}" y="${(gh[1]-7).toFixed(1)}" width="6" height="14" rx="1.5" fill="${C.handle}"/>`;
-      }
-    }
-    drawDoor(lenA/2, rA.door&&rA.door.w, rA.door&&rA.door.h, lenA, rA.door&&rA.door.type);
-    drawDoor(lenA+lenB/2, rB.door&&rB.door.w, rB.door&&rB.door.h, lenB, rB.door&&rB.door.type);
+    // Zwei Türen auf der Frontwand (je Raum), Anschlag links/rechts, Schiebe-Auslauf bleibt im Raumabschnitt
+    const ptFront = (u,z) => S(u, D, z);
+    if (rA.door && rA.door.w) svg += doorLeaf(ptFront, W, H, rA.door, C, { center: lenA/2, min: 0, max: lenA });
+    if (rB.door && rB.door.w) svg += doorLeaf(ptFront, W, H, rB.door, C, { center: lenA + lenB/2, min: lenA, max: lenA + lenB });
 
     // Maße
     const lbl=(p,dx,dy,txt,anchor)=>`<text x="${(p[0]+dx).toFixed(1)}" y="${(p[1]+dy).toFixed(1)}" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="${C.dim}" text-anchor="${anchor}">${esc(txt)}</text>`;
