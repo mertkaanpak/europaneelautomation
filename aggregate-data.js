@@ -14,8 +14,8 @@
      Die Werte in "volume" sind die vom Hersteller empfohlenen Raumvolumina
      bei genau diesen Bedingungen (aus den Katalogen 2025 entnommen).
 
-   PREISE (Stand 2025):
-     • Govi:    45 %    Rabatt  +30 % Aufschlag  + 150 € Lieferpauschale
+   PREISE (Stand 11/2026, Govi-Preisliste 2027):
+     • Govi:    38 %    Rabatt  +30 % Aufschlag  + 150 € Lieferpauschale  (Govi-Preisliste 2027, Rabatt ab Lieferung 01.01.2027; Tool rechnet seit 12.11.2026 damit)
      • Zanotti: 49,563 % Rabatt  +30 % Aufschlag  (keine Lieferpauschale)
    ════════════════════════════════════════════════════════════════════════ */
 (function (global) {
@@ -23,7 +23,7 @@
 
   /* ── Preis-Parameter je Hersteller ────────────────────────────────────── */
   const PRICING = {
-    Govi:    { discount: 0.45,    margin: 0.30, deliveryFee: 150, deliveryLabel: "Govi Lieferpauschale" },
+    Govi:    { discount: 0.38,    margin: 0.30, deliveryFee: 150, deliveryLabel: "Govi Lieferpauschale" },
     Zanotti: { discount: 0.49563, margin: 0.30, deliveryFee: 0,   deliveryLabel: "" }
   };
 
@@ -64,29 +64,30 @@
      ════════════════════════════════════════════════════════════════════════ */
   const AGGREGATES = [
     /* ─── GOVI POLARIK — WAND — NORMALKÜHLUNG (0 °C) ─────────────────────── */
-    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 10WN1", volume:10, listPrice:1980, voltage:"230V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 13WN1", volume:13, listPrice:2350, voltage:"230V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 18WN2", volume:18, listPrice:3030, voltage:"230V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 31WN2", volume:31, listPrice:3240, voltage:"400V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 39WN3", volume:39, listPrice:4000, voltage:"400V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 47WN3", volume:47, listPrice:4150, voltage:"400V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 56WN3", volume:56, listPrice:4300, voltage:"400V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 5WN1", volume:5, listPrice:2030, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 10WN1", volume:10, listPrice:2110, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 13WN1", volume:13, listPrice:2505, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 18WN2", volume:18, listPrice:3330, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 31WN2", volume:31, listPrice:3450, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 39WN3", volume:39, listPrice:4265, voltage:"400V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 47WN3", volume:47, listPrice:4425, voltage:"400V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"normal", model:"Polarik 56WN3", volume:56, listPrice:4585, voltage:"400V/50Hz" },
 
     /* ─── GOVI POLARIK — WAND — TIEFKÜHLUNG (−20 °C) ─────────────────────── */
-    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 8WL1",  volume:8,  listPrice:2220, voltage:"230V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 12WL2", volume:12, listPrice:3100, voltage:"230V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 23WL2", volume:23, listPrice:3740, voltage:"400V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 26WL3", volume:26, listPrice:4500, voltage:"400V/50Hz" },
-    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 35WL3", volume:35, listPrice:4650, voltage:"400V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 8WL1",  volume:8,  listPrice:2365, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 12WL2", volume:12, listPrice:3305, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 23WL2", volume:23, listPrice:3985, voltage:"400V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 26WL3", volume:26, listPrice:4800, voltage:"400V/50Hz" },
+    { manufacturer:"Govi", mount:"Wand", cooling:"tief", model:"Polarik 35WL3", volume:35, listPrice:4790, voltage:"400V/50Hz" },
 
-    /* ─── GOVI POLARIK — DECKE — NORMALKÜHLUNG (0 °C) — Preisliste 10/2025 ─ */
-    { manufacturer:"Govi", mount:"Decke", cooling:"normal", model:"Polarik 7TN1",  volume:10, listPrice:2980, voltage:"230V/50Hz" },
-    { manufacturer:"Govi", mount:"Decke", cooling:"normal", model:"Polarik 15TN2", volume:15, listPrice:3325, voltage:"230V/50Hz" },
-    { manufacturer:"Govi", mount:"Decke", cooling:"normal", model:"Polarik 20TN2", volume:20, listPrice:4480, voltage:"400V/50Hz" },
+    /* ─── GOVI POLARIK — DECKE — NORMALKÜHLUNG (0 °C) — Preisliste 2027 ─ */
+    { manufacturer:"Govi", mount:"Decke", cooling:"normal", model:"Polarik 10TN1", volume:10, listPrice:3340, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Decke", cooling:"normal", model:"Polarik 20TN2", volume:20, listPrice:3720, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Decke", cooling:"normal", model:"Polarik 25TN2", volume:25, listPrice:5010, voltage:"230V/50Hz" },
 
-    /* ─── GOVI POLARIK — DECKE — TIEFKÜHLUNG (−20 °C) — Preisliste 10/2025 ─ */
-    { manufacturer:"Govi", mount:"Decke", cooling:"tief", model:"Polarik 5TL1",  volume:4,  listPrice:2875, voltage:"230V/50Hz" },
-    { manufacturer:"Govi", mount:"Decke", cooling:"tief", model:"Polarik 10TL2", volume:12, listPrice:5035, voltage:"400V/50Hz" },
+    /* ─── GOVI POLARIK — DECKE — TIEFKÜHLUNG (−20 °C) — Preisliste 2027 ─ */
+    { manufacturer:"Govi", mount:"Decke", cooling:"tief", model:"Polarik 6TL1", volume:6, listPrice:3160, voltage:"230V/50Hz" },
+    { manufacturer:"Govi", mount:"Decke", cooling:"tief", model:"Polarik 15TL2", volume:15, listPrice:5530, voltage:"400V/50Hz" },
 
     /* ─── ZANOTTI — WAND (PS) — NORMALKÜHLUNG (MPS, 0 °C) ────────────────── */
     { manufacturer:"Zanotti", mount:"Wand", cooling:"normal", model:"MPS 1107YA11A", volume:7,    listPrice:2604, voltage:"230V/50Hz" },
